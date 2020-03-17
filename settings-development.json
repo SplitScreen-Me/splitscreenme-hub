@@ -1,0 +1,42 @@
+{
+  "public": {
+    "productName": "SplitScreen.Me",
+    "copyrightStartYear": "2019",
+    "twitterUsername": "splitscreen-me",
+    "facebookUsername": "splitscreen-me",
+    "githubProjectUrl": "https://github.com/splitscreen-me",
+    "productAddress": "https://www.splitscreen.me/"
+  },
+  "private": {
+    "IGDB_API_KEY": "",
+    "MAIL_URL": "",
+    "DISCORD_BOT_SECRET_TOKEN": "",
+    "OAuth": {
+      "facebook": {
+        "enabled": true,
+        "appId": "",
+        "secret": "",
+        "loginStyle": "popup"
+      },
+      "google": {
+        "enabled": true,
+        "clientId": "",
+        "secret": "",
+        "loginStyle": "popup"
+      },
+      "github": {
+        "enabled": true,
+        "clientId": "",
+        "secret": "",
+        "loginStyle": "popup"
+      },
+      "discord": {
+        "enabled": true,
+        "clientId": "",
+        "secret": "",
+        "loginStyle": "popup"
+      }
+    },
+    "supportEmail": "SplitScreen Me <hub@splitscreen.me>"
+  }
+}

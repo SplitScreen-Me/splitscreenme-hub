@@ -1,0 +1,27 @@
+@import "variables";
+
+
+@import "../node_modules/antd/lib/style/themes/default.less";
+
+.layout {
+  display: flex;
+  min-height: 100vh;
+
+  .header {
+
+  }
+
+  .content {
+    padding: 50px;
+    flex-grow: 1;
+
+    .inner-content {
+      background: @white;
+      padding: 24px;
+    }
+  }
+
+  .footer {
+    text-align: center;
+  }
+}

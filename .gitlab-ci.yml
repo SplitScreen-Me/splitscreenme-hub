@@ -1,0 +1,5 @@
+include:
+  - project: 'loginline-internal/lilops'
+    file: '/pipelines/meteor.yml'
+
+
