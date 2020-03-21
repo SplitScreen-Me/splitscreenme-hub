@@ -27,11 +27,10 @@ jobs:
         meteor-release: '1.8.1'
     - run: meteor npm install
     # Runs a single command using the runners shell
-    - name: Run a one-line script
-      run: echo Hello, world!
+    - name: Trying to build the entire application
+      run: meteor build ../build
 
     # Runs a set of commands using the runners shell
-    - name: Run a multi-line script
+    - name: Ls the content of built folder
       run: |
-        echo Add other actions to build,
-        echo test, and deploy your project.
+        ls -la ../build
