@@ -7,8 +7,6 @@ name: CI
 on:
   push:
     branches: [ master ]
-  pull_request:
-    branches: [ master ]
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -26,11 +24,16 @@ jobs:
       with:
         meteor-release: '1.8.1'
     - run: meteor npm install
-    # Runs a single command using the runners shell
-    - name: Trying to build the entire application
-      run: meteor build ../build
 
-    # Runs a set of commands using the runners shell
+    - name: Trying to build the entire application
+      run: meteor build ./output --directory
+
     - name: Ls the content of built folder
       run: |
-        ls -la ../build
+        ls -la ./output
+    - name: Publish to Registry
+      uses: elgohr/Publish-Docker-Github-Action@master
+      with:
+        name: splitscreenmehub/hub
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
