@@ -5,6 +5,7 @@ import { MongoInternals } from 'meteor/mongo';
 import JSZip from 'jszip';
 import fs from 'fs';
 import prettier from "prettier/standalone";
+import parserBabel from "prettier/parser-babylon";
 import handleMethodException from '../../../modules/handle-method-exception';
 import Handlers from '../../Handlers/Handlers';
 
@@ -61,6 +62,8 @@ const Packages = new FilesCollection({
                 tabWidth: 2,
                 trailingComma: 'none',
                 useTabs: false,
+                parser: 'babel',
+                plugins: [parserBabel]
               });
               data = data.replace(/^Hub\.Handler\.Version.*\R?/gim, '');
               data = data.replace(/^Hub\.Maintainer\.Id.*\R?/gim, '');
@@ -93,6 +96,8 @@ const Packages = new FilesCollection({
                 tabWidth: 2,
                 trailingComma: 'none',
                 useTabs: false,
+                parser: 'babel',
+                plugins: [parserBabel]
               });
               zip.file('handler.js', data);
 

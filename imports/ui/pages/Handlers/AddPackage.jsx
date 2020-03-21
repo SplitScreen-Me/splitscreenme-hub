@@ -1,6 +1,6 @@
 import React from 'react';
 import { Upload, Button, Icon, message, Form, notification, Input, Steps } from 'antd';
-import {Packages} from '../../../api/Packages/Packages';
+import Packages from '../../../api/Packages/Packages';
 import { withRouter } from 'react-router';
 
 const { Step } = Steps;

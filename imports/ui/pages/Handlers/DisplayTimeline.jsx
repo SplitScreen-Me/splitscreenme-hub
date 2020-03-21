@@ -1,7 +1,7 @@
 import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { Spin, Timeline, Row, Col, Typography, Tooltip } from 'antd';
-import {Packages} from "../../../api/Packages/Packages";
+import Packages from "../../../api/Packages/Packages";
 import Moment from 'react-moment';
 
 const { Text } = Typography;

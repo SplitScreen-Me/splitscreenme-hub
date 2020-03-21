@@ -34,9 +34,9 @@ function AppMenu(props) {
         Create
         <Link to="/my-handlers" />
       </Menu.Item>
-      <Menu.Item key="/yolo">
-        FAQ
-        <Link to="/yolo" />
+      <Menu.Item key="/docs">
+        Docs
+        <a href="https://www.splitscreen.me/docs/create-handlers" />
       </Menu.Item>
       {props.loggedIn ? (
         <Menu.SubMenu

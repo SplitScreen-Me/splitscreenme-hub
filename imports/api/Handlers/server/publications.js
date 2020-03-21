@@ -19,7 +19,7 @@ Meteor.publish(
       },
       {
         sort: sortObject,
-        limit: 150,
+        limit: 500,
       },
     );
   },

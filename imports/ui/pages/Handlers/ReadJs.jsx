@@ -3,7 +3,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import { Col, Row, Spin } from 'antd';
 import { Redirect } from 'react-router';
 import LoginForm from '../Login/LoginForm';
-import {Packages} from "../../../api/Packages/Packages";
+import Packages from "../../../api/Packages/Packages";
 import SyntaxHighlighter from 'react-syntax-highlighter';
 
 function ReadJs(props) {
