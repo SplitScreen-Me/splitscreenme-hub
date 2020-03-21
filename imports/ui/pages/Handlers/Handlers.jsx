@@ -189,7 +189,7 @@ export default withTracker(() => {
       {},
       {
         sort: sortObject,
-        limit: 150,
+        limit: 500,
       },
     ).fetch(),
   };
