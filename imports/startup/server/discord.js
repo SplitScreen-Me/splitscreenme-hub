@@ -1,6 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import Handlers from '../../api/Handlers/Handlers';
-import Discord from 'discord.js';
+const bound = Meteor.bindEnvironment((callback) => {callback();});
+const Discord = eval('require')('discord.js');
 
 const DiscordInit = () => {
 
@@ -14,13 +15,19 @@ DiscordBot.on('ready', async () => {
   console.log(
     `Bot has started, with ${DiscordBot.users.size} users, in ${DiscordBot.channels.size} channels of ${DiscordBot.guilds.size} guilds.`,
   );
+try {
 
   const totalHandlers = await Handlers.find({}).count();
+  console.log("fetched");
   await DiscordBot.user.setActivity('Hosting ' + totalHandlers + ' handlers!');
+  console.log("Count set");
   Meteor.setInterval(async () => {
     const totalHandlers = await Handlers.find({}).count();
     await DiscordBot.user.setActivity('Hosting ' + totalHandlers + ' handlers!');
   }, 10000);
+}catch(e){
+  console.log("error", e)
+}
 });
 DiscordBot.on('guildCreate', guild => {
   // This event triggers when the bot joins a guild.
@@ -151,4 +158,4 @@ async function handlerCommand(argume, receivedMessage) {
   }
 }
 };
-export default DiscordInit;
+bound(() => {DiscordInit()});

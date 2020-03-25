@@ -16,14 +16,15 @@ const igdbApi = axios.create({
   },
 });
 Meteor.methods({
-  'handlers.seekGame': function handlersSeekGame(gameName) {
+  'handlers.seekGame': function handlersSeekGame(gameName, searchFilter = true) {
     check(gameName, Match.OneOf(String, undefined));
+    check(searchFilter, Match.Maybe(Boolean, null));
     return igdbApi
       .post(
         'games',
         'fields *, cover.*; search "' +
           gameName.replace(/"/g, '\\"') +
-          '";where platforms = (6);limit 15;',
+          '";' + ((searchFilter === true) || (typeof searchFilter === "object") ? 'where platforms = (6);' : '') + 'limit 15;',
       )
       .then(
         response => {

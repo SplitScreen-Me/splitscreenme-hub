@@ -9,8 +9,8 @@ import {
   Spin,
   Icon,
   Modal,
-  notification,
-} from 'antd';
+  notification, Checkbox
+} from "antd";
 import { Result, Button } from 'antd';
 import { withTracker } from 'meteor/react-meteor-data';
 import HandlersCollection from '../../../api/Handlers/Handlers';
@@ -37,9 +37,10 @@ function CreateHandler(props) {
   const { getFieldDecorator } = props.form;
   const check = () => {
     props.form.validateFields((err, values) => {
+      console.log(values)
       if (!err) {
         setIsLoading(true);
-        Meteor.call('handlers.seekGame', values.gameName, (error, result) => {
+        Meteor.call('handlers.seekGame', values.gameName, values.searchFilter, (error, result) => {
           console.log(result);
           gameSearch.set(result);
           setIsLoading(false);
@@ -109,9 +110,12 @@ function CreateHandler(props) {
                   ],
                 })(<Input placeholder="What game will you create a handler for ?" />)}
               </Form.Item>
+              <Form.Item {...formItemLayout} label="Filter PC plateform only">
+                {getFieldDecorator('searchFilter')(<Checkbox  name="searchFilter" valuePropName="checked" defaultChecked />)}
+              </Form.Item>
               <Form.Item {...formTailLayout}>
                 <Button type="primary" onClick={check}>
-                  Search
+                  Search games
                 </Button>
               </Form.Item>
             </div>

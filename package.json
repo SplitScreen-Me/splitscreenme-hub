@@ -14,7 +14,7 @@
     "antd": "^3.26.3",
     "axios": "^0.19.0",
     "bcrypt": "^3.0.6",
-    "discord.js": "^12.0.2",
+    "discord.js": "^11.6.3",
     "gridfs-stream": "^1.1.1",
     "handlebars": "^4.7.3",
     "indexof": "0.0.1",

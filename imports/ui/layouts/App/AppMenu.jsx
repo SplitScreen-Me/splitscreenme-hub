@@ -31,7 +31,7 @@ function AppMenu(props) {
         <Link to="/" />
       </Menu.Item>
       <Menu.Item key="/my-handlers">
-        Create
+        My Handlers
         <Link to="/my-handlers" />
       </Menu.Item>
       <Menu.Item key="/docs">

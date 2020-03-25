@@ -79,10 +79,7 @@ const serverConfig = {
   devServer: {
     hot: true,
   },
-  externals: [meteorExternals(), {'discord.js': {
-      commonjs: 'discord.js',
-      amd: 'discord.js',
-    }}],
+  externals: [meteorExternals()],
 };
 
 module.exports = [clientConfig, serverConfig];
