@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { List, Avatar, Icon, Tabs, PageHeader, Alert, Typography, Divider, Descriptions, Card } from "antd";
+import { List, Avatar, Icon, Tabs, PageHeader, Alert, Typography, Divider, Descriptions, Card, Spin } from "antd";
 import { Result, Button } from 'antd';
 import { withTracker } from 'meteor/react-meteor-data';
 import HandlersCollection from '../../../api/Handlers/Handlers';
@@ -20,23 +20,27 @@ const { Meta } = Card;
 function UserHandlers(props) {
   return (
     <div>
+      <Spin spinning={props.loading}>
         <PageHeader
-          title={`${props.userProfile.profile.username}`}
+          title={`${props.loading ? 'Loading...' : props.userProfile.profile.username}`}
           subTitle="'s public profile"
         >
           <div className="content">
             <div className="main">
               <Descriptions title="Stats & informations">
-                <Descriptions.Item label="Published handlers count">{props.handlers.length}</Descriptions.Item>
-                <Descriptions.Item label="Published handlers hotness">{props.handlers.reduce((total, current) => total + current.stars, 0)}</Descriptions.Item>
-                <Descriptions.Item label="Published handlers downloads">{props.handlers.reduce((total, current) => total + current.downloadCount, 0)}</Descriptions.Item>
+                <Descriptions.Item label="Published handlers count">{props.loading ? 0 : props.handlers.length}</Descriptions.Item>
+                <Descriptions.Item
+                  label="Published handlers hotness">{props.loading ? 0 : props.handlers.reduce((total, current) => total + current.stars, 0)}</Descriptions.Item>
+                <Descriptions.Item
+                  label="Published handlers downloads">{props.loading ? 0 : props.handlers.reduce((total, current) => total + current.downloadCount, 0)}</Descriptions.Item>
               </Descriptions>
-              <Divider />
-              <Descriptions title="Contributions" />
+              <Divider/>
+              <Descriptions title="Contributions"/>
               <List
                 size="small"
                 pagination={{
-                  onChange: page => {},
+                  onChange: page => {
+                  },
                   pageSize: 5,
                 }}
                 dataSource={props.handlers}
@@ -49,9 +53,7 @@ function UserHandlers(props) {
                   <List.Item
                     key={item._id}
 
-                    actions={[
-
-                    ]}
+                    actions={[]}
                     extra={
                       <Link to={`/handler/${item._id}`}>
                         <Button type="primary">View handler</Button>
@@ -63,7 +65,7 @@ function UserHandlers(props) {
                         <div>
                           <img
                             height={130}
-                            style={{float:'left'}}
+                            style={{ float: 'left' }}
                             alt="logo"
                             src={
                               item.gameCover !== 'no_cover'
@@ -71,14 +73,14 @@ function UserHandlers(props) {
                                 : '/no_image.jpg'
                             }
                           />
-                          <div style={{marginLeft:'145px'}}>
-                          <Link to={`/handler/${item._id}`}>{item.title}</Link>{' '}<br />
-                          <Text type="secondary" style={{ fontSize: '12px' }}>
-                            {item.gameName}
-                          </Text><br />
-                          <span>
+                          <div style={{ marginLeft: '145px' }}>
+                            <Link to={`/handler/${item._id}`}>{item.title}</Link>{' '}<br/>
+                            <Text type="secondary" style={{ fontSize: '12px' }}>
+                              {item.gameName}
+                            </Text><br/>
+                            <span>
                           Last update <Moment format="YYYY-MM-DD HH:mm">{item.updatedAt}</Moment>
-                        </span><br /><br />
+                        </span><br/><br/>
                             <IconText
                               type="fire"
                               text={counterFormatter(item.stars)}
@@ -88,14 +90,14 @@ function UserHandlers(props) {
                               type="download"
                               text={counterFormatter(item.downloadCount)}
                               key="list-vertical-download"
-                              style={{marginLeft:'25px'}}
+                              style={{ marginLeft: '25px' }}
 
                             />
                             <IconText
                               type="message"
                               text={counterFormatter(item.commentCount)}
                               key="list-vertical-message"
-                              style={{marginLeft:'25px'}}
+                              style={{ marginLeft: '25px' }}
                             />
                           </div>
                         </div>
@@ -108,6 +110,7 @@ function UserHandlers(props) {
             </div>
           </div>
         </PageHeader>
+      </Spin>
     </div>
   );
 }
