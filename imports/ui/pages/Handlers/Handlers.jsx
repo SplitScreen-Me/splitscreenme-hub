@@ -162,6 +162,9 @@ function Handlers(props) {
                   <Link to={`/handler/${item._id}`}>
                     <IconText type="download" text={item.downloadCount} key="view" />
                   </Link>,
+                  <Link to={`/handler/${item._id}`}>
+                    <IconText type="message" text={item.commentCount} key="comCount" />
+                  </Link>,
                 ]}
               >
                 <Meta
