@@ -11,6 +11,7 @@ const { Meta } = Card;
 let avatars = new Avatars(sprites({}));
 
 const currentSearch = new ReactiveVar('');
+const currentOrder = new ReactiveVar('down');
 const currentSearchOption = new ReactiveVar('hot');
 
 const { Title, Paragraph, Text } = Typography;
@@ -41,7 +42,16 @@ function Handlers(props) {
   };
   const onSortTypeChange = value => {
     setPagination(1);
+
     currentSearchOption.set(value.target.value);
+  };
+
+  const onSortOrderChange = value => {
+    if(props.currentSearchOption === value.target.value){
+      currentOrder.set(props.currentOrder === "down" ? "up" : "down");
+    }else{
+      currentOrder.set("down");
+    }
   };
 
   const star = handlerId => {
@@ -67,9 +77,9 @@ function Handlers(props) {
         value={currentSearchOption.get()}
         onChange={onSortTypeChange}
       >
-        <Radio.Button value="hot">Hottest</Radio.Button>
-        <Radio.Button value="download">Most downloaded</Radio.Button>
-        <Radio.Button value="latest">New releases</Radio.Button>
+        <Radio.Button onClick={onSortOrderChange} value="hot">{props.currentSearchOption === "hot" && <Icon type={props.currentOrder} />} Hottest</Radio.Button>
+        <Radio.Button onClick={onSortOrderChange} value="download">{props.currentSearchOption === "download" && <Icon type={props.currentOrder} />} Downloads</Radio.Button>
+        <Radio.Button onClick={onSortOrderChange} value="latest">{props.currentSearchOption === "latest" && <Icon type={props.currentOrder} />} Release date</Radio.Button>
       </Radio.Group>
       <br />
       <Divider />
@@ -173,18 +183,22 @@ function Handlers(props) {
   );
 }
 export default withTracker(() => {
-  const subscription = Meteor.subscribe('handlers', currentSearch.get(), currentSearchOption.get());
+  const reactiveCurrentOrder = currentOrder.get();
+  const subscription = Meteor.subscribe('handlers', currentSearch.get(), currentSearchOption.get(), reactiveCurrentOrder);
   const user = Meteor.user();
-  let sortObject = { stars: -1 };
+
+  let sortObject = { stars: reactiveCurrentOrder === "up" ? 1 : -1 };
   if (currentSearchOption.get() === 'download') {
-    sortObject = { downloadCount: -1 };
+    sortObject = { downloadCount: reactiveCurrentOrder === "up" ? 1 : -1 };
   }
   if (currentSearchOption.get() === 'latest') {
-    sortObject = { createdAt: -1 };
+    sortObject = { createdAt: reactiveCurrentOrder === "up" ? 1 : -1 };
   }
   return {
     loading: !subscription.ready(),
     user,
+    currentSearchOption: currentSearchOption.get(),
+    currentOrder: reactiveCurrentOrder,
     handlers: HandlersCollection.find(
       {},
       {

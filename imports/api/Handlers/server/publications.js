@@ -4,13 +4,13 @@ import Handlers from '../Handlers';
 
 Meteor.publish(
   'handlers',
-  function handlers(handlerTitleSearch = '', handlerOptionSearch = 'hot') {
-    let sortObject = { stars: -1 };
+  function handlers(handlerTitleSearch = '', handlerOptionSearch = 'hot', handlerSortOrder = 'down') {
+    let sortObject = { stars: handlerSortOrder === "up" ? 1 : -1 };
     if (handlerOptionSearch === 'download') {
-      sortObject = { downloadCount: -1 };
+      sortObject = { downloadCount:  handlerSortOrder === "up" ? 1 : -1 };
     }
     if (handlerOptionSearch === 'latest') {
-      sortObject = { createdAt: -1 };
+      sortObject = { createdAt:  handlerSortOrder === "up" ? 1 : -1 };
     }
     return Handlers.find(
       {
