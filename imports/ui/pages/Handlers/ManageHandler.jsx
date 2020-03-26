@@ -1,9 +1,10 @@
 import React from 'react';
 import { Accounts } from 'meteor/accounts-base';
-import { Form, Icon, Input, Button, notification, Checkbox } from 'antd';
+import { Form, Icon, Input, Button, notification, Checkbox, Popconfirm, Divider } from "antd";
 import { withRouter } from 'react-router';
 const FormItem = Form.Item;
 const { TextArea } = Input;
+
 class ManageHandler extends React.Component {
   handleSubmit = e => {
     e.preventDefault();
@@ -38,6 +39,7 @@ class ManageHandler extends React.Component {
   render() {
     const { getFieldDecorator } = this.props.form;
     return (
+      <React.Fragment>
       <Form onSubmit={this.handleSubmit} className="login-form">
         <h4>Your handler name</h4>
         <FormItem>
@@ -75,6 +77,34 @@ class ManageHandler extends React.Component {
           </Button>
         </FormItem>
       </Form>
+        <Divider />
+        <h4>Dangerous operations</h4>
+        Removing a handler will permanently delete the associated packages, comments, and everything related to the handler.<br /><br />
+        <Popconfirm
+          title="Are you sure ?"
+          onConfirm={() => {
+            Meteor.call(
+              'handlers.remove',
+                this.props.handlerId,
+              (error, result) => {
+                if (error) {
+                  return notification.error(error);
+                }else{
+                  this.props.history.push('/my-handlers');
+                  return notification.success({
+                    message: 'Handler removed',
+                    description: 'The handler has been permanently removed.',
+                  });
+                }
+              },
+            );
+          }}
+          icon={<Icon type="question-circle-o" style={{ color: 'red' }} />}
+        >
+          <Button type="danger">Delete Handler</Button>
+        </Popconfirm>
+
+        </React.Fragment>
     );
   }
 }

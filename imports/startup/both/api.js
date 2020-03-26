@@ -1,2 +1,2 @@
-import '../../api/Handlers/methods';
+import '../../api/Handlers/server/methods';
 import '../../api/Comments/methods';

@@ -2,9 +2,11 @@
 
 import { Meteor } from 'meteor/meteor';
 import { check, Match } from 'meteor/check';
-import Handlers from './Handlers';
-import handleMethodException from '../../modules/handle-method-exception';
-import rateLimit from '../../modules/rate-limit';
+import Handlers from '../Handlers';
+import Comments from '../../Comments/Comments';
+import Packages from '../../Packages/server/ServerPackages';
+import handleMethodException from '../../../modules/handle-method-exception';
+import rateLimit from '../../../modules/rate-limit';
 
 Meteor.methods({
   'handlers.findOne': function handlersFindOne(handlerId) {
@@ -123,6 +125,8 @@ Meteor.methods({
       const docToRemove = Handlers.findOne(handlerId, { fields: { owner: 1 } });
 
       if (docToRemove.owner === this.userId) {
+        Packages.remove({'meta.handlerId': handlerId});
+        Comments.remove({'handlerId': handlerId});
         return Handlers.remove(handlerId);
       }
 
