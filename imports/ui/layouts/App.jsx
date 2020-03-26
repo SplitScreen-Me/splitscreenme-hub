@@ -23,6 +23,7 @@ import CreateHandler from '../pages/MyHandlers/CreateHandler';
 import VerifyEmail from '../pages/VerifyEmail/VerifyEmail';
 import NotFound from '../pages/Common/NotFound';
 import LoginModal from '../pages/Login/LoginModal';
+import UserHandlers from "../pages/Users/UserHandlers";
 
 const { Header, Footer, Sider, Content } = Layout;
 Session.setDefault('loginModal', false);
@@ -94,6 +95,7 @@ function App(props) {
                 <Route path="/reset-password" exact component={ResetPassword} />
                 <Route path="/verify-email/:token" exact component={VerifyEmail} />
                 <Route path="/handler/:id" exact component={Handler} />
+                <Route path="/user/:id" exact component={UserHandlers} />
                 <Route exact path="/logout" render={() => <Redirect to="/" />} />
                 <Route component={NotFound} />
               </Switch>

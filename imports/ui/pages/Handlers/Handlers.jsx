@@ -175,7 +175,14 @@ function Handlers(props) {
                       <Link to={`/handler/${item._id}`}>{item.gameName}</Link>
                     </div>
                   }
-                  description={item.title}
+                  description={<div style={{paddingTop:'10px'}}><div style={{float:'left'}}>
+                    {item.title}
+                  </div>
+                    <div style={{float:'right'}}>
+                  <Link to={`/user/${item.owner}`}>
+                    <IconText type="user" text={item.ownerName} key="creator" />
+                  </Link>
+                    </div></div>}
                 />
               </Card>
             </List.Item>

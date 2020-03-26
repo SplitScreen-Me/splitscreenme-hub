@@ -126,7 +126,7 @@ function Handler(props) {
                   key="list-vertical-message"
                 />
                 <div style={{ width: '25px', display: 'inline-block' }}> </div>
-                <IconText type="user" text={handler.ownerName} key="list-vertical-like-o" />
+                <Link to={`/user/${handler.owner}`}><IconText type="user" text={handler.ownerName} key="list-vertical-like-o" /></Link>
               </div>
               <Content
                 extraContent={

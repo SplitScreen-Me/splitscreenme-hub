@@ -37,6 +37,14 @@ Meteor.publish('handlers.mine', function handlersMine() {
     },
   );
 });
+Meteor.publish('handlers.user', function handlersUser(userId) {
+  return Handlers.find(
+    { owner: userId, private: false },
+    {
+      sort: { createdAt: -1 },
+    },
+  );
+});
 
 // Note: documents.view is also used when editing an existing document.
 Meteor.publish(
