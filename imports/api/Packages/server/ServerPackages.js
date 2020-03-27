@@ -131,11 +131,12 @@ const Packages = new FilesCollection({
                       $set: {
                         [property]: file._id.toString(),
                         'meta.jsContent': data,
-                        handlerVersion: newVersion,
-                        ownerId: this.userId,
-                        releaseDate: new Date(),
+                        'meta.handlerVersion': newVersion,
+                        'meta.ownerId': uploadUser._id,
+                        'meta.releaseDate': new Date(),
                       },
                     });
+
                     this.unlink(this.collection.findOne(pkg._id), versionName); // Unlink files from FS
                   }),
                 );

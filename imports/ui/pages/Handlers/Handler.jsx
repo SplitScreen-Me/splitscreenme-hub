@@ -145,6 +145,8 @@ function Handler(props) {
                     <ReactMarkdown source={handler.description} />
                   </Paragraph>
                   <Row className="contentLink" type="flex">
+                    {handler.currentVersion > 0 && (
+                      <React.Fragment>
                     <a
                       style={{
                         marginRight: 16,
@@ -162,7 +164,7 @@ function Handler(props) {
                       target="_parent"
                     >
                       <Button type="primary" ghost icon="download">
-                        Download Handler
+                        Download Handler {handler.currentVersion > 1 && `(v${handler.currentVersion})`}
                       </Button>
                     </a>
                     <div
@@ -205,6 +207,8 @@ function Handler(props) {
                         </Link>
                       )}
                     </div>
+                      </React.Fragment>
+                      )}
                     <a
                       style={{
                         marginRight: 16,

@@ -15,22 +15,22 @@ function DisplayTimeline(props) {
           <Timeline>
             {props.releases.map((release, index) => (
               <Timeline.Item key={release._id}>
-                {release.handlerVersion}. {release.meta.releaseDescription} <br />
+                {release.handlerVersion || release.meta.handlerVersion}. {release.meta.releaseDescription} <br />
                 <Text style={{ fontSize: '12px' }} type="secondary">
                   {' '}
                   Released{' '}
-                  <Tooltip title={<Moment format="YYYY-MM-DD HH:mm">{release.releaseDate}</Moment>}>
-                    <Moment fromNow>{release.releaseDate}</Moment>
+                  <Tooltip title={<Moment format="YYYY-MM-DD HH:mm">{release.releaseDate || release.meta.releaseDate}</Moment>}>
+                    <Moment fromNow>{release.releaseDate || release.meta.releaseDate}</Moment>
                   </Tooltip>{' '}
                   |{' '}
                   <a
                     href={`/cdn/storage/packages/${
                       release._id
                     }/original/handler-${props.handlerId.toLowerCase()}-v${
-                      release.handlerVersion
+                      release.handlerVersion || release.meta.handlerVersion
                     }.nc?download=true`}
                     download={`handler-${props.handlerId.toLowerCase()}-v${
-                      release.handlerVersion
+                      release.handlerVersion || release.meta.handlerVersion
                     }.nc`}
                     target="_parent"
                   >
@@ -54,7 +54,7 @@ export default withTracker(props => {
       .find(
         {},
         {
-          sort: { handlerVersion: -1 },
+          sort: { handlerVersion: -1, 'meta.handlerVersion': -1 },
         },
       )
       .fetch(),
