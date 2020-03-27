@@ -17,3 +17,11 @@ Meteor.publish('users.getProfile', function getProfile(userId) {
     },
   });
 });
+Meteor.publish('users.searchProfile', function searchProfile(username) {
+  return Meteor.users.find({'profile.username':  { $regex: new RegExp(username), $options: 'i' }}, {
+    fields: {
+      profile: 1,
+    },
+    limit: 10,
+  });
+});

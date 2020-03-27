@@ -1,5 +1,18 @@
 import React, { useState } from 'react';
-import { List, Avatar, Icon, Tabs, PageHeader, Alert, Typography, Divider, Descriptions, Card, Spin } from "antd";
+import {
+  List,
+  Avatar,
+  Icon,
+  Tabs,
+  PageHeader,
+  Alert,
+  Typography,
+  Divider,
+  Descriptions,
+  Card,
+  Spin,
+  AutoComplete
+} from "antd";
 import { Result, Button } from 'antd';
 import { withTracker } from 'meteor/react-meteor-data';
 import HandlersCollection from '../../../api/Handlers/Handlers';
@@ -8,8 +21,8 @@ import Moment from 'react-moment';
 import counterFormatter from '../../../modules/counterFormatter';
 import { Session } from 'meteor/session';
 import { withRouter } from "react-router";
-const { Text } = Typography;
 const { TabPane } = Tabs;
+const { Title, Paragraph, Text } = Typography;
 const IconText = ({ type, text, ...rest }) => (
   <span {...rest}>
     <Icon type={type} style={{ marginRight: 8 }} />
@@ -17,11 +30,47 @@ const IconText = ({ type, text, ...rest }) => (
   </span>
 );
 const { Meta } = Card;
+const currentSearch = new ReactiveVar('');
 function UserHandlers(props) {
+  const [searched, setSearched] = useState([]);
+  const onSearch = () => {
+    setSearched([
+      ...new Set(
+        props.users.map(function(us) {
+          return {value: `userid:${us._id}`, text: us.profile.username};
+        }),
+      ),
+    ]);
+  };
+
+  const onChange = value => { // Weird trick...
+    if(value.split('userid:').length > 1){
+    props.history.push(value.split('userid:')[1]);
+      currentSearch.set("");
+    }else{
+    currentSearch.set(value);
+    }
+  };
+
+
   return (
     <div>
+      <Typography>
+        <Title>Contributors</Title>
+        <Paragraph>Search for contributors in our amazing community.</Paragraph>
+      </Typography>
+      <AutoComplete
+        style={{ width: 350 }}
+        value={currentSearch.get()}
+        dataSource={searched}
+        onSearch={onSearch}
+        onChange={onChange}
+        placeholder="Search for contributors"
+      />
+      <Divider />
       <Spin spinning={props.loading}>
         <PageHeader
+          onBack={() => window.history.back()}
           title={`${props.loading ? 'Loading...' : props.userProfile.profile.username}`}
           subTitle="'s public profile"
         >
@@ -117,6 +166,7 @@ function UserHandlers(props) {
 export default withRouter(withTracker((props) => {
   const subscription = Meteor.subscribe('handlers.user', props.match.params.id);
   const subscriptionUser = Meteor.subscribe('users.getProfile', props.match.params.id);
+  const subscriptionUserSearch = Meteor.subscribe('users.searchProfile', currentSearch.get());
   const user = Meteor.user();
   return {
     loading: !subscription.ready() || !subscriptionUser.ready(),
@@ -125,6 +175,12 @@ export default withRouter(withTracker((props) => {
       { owner: props.match.params.id },
       {
         sort: { createdAt: -1 },
+      },
+    ).fetch(),
+    users: Meteor.users.find(
+      {'profile.username':  { $regex: new RegExp(currentSearch.get()), $options: 'i' }},
+      {
+        limit: 10,
       },
     ).fetch(),
     userProfile: Meteor.users.findOne(props.match.params.id),
