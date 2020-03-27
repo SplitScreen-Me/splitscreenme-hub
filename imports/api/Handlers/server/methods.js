@@ -135,6 +135,20 @@ Meteor.methods({
       handleMethodException(exception);
     }
   },
+  'handlers.report': function handlersReport(handlerId) {
+    check(handlerId, String);
+
+    try {
+        const handler = Handlers.findOne(handlerId);
+        if(handler){
+        Handlers.update(handlerId, { $set: { reports: (handler.reports || 0) + 1 } });
+        }else{
+          throw new Meteor.Error('404', "Handler not found.");
+        }
+    } catch (exception) {
+      handleMethodException(exception);
+    }
+  },
 });
 
 rateLimit({

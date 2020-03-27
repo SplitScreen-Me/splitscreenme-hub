@@ -10,8 +10,9 @@ import {
   Tag,
   Result,
   Skeleton,
-  Col,
-} from 'antd';
+  Col, notification,
+  Modal
+} from "antd";
 import { Descriptions, Tabs } from 'antd';
 import { withTracker } from 'meteor/react-meteor-data';
 import HandlersCollection from '../../../api/Handlers/Handlers';
@@ -34,6 +35,7 @@ const IconText = ({ type, text, theme = 'outlined', color }) => (
   </span>
 );
 const { TabPane } = Tabs;
+const { confirm } = Modal;
 const IconLink = ({ src, text, href, target }) => (
   <a
     style={{
@@ -82,6 +84,34 @@ function Handler(props) {
   };
   const handler = props.handler[0] ? props.handler[0] : false;
   const isMaintainer = props.user && handler.owner === props.user._id;
+
+  const confirmReport = () => {
+
+    confirm({
+      title: 'Are you sure you want to report this handler?',
+      content: 'You can not report a handler because it does not work. Reasons for reporting a handler may include: virus, wrong content (obscene / nudity / ...), dangerous behavior, ...',
+      okText: 'Confirm report',
+      okType: 'danger',
+      cancelText: 'Cancel',
+      onOk() {
+        Meteor.call('handlers.report', handler._id, (err, res)=>{
+          if(err){
+            notification.error({ message: 'Error reporting handler', description: err.reason });
+          }else{
+          notification.success({
+            message: 'Handler reported',
+            description: `Thank you for submitting your report. We will review this handler soon.`,
+          });
+          }
+        })
+
+      },
+      onCancel() {
+
+      },
+    });
+  };
+
   return (
     <div>
       <Spin spinning={props.loading}>
@@ -110,7 +140,7 @@ function Handler(props) {
               extra={
                 <div>
                   {!isMaintainer && (
-                    <Button type="danger" key="1" ghost>
+                    <Button type="danger" key="1" ghost onClick={confirmReport}>
                       Report handler
                     </Button>
                   )}

@@ -136,6 +136,15 @@ Handlers.schema = new SimpleSchema({
     label: 'Current JS of the handler latest version.',
     required: false,
   },
+  reports: {
+    type: Number,
+    label: 'Number of reports on this handler.',
+    autoValue() {
+      if (this.isInsert) {
+        return 0;
+      }
+    },
+  },
 });
 
 Handlers.attachSchema(Handlers.schema);
