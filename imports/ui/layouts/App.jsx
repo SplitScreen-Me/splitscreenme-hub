@@ -96,6 +96,7 @@ function App(props) {
                 <Route path="/verify-email/:token" exact component={VerifyEmail} />
                 <Route path="/handler/:id" exact component={Handler} />
                 <Route path="/user/:id" exact component={UserHandlers} />
+                <Route path="/user" exact component={UserHandlers} />
                 <Route exact path="/logout" render={() => <Redirect to="/" />} />
                 <Route component={NotFound} />
               </Switch>

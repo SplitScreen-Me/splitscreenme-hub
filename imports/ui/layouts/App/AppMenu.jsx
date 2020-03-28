@@ -38,6 +38,7 @@ function AppMenu(props) {
         Docs
         <a href="https://www.splitscreen.me/docs/create-handlers" />
       </Menu.Item>
+
       {props.loggedIn ? (
         <Menu.SubMenu
           style={{ float: 'right' }}
@@ -69,6 +70,10 @@ function AppMenu(props) {
           </span>
         </Menu.Item>
       )}
+      <Menu.Item key="/user" style={{ float: 'right' }}>
+            Contributors
+        <Link to={`/user`} />
+      </Menu.Item>
     </Menu>
   );
 }

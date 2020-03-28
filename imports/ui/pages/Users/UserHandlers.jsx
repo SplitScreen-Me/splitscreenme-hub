@@ -45,7 +45,7 @@ function UserHandlers(props) {
 
   const onChange = value => { // Weird trick...
     if(value.split('userid:').length > 1){
-    props.history.push(value.split('userid:')[1]);
+    props.history.push(`/user/${value.split('userid:')[1]}`); // Really weird trick...
       currentSearch.set("");
     }else{
     currentSearch.set(value);
@@ -62,15 +62,16 @@ function UserHandlers(props) {
       <AutoComplete
         style={{ width: 350 }}
         value={currentSearch.get()}
-        dataSource={searched}
+        dataSource={currentSearch.get().length > 1 ? searched : []}
         onSearch={onSearch}
         onChange={onChange}
         placeholder="Search for contributors"
       />
       <Divider />
+      { props.match.params.id ? (
       <Spin spinning={props.loading}>
         <PageHeader
-          onBack={() => window.history.back()}
+          onBack={() => props.history.push('/user')}
           title={`${props.loading ? 'Loading...' : props.userProfile.profile.username}`}
           subTitle="'s public profile"
         >
@@ -159,7 +160,9 @@ function UserHandlers(props) {
             </div>
           </div>
         </PageHeader>
-      </Spin>
+      </Spin>) : (
+        <div>🍏 🍎 🍐 🍊 🍋 🍌 🍉  I don't know what to write or display here. <a href="https://github.com/SplitScreen-Me/splitscreenme-hub/issues/1" target="_blank">Please help</a>  🍇 🍓 🍈 🍒 🍑 🍍 🥭</div>
+        )}
     </div>
   );
 }
