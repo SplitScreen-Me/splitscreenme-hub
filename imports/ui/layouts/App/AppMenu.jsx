@@ -52,6 +52,10 @@ function AppMenu(props) {
             Settings
             <Link to="/settings" />
           </Menu.Item>
+          <Menu.Item key={`/user/${props.loggedIn._id}`}>
+            Public profile
+            <Link to={`/user/${props.loggedIn._id}`} />
+          </Menu.Item>
           <Menu.Item onClick={logout} key="/logout">
             Log out
             <Link to="/logout" />
