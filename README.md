@@ -19,6 +19,12 @@ url: "api/v1/handlers/:search_text",
 httpMethod: "get"
 ```
 
+Get all handlers (up to 500):
+```
+url: "api/v1/allhandlers",
+httpMethod: "get"
+```
+
 Specific handler infos:
 ```
 url: "api/v1/handler/:handler_id",

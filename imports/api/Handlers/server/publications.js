@@ -1,6 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import Handlers from '../Handlers';
+import escapeRegExp from "../../../modules/regexescaper";
 
 Meteor.publish(
   'handlers',
@@ -14,7 +15,7 @@ Meteor.publish(
     }
     return Handlers.find(
       {
-        gameName: { $regex: new RegExp(handlerTitleSearch), $options: 'i' },
+        gameName: { $regex: new RegExp(escapeRegExp(handlerTitleSearch)), $options: 'i' },
         private: false,
       },
       {
@@ -77,6 +78,25 @@ Meteor.publish(
   },
   {
     url: 'api/v1/handlerswebdisplay',
+    httpMethod: 'get',
+  },
+);
+
+Meteor.publish(
+  'handlers.full',
+  function handlersFull() {
+    return Handlers.find(
+      {
+        private: false,
+      },
+      {
+        sort: {stars: -1},
+        limit: 500,
+      },
+    );
+  },
+  {
+    url: 'api/v1/allhandlers',
     httpMethod: 'get',
   },
 );

@@ -21,6 +21,7 @@ import Moment from 'react-moment';
 import counterFormatter from '../../../modules/counterFormatter';
 import { Session } from 'meteor/session';
 import { withRouter } from "react-router";
+import escapeRegExp from "../../../modules/regexescaper";
 const { TabPane } = Tabs;
 const { Title, Paragraph, Text } = Typography;
 const IconText = ({ type, text, ...rest }) => (
@@ -181,7 +182,7 @@ export default withRouter(withTracker((props) => {
       },
     ).fetch(),
     users: Meteor.users.find(
-      {'profile.username':  { $regex: new RegExp(currentSearch.get()), $options: 'i' }},
+      {'profile.username':  { $regex: new RegExp(escapeRegExp(currentSearch.get())), $options: 'i' }},
       {
         limit: 10,
       },

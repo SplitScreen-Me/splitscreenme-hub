@@ -1,4 +1,5 @@
 import { Meteor } from 'meteor/meteor';
+import escapeRegExp from "../../../modules/regexescaper";
 
 Meteor.publish('users.editProfile', function usersProfile() {
   return Meteor.users.find(this.userId, {
@@ -18,7 +19,7 @@ Meteor.publish('users.getProfile', function getProfile(userId) {
   });
 });
 Meteor.publish('users.searchProfile', function searchProfile(username) {
-  return Meteor.users.find({'profile.username':  { $regex: new RegExp(username), $options: 'i' }}, {
+  return Meteor.users.find({'profile.username':  { $regex: new RegExp(escapeRegExp(username)), $options: 'i' }}, {
     fields: {
       profile: 1,
     },
