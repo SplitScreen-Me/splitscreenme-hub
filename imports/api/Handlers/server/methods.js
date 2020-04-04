@@ -8,7 +8,7 @@ import Comments from '../../Comments/Comments';
 import Packages from '../../Packages/server/ServerPackages';
 import handleMethodException from '../../../modules/handle-method-exception';
 import rateLimit from '../../../modules/rate-limit';
-import { d_aLog } from "../../../modules/server/discord-logging";
+import { d_aLog, d_rLog } from "../../../modules/server/discord-logging";
 
 Meteor.methods({
   'handlers.findOne': function handlersFindOne(handlerId) {
@@ -103,11 +103,15 @@ Meteor.methods({
         );
       }
       const handlerId = doc._id;
-      const docToUpdate = Handlers.findOne(handlerId, {
-        fields: { owner: 1, currentVersion: 1, title: 1, gameName: 1 },
-      });
+      const docToUpdate = Handlers.findOne(handlerId);
       if (!docToUpdate.currentVersion) {
         doc.private = true;
+      }
+
+      // Switching from private to public
+      if(doc.private === false && docToUpdate.private === true){
+        doc.lastPublicationAt = new Date();
+        if(!docToUpdate.lastPublicationAt) d_rLog(docToUpdate);
       }
 
       if (docToUpdate.owner === this.userId || Roles.userIsInRole(this.userId, "admin_enabled")) {

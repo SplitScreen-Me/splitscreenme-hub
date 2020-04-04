@@ -108,6 +108,11 @@ Handlers.schema = new SimpleSchema({
       }
     },
   },
+  lastPublicationAt: {
+    type: Date,
+    label: 'Last time this went public.',
+    required: false
+  },
   commentCount: {
     type: Number,
     label: 'The number of comments for the handler.',
