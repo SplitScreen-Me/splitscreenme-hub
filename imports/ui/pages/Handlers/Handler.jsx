@@ -125,6 +125,18 @@ function Handler(props) {
           }
         })
   };
+  const verifyHandler = () => {
+        Meteor.call('handlers.verify', handler._id, (err, res)=>{
+          if(err){
+            notification.error({ message: 'Error verifying', description: err.reason });
+          }else{
+          notification.success({
+            message: 'Handler verification',
+            description: `The verification status for the latest package of this handler has changed.`,
+          });
+          }
+     })
+  };
 
   return (
     <div>
@@ -140,20 +152,20 @@ function Handler(props) {
                     placement="topRight"
                     title="The latest release of this handler has been validated and is safe to use."
                   >
-                    <Tag color="green">Verified</Tag>
+                    <Tag color="green"><Icon type="safety-certificate"  theme="filled" style={{ marginRight: 4 }} /> Verified</Tag>
                   </Tooltip>
                 ) : (
                   <Tooltip
                     placement="bottomRight"
                     title="The latest release of this handler has not been verified. Check the FAQ for insight into the verification process."
                   >
-                    <Tag>Unverified</Tag>
+                    <Tag><Icon type="exclamation-circle"  style={{ marginRight: 4 }} /> Unverified</Tag>
                   </Tooltip>
                 )
               }
               extra={
                 <div>
-                  {!isMaintainer && (
+                  {!isMaintainer && !isAdmin && (
                     <Button type="danger" key="1" ghost onClick={confirmReport}>
                       Report handler
                     </Button>
@@ -161,6 +173,11 @@ function Handler(props) {
                   {isAdmin && (
                     <Button type="danger" key="2" ghost onClick={resetReport}>
                       Reset report count
+                    </Button>
+                  )}
+                  {isAdmin && handler.currentVersion > 0 && (
+                    <Button type="primary" key="3" ghost onClick={verifyHandler}>
+                      {handler.verified ? "Un-verify" : "Verify"}
                     </Button>
                   )}
                 </div>

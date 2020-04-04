@@ -166,10 +166,31 @@ Meteor.methods({
       handleMethodException(exception);
     }
   },
+  'handlers.verify': function handlersVerify(handlerId) {
+    check(handlerId, String);
+
+    if (!Roles.userIsInRole(this.userId, 'admin_enabled')) {
+      throw new Meteor.Error('403', 'Sorry, you need to be an administrator to do this.');
+    }
+
+    try {
+        const handler = Handlers.findOne(handlerId);
+        if(handler && handler.currentPackage){
+        Handlers.update(handlerId, { $set: { verified: !handler.verified } });
+          Packages.update(handler.currentPackage, {
+            $set: { 'meta.verified': !handler.verified },
+          });
+        }else{
+          throw new Meteor.Error('404', "Handler or package not found.");
+        }
+    } catch (exception) {
+      handleMethodException(exception);
+    }
+  },
 });
 
 rateLimit({
-  methods: ['handlers.insert', 'handlers.update', 'handlers.remove', 'handlers.resetReport'],
+  methods: ['handlers.insert', 'handlers.update', 'handlers.remove', 'handlers.resetReport', 'handlers.verify'],
   limit: 5,
   timeRange: 1000,
 });

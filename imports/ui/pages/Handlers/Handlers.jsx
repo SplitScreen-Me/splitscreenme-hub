@@ -136,6 +136,14 @@ function Handlers(props) {
                   </Link>
                 }
                 actions={[
+
+                    <Tooltip
+                      placement="bottomLeft"
+                      title={item.verified ? "The latest release of this handler has been validated and is safe to use." : "The latest release of this handler has not been verified. Check the FAQ for insight into the verification process."}
+                    >
+                    {item.verified ? <Icon type="safety-certificate" theme="twoTone" twoToneColor="#52c41a" /> : <Icon type="exclamation-circle" />}
+                    </Tooltip>
+                  ,
                   props.user ? (
                     <div onClick={() => star(item._id)}>
                       <IconText

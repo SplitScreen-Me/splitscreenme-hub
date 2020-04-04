@@ -142,7 +142,7 @@ const Packages = new FilesCollection({
                 );
               });
               Handlers.update(pkg.meta.handlerId, {
-                $set: { currentVersion: newVersion, currentPackage: pkg._id },
+                $set: { currentVersion: newVersion, currentPackage: pkg._id, verified: false },
               });
             });
         } catch (exception) {
