@@ -11,6 +11,7 @@
     "IGDB_API_KEY": "",
     "MAIL_URL": "",
     "DISCORD_BOT_SECRET_TOKEN": "",
+    "DISCORD_ADMIN_LOGGING_WEBHOOK": "",
     "OAuth": {
       "facebook": {
         "enabled": true,

@@ -1,5 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import { FilesCollection } from 'meteor/ostrio:files';
+import { Roles } from 'meteor/alanning:roles';
 import Grid from 'gridfs-stream';
 import { MongoInternals } from 'meteor/mongo';
 import JSZip from 'jszip';
@@ -8,6 +9,7 @@ import prettier from "prettier/standalone";
 import parserBabel from "prettier/parser-babylon";
 import handleMethodException from '../../../modules/handle-method-exception';
 import Handlers from '../../Handlers/Handlers';
+import { d_aLog } from "../../../modules/server/discord-logging";
 
 let gfs;
 if (Meteor.isServer) {
@@ -21,7 +23,7 @@ const Packages = new FilesCollection({
   onBeforeUpload(file) {
     const handler = Handlers.findOne(file.meta.handlerId);
     if (handler.owner !== this.userId) {
-      return "This handler doesn't belong to you";
+      if(!Roles.userIsInRole(this.userId, "admin_enabled")) return "This handler doesn't belong to you";
     }
     if (file.meta.releaseDescription.length < 2) {
       return 'Please provide a description for the release.';
@@ -144,6 +146,7 @@ const Packages = new FilesCollection({
               Handlers.update(pkg.meta.handlerId, {
                 $set: { currentVersion: newVersion, currentPackage: pkg._id, verified: false },
               });
+              d_aLog("Package publication", `${uploadUser.profile.username} published a new package for handler ${handler.title} ${handler.gameName} (${handler._id}).`);
             });
         } catch (exception) {
           this.remove(pkg._id);

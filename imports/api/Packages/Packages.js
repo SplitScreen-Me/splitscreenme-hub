@@ -10,7 +10,7 @@ const Packages = new FilesCollection({
   onBeforeUpload(file) {
     const handler = Handlers.findOne(file.meta.handlerId);
     if (handler.owner !== this.userId) {
-      return "This handler doesn't belong to you";
+      if(!Roles.userIsInRole(this.userId, "admin_enabled")) return "This handler doesn't belong to you";
     }
     if (file.meta.releaseDescription.length < 2) {
       return 'Please provide a description for the release.';
