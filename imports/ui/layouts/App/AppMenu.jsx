@@ -14,13 +14,22 @@ function AppMenu(props) {
   const signIn = () => {
     Session.set('loginModal', true);
   };
+
+  const turnAdmin = () => {
+    Meteor.call('users.adminEnable', (result, err)=>{
+      console.log("Administrator mode");
+    })
+  };
+  const isAdmin = props.loggedIn && Roles.userIsInRole(props.loggedIn._id, ['admin']);
+  const isAdminEnabled = props.loggedIn && Roles.userIsInRole(props.loggedIn._id, ['admin_enabled']);
+
   return (
     <Menu
       theme="dark"
       mode="horizontal"
       defaultSelectedKeys={[props.history.location.pathname]}
       selectedKeys={[props.history.location.pathname]}
-      style={{ lineHeight: '64px' }}
+      style={{ lineHeight: '64px', ...(isAdminEnabled && {backgroundColor:'#670000'})}}
     >
       <Menu.Item key="/splitscreenme">
         SplitScreen.Me
@@ -45,7 +54,7 @@ function AppMenu(props) {
           title={
             <span>
               <Icon type="setting" />
-              {props.loggedIn.profile.username}
+              {isAdminEnabled && "(admin) "}{props.loggedIn.profile.username}
             </span>
           }
         >
@@ -57,6 +66,9 @@ function AppMenu(props) {
             Public profile
             <Link to={`/user/${props.loggedIn._id}`} />
           </Menu.Item>
+          {isAdmin && <Menu.Item onClick={turnAdmin} key={`adminmodeonoff`}>
+            Turn {isAdminEnabled ? 'off' : 'on'} admin mode
+          </Menu.Item> }
           <Menu.Item onClick={logout} key="/logout">
             Log out
             <Link to="/logout" />

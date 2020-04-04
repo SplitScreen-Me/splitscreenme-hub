@@ -58,6 +58,8 @@ function Handlers(props) {
     Meteor.call('handlers.starring', handlerId);
   };
 
+  const isAdmin = props.user && Roles.userIsInRole(props.user._id, ['admin_enabled']);
+
   return (
     <div>
       <Typography>
@@ -80,6 +82,7 @@ function Handlers(props) {
         <Radio.Button onClick={onSortOrderChange} value="hot">{props.currentSearchOption === "hot" && <Icon type={props.currentOrder} />} Hottest</Radio.Button>
         <Radio.Button onClick={onSortOrderChange} value="download">{props.currentSearchOption === "download" && <Icon type={props.currentOrder} />} Downloads</Radio.Button>
         <Radio.Button onClick={onSortOrderChange} value="latest">{props.currentSearchOption === "latest" && <Icon type={props.currentOrder} />} Release date</Radio.Button>
+        {isAdmin && <Radio.Button onClick={onSortOrderChange} value="report">{props.currentSearchOption === "report" && <Icon type={props.currentOrder} />} Reports</Radio.Button>}
       </Radio.Group>
       <br />
       <Divider />
@@ -165,6 +168,9 @@ function Handlers(props) {
                   <Link to={`/handler/${item._id}`}>
                     <IconText type="message" text={item.commentCount} key="comCount" />
                   </Link>,
+                  ...(isAdmin && [<Link to={`/handler/${item._id}`}>
+                    <IconText type="warning" text={item.reports} key="reportCount" />
+                  </Link>])
                 ]}
               >
                 <Meta
@@ -204,6 +210,10 @@ export default withTracker(() => {
   if (currentSearchOption.get() === 'latest') {
     sortObject = { createdAt: reactiveCurrentOrder === "up" ? 1 : -1 };
   }
+  if (currentSearchOption.get() === 'report') {
+    sortObject = { reports: reactiveCurrentOrder === "up" ? 1 : -1 };
+  }
+
   return {
     loading: !subscription.ready(),
     user,

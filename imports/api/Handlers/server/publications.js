@@ -13,6 +13,9 @@ Meteor.publish(
     if (handlerOptionSearch === 'latest') {
       sortObject = { createdAt:  handlerSortOrder === "up" ? 1 : -1 };
     }
+    if (handlerOptionSearch === 'report') {
+      sortObject = { reports:  handlerSortOrder === "up" ? 1 : -1 };
+    }
     return Handlers.find(
       {
         gameName: { $regex: new RegExp(escapeRegExp(handlerTitleSearch)), $options: 'i' },

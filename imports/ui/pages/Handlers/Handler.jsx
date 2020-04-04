@@ -83,7 +83,8 @@ function Handler(props) {
     Meteor.call('handlers.starring', handlerId);
   };
   const handler = props.handler[0] ? props.handler[0] : false;
-  const isMaintainer = props.user && handler.owner === props.user._id;
+  const isMaintainer = props.user && (handler.owner === props.user._id);
+  const canEdit = props.user && Roles.userIsInRole(props.user._id, ['admin_enabled']);
 
   const confirmReport = () => {
 
@@ -291,7 +292,7 @@ function Handler(props) {
               >
                 <DisplayTimeline handlerId={handler._id} />
               </TabPane>
-              {isMaintainer && (
+              {(isMaintainer || canEdit) && (
                 <TabPane
                   tab={
                     <span>

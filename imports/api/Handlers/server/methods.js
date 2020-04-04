@@ -94,10 +94,10 @@ Meteor.methods({
           'Please provide a description for your handler.',
         );
       }
-      if (doc.description.length >= 3000) {
+      if (doc.description.length > 3000) {
         throw new Meteor.Error(
           'Invalid description',
-          'Your description is too long (max 1000 chars.).',
+          'Your description is too long (max 3000 chars.).',
         );
       }
       const handlerId = doc._id;
@@ -108,7 +108,7 @@ Meteor.methods({
         doc.private = true;
       }
 
-      if (docToUpdate.owner === this.userId) {
+      if (docToUpdate.owner === this.userId || Roles.userIsInRole(this.userId, "admin_enabled")) {
         Handlers.update(handlerId, { $set: doc });
         return handlerId; // Return _id so we can redirect to document after update.
       }
@@ -124,7 +124,7 @@ Meteor.methods({
     try {
       const docToRemove = Handlers.findOne(handlerId, { fields: { owner: 1 } });
 
-      if (docToRemove.owner === this.userId) {
+      if (docToRemove.owner === this.userId || Roles.userIsInRole(this.userId, "admin_enabled")) {
         Packages.remove({'meta.handlerId': handlerId});
         Comments.remove({'handlerId': handlerId});
         return Handlers.remove(handlerId);

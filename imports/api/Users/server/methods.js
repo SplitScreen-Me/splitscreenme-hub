@@ -143,6 +143,18 @@ Meteor.methods({
         handleMethodException(exception);
       });
   },
+  'users.adminEnable': function usersAdminEnable() {
+    if (!Roles.userIsInRole(this.userId, 'admin')) {
+      throw new Meteor.Error('403', 'Sorry, you need to be an administrator to do this.');
+    }
+    if(Roles.userIsInRole(this.userId, 'admin_enabled')){
+      Roles.removeUsersFromRoles(this.userId, 'admin_enabled');
+      return "disabled";
+    }else{
+      Roles.addUsersToRoles(this.userId, 'admin_enabled');
+      return "enabled";
+    }
+  }
 });
 
 rateLimit({
@@ -156,6 +168,7 @@ rateLimit({
     'users.editProfile',
     'users.exportData',
     'users.deleteAccount',
+    'users.adminEnable',
   ],
   limit: 5,
   timeRange: 1000,
