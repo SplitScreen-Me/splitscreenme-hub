@@ -136,7 +136,6 @@ function Handlers(props) {
                   </Link>
                 }
                 actions={[
-
                     <Tooltip
                       placement="bottomLeft"
                       title={item.verified ? "The latest release of this handler has been validated and is safe to use." : "The latest release of this handler has not been verified. Check the FAQ for insight into the verification process."}
@@ -176,7 +175,7 @@ function Handlers(props) {
                   <Link to={`/handler/${item._id}`}>
                     <IconText type="message" text={item.commentCount} key="comCount" />
                   </Link>,
-                  ...(isAdmin && [<Link to={`/handler/${item._id}`}>
+                  ...(!!isAdmin && [<Link to={`/handler/${item._id}`}>
                     <IconText type="warning" text={item.reports} key="reportCount" />
                   </Link>])
                 ]}

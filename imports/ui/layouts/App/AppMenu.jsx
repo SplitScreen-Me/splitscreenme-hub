@@ -29,7 +29,7 @@ function AppMenu(props) {
       mode="horizontal"
       defaultSelectedKeys={[props.history.location.pathname]}
       selectedKeys={[props.history.location.pathname]}
-      style={{ lineHeight: '64px', ...(isAdminEnabled && {backgroundColor:'#670000'})}}
+      style={{ lineHeight: '64px', ...(!!isAdminEnabled && {backgroundColor:'#670000'})}}
     >
       <Menu.Item key="/splitscreenme">
         SplitScreen.Me
@@ -54,7 +54,7 @@ function AppMenu(props) {
           title={
             <span>
               <Icon type="setting" />
-              {isAdminEnabled && "(admin) "}{props.loggedIn.profile.username}
+              {!!isAdminEnabled && "(admin) "}{props.loggedIn.profile.username}
             </span>
           }
         >
@@ -66,8 +66,8 @@ function AppMenu(props) {
             Public profile
             <Link to={`/user/${props.loggedIn._id}`} />
           </Menu.Item>
-          {isAdmin && <Menu.Item onClick={turnAdmin} key={`adminmodeonoff`}>
-            Turn {isAdminEnabled ? 'off' : 'on'} admin mode
+          {!!isAdmin && <Menu.Item onClick={turnAdmin} key={`adminmodeonoff`}>
+            Turn {!!isAdminEnabled ? 'off' : 'on'} admin mode
           </Menu.Item> }
           <Menu.Item onClick={logout} key="/logout">
             Log out
