@@ -1,6 +1,6 @@
 import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
-import { Spin, Timeline, Row, Col, Typography, Tooltip } from 'antd';
+import { Spin, Timeline, Row, Col, Typography, Tooltip, Icon } from "antd";
 import Packages from "../../../api/Packages/Packages";
 import Moment from 'react-moment';
 
@@ -15,8 +15,15 @@ function DisplayTimeline(props) {
           <Timeline>
             {props.releases.map((release, index) => (
               <Timeline.Item key={release._id}>
+
                 {release.handlerVersion || release.meta.handlerVersion}. {release.meta.releaseDescription} <br />
                 <Text style={{ fontSize: '12px' }} type="secondary">
+                  <Tooltip
+                    placement="bottomLeft"
+                    title={release.meta.verified ? "The latest release of this handler has been validated and is safe to use." : "The latest release of this handler has not been verified. Check the FAQ for insight into the verification process."}
+                  >
+                    {release.meta.verified ? <Icon type="safety-certificate" theme="twoTone" twoToneColor="#52c41a" /> : <Icon type="exclamation-circle" />}
+                  </Tooltip>
                   {' '}
                   Released{' '}
                   <Tooltip title={<Moment format="YYYY-MM-DD HH:mm">{release.releaseDate || release.meta.releaseDate}</Moment>}>
