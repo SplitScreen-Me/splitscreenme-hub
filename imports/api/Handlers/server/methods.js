@@ -2,6 +2,7 @@
 
 import { Meteor } from 'meteor/meteor';
 import { check, Match } from 'meteor/check';
+import { Roles } from 'meteor/alanning:roles';
 import Handlers from '../Handlers';
 import Comments from '../../Comments/Comments';
 import Packages from '../../Packages/server/ServerPackages';
@@ -149,10 +150,31 @@ Meteor.methods({
       handleMethodException(exception);
     }
   },
+  'handlers.resetReport': function handlersResetReport(handlerId) {
+    check(handlerId, String);
+    if (!Roles.userIsInRole(this.userId, 'admin_enabled')) {
+      throw new Meteor.Error('403', 'Sorry, you need to be an administrator to do this.');
+    }
+    try {
+        const handler = Handlers.findOne(handlerId);
+        if(handler){
+        Handlers.update(handlerId, { $set: { reports: 0 } });
+        }else{
+          throw new Meteor.Error('404', "Handler not found.");
+        }
+    } catch (exception) {
+      handleMethodException(exception);
+    }
+  },
 });
 
 rateLimit({
-  methods: ['handlers.insert', 'handlers.update', 'handlers.remove'],
+  methods: ['handlers.insert', 'handlers.update', 'handlers.remove', 'handlers.resetReport'],
   limit: 5,
   timeRange: 1000,
+});
+rateLimit({
+  methods: ['handlers.report'],
+  limit: 1,
+  timeRange: 10000,
 });

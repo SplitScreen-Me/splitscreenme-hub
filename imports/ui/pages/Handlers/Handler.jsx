@@ -84,7 +84,7 @@ function Handler(props) {
   };
   const handler = props.handler[0] ? props.handler[0] : false;
   const isMaintainer = props.user && (handler.owner === props.user._id);
-  const canEdit = props.user && Roles.userIsInRole(props.user._id, ['admin_enabled']);
+  const isAdmin = props.user && Roles.userIsInRole(props.user._id, ['admin_enabled']);
 
   const confirmReport = () => {
 
@@ -111,6 +111,19 @@ function Handler(props) {
 
       },
     });
+  };
+  const resetReport = () => {
+
+        Meteor.call('handlers.resetReport', handler._id, (err, res)=>{
+          if(err){
+            notification.error({ message: 'Error resetting reports', description: err.reason });
+          }else{
+          notification.success({
+            message: 'Handler reports reset',
+            description: `Handler reports set back to 0.`,
+          });
+          }
+        })
   };
 
   return (
@@ -143,6 +156,11 @@ function Handler(props) {
                   {!isMaintainer && (
                     <Button type="danger" key="1" ghost onClick={confirmReport}>
                       Report handler
+                    </Button>
+                  )}
+                  {isAdmin && (
+                    <Button type="danger" key="2" ghost onClick={resetReport}>
+                      Reset report count
                     </Button>
                   )}
                 </div>
@@ -292,7 +310,7 @@ function Handler(props) {
               >
                 <DisplayTimeline handlerId={handler._id} />
               </TabPane>
-              {(isMaintainer || canEdit) && (
+              {(isMaintainer || isAdmin) && (
                 <TabPane
                   tab={
                     <span>
