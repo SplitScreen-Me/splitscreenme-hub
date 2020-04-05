@@ -26,7 +26,6 @@ const IconText = ({ type, text, theme = 'outlined', color }) => (
 
 function Handlers(props) {
   const [searched, setSearched] = useState([]);
-  const [pagination, setPagination] = useState(1);
   const onSearch = () => {
     setSearched([
       ...new Set(
@@ -59,12 +58,10 @@ function Handlers(props) {
   },[props.currentLimit, props.loading]);
 
   const onChange = value => {
-    setPagination(1);
     currentLimit.set(18)
     currentSearch.set(value);
   };
   const onSortTypeChange = value => {
-    setPagination(1);
     currentLimit.set(18)
     currentSearchOption.set(value.target.value);
   };
