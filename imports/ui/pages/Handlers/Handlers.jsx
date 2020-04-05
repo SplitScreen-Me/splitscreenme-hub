@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { List, Divider, Icon, Button, Tooltip, Spin, Card, Typography, Radio } from 'antd';
 import { AutoComplete } from 'antd';
 import { withTracker } from 'meteor/react-meteor-data';
@@ -13,6 +13,7 @@ let avatars = new Avatars(sprites({}));
 const currentSearch = new ReactiveVar('');
 const currentOrder = new ReactiveVar('down');
 const currentSearchOption = new ReactiveVar('hot');
+const currentLimit = new ReactiveVar(18);
 
 const { Title, Paragraph, Text } = Typography;
 
@@ -36,13 +37,35 @@ function Handlers(props) {
     ]);
   };
 
+  const listenToScroll = () => {
+    const winScroll =
+      document.body.scrollTop || document.documentElement.scrollTop;
+
+    const height =
+      document.documentElement.scrollHeight -
+      document.documentElement.clientHeight;
+
+    if(height - winScroll < 600 && !props.loading){
+      currentLimit.set(props.currentLimit + 18);
+    }
+  };
+
+  // This effect control the infinite scrolling.
+  useEffect(()=>{
+    if(props.currentLimit - 18 < props.handlers.length){
+    window.addEventListener('scroll', listenToScroll);
+    return ()=> {window.removeEventListener('scroll', listenToScroll)};
+    }
+  },[props.currentLimit, props.loading]);
+
   const onChange = value => {
     setPagination(1);
+    currentLimit.set(18)
     currentSearch.set(value);
   };
   const onSortTypeChange = value => {
     setPagination(1);
-
+    currentLimit.set(18)
     currentSearchOption.set(value.target.value);
   };
 
@@ -97,14 +120,6 @@ function Handlers(props) {
             lg: 4,
             xl: 4,
             xxl: 6,
-          }}
-          pagination={{
-            onChange: page => {
-              setPagination(page);
-            },
-            current: pagination,
-            pageSize: 18,
-            position: 'both',
           }}
           dataSource={props.handlers}
           footer={
@@ -207,7 +222,7 @@ function Handlers(props) {
 }
 export default withTracker(() => {
   const reactiveCurrentOrder = currentOrder.get();
-  const subscription = Meteor.subscribe('handlers', currentSearch.get(), currentSearchOption.get(), reactiveCurrentOrder);
+  const subscription = Meteor.subscribe('handlers', currentSearch.get(), currentSearchOption.get(), reactiveCurrentOrder, currentLimit.get());
   const user = Meteor.user();
 
   let sortObject = { stars: reactiveCurrentOrder === "up" ? 1 : -1 };
@@ -224,13 +239,14 @@ export default withTracker(() => {
   return {
     loading: !subscription.ready(),
     user,
+    currentLimit: currentLimit.get(),
     currentSearchOption: currentSearchOption.get(),
     currentOrder: reactiveCurrentOrder,
     handlers: HandlersCollection.find(
       {},
       {
         sort: sortObject,
-        limit: 500,
+        limit: currentLimit.get(),
       },
     ).fetch(),
   };

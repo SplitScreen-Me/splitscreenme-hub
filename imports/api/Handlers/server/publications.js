@@ -5,7 +5,7 @@ import escapeRegExp from "../../../modules/regexescaper";
 
 Meteor.publish(
   'handlers',
-  function handlers(handlerTitleSearch = '', handlerOptionSearch = 'hot', handlerSortOrder = 'down') {
+  function handlers(handlerTitleSearch = '', handlerOptionSearch = 'hot', handlerSortOrder = 'down', limit = 18) {
     let sortObject = { stars: handlerSortOrder === "up" ? 1 : -1 };
     if (handlerOptionSearch === 'download') {
       sortObject = { downloadCount:  handlerSortOrder === "up" ? 1 : -1 };
@@ -23,7 +23,7 @@ Meteor.publish(
       },
       {
         sort: sortObject,
-        limit: 500,
+        limit: Math.min(limit, 500),
       },
     );
   },
@@ -74,7 +74,7 @@ Meteor.publish(
     return Handlers.find(
       { private: false },
       {
-        sort: { stars: -1 },
+        sort: { downloadCount: -1 },
         limit: 15,
       },
     );
