@@ -43,7 +43,7 @@ const d_rLog = handler => {
 
   if(releaseLogging_webhookUrl.length > 0 && generalLogging_webhookUrl){
     HTTP.call('POST', releaseLogging_webhookUrl, {
-      data: discordData
+      data: {...discordData, content: "**New handler release!** @Handler-Feed-Ping"}
     });
     HTTP.call('POST', generalLogging_webhookUrl, {
       data: discordData
