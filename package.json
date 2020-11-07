@@ -13,7 +13,7 @@
     "@hot-loader/react-dom": "^16.11.0",
     "antd": "^3.26.3",
     "axios": "^0.19.0",
-    "bcrypt": "^3.0.6",
+    "bcrypt": "^5.0.0",
     "discord.js": "^11.6.3",
     "gridfs-stream": "^1.1.1",
     "handlebars": "^4.7.3",
