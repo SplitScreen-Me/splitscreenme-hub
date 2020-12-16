@@ -15,10 +15,10 @@ const Packages = new FilesCollection({
     if (file.meta.releaseDescription.length < 2) {
       return 'Please provide a description for the release.';
     }
-    if (file.size <= 10485760 && /nc|zip/i.test(file.extension)) {
+    if (file.size <= 31457280 && /nc|zip/i.test(file.extension)) {
       return true;
     }
-    return 'Please upload package, with size equal or less than 10MB';
+    return 'Please upload package, with size equal or less than 30MB';
   },
 });
 
