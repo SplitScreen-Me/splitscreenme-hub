@@ -12,7 +12,7 @@
     "@dicebear/avatars-gridy-sprites": "^1.1.5",
     "@hot-loader/react-dom": "^16.11.0",
     "antd": "^3.26.3",
-    "axios": "^0.19.0",
+    "axios": "^0.21.1",
     "bcrypt": "^3.0.6",
     "discord.js": "^11.6.3",
     "gridfs-stream": "^1.1.1",
