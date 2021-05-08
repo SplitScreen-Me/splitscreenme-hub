@@ -16,7 +16,7 @@
     "bcrypt": "^3.0.6",
     "discord.js": "^11.6.3",
     "gridfs-stream": "^1.1.1",
-    "handlebars": "^4.7.3",
+    "handlebars": "^4.7.7",
     "indexof": "0.0.1",
     "jszip": "^3.2.2",
     "juice": "^5.2.0",
