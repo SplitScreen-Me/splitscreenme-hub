@@ -33,7 +33,7 @@
     "react-router": "^5.0.1",
     "react-router-dom": "^5.0.1",
     "react-syntax-highlighter": "^11.0.2",
-    "simpl-schema": "^1.5.5",
+    "simpl-schema": "^1.10.2",
     "slug": "^2.0.0",
     "styled-components": "^4.4.1"
   },
