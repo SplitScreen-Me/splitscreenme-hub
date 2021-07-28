@@ -2,6 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import Handlers from '../Handlers';
 import escapeRegExp from "../../../modules/regexescaper";
+import Packages from "../../Packages/server/ServerPackages";
 
 Meteor.publish(
   'handlers',
@@ -62,6 +63,16 @@ Meteor.publish(
     httpMethod: 'get',
   },
 );
+
+WebApp.connectHandlers.use('/api/v1/totalDownloadCountEver', async (req, res, next) => {
+  res.writeHead(200);
+  let sum = 0;
+  const allPackages = Packages.collection.find({}).fetch();
+  allPackages.forEach(pkg => {
+    if (pkg.meta.downloads > 0) sum = sum + pkg.meta.downloads;
+  });
+  res.end(`Total downloads: ${sum}`);
+});
 
 Meteor.publish('handlers.edit', function handlersEdit(documentId) {
   check(documentId, String);
