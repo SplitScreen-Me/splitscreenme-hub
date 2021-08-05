@@ -61,7 +61,7 @@ export default withTracker(props => {
       .find(
         {},
         {
-          sort: { handlerVersion: -1, 'meta.handlerVersion': -1 },
+          sort: { 'meta.handlerVersion': -1, handlerVersion: -1 },
         },
       )
       .fetch(),
