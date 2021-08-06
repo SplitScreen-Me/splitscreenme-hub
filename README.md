@@ -7,7 +7,7 @@
 
 ## About the Hub 📦
 
-The Hub is created using [Meteor](https://www.meteor.com/), [React](reactjs.org), [Antd Design](https://ant.design/), and a lot of goodies ([meteor-webpack](https://github.com/ardatan/meteor-webpack) & [React hmr rewire](https://github.com/gaearon/react-hot-loader), ...).
+The Hub is created using [Meteor](https://www.meteor.com/), [React](https://www.reactjs.org), [Antd Design](https://ant.design/), and a lot of goodies ([meteor-webpack](https://github.com/ardatan/meteor-webpack) & [React hmr rewire](https://github.com/gaearon/react-hot-loader), ...).
 
 Feel free to **contribute & help** us build the most amazing **hub for splitscreened games** ever !
 

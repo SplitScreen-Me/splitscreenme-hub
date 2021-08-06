@@ -36,6 +36,10 @@ function Handlers(props) {
     ]);
   };
 
+  function kFormatter(num) {
+    return Math.abs(num) > 999 ? Math.sign(num)*((Math.abs(num)/1000).toFixed(1)) + 'k' : Math.sign(num)*Math.abs(num)
+  }
+
   const listenToScroll = () => {
     const winScroll =
       document.body.scrollTop || document.documentElement.scrollTop;
@@ -148,12 +152,12 @@ function Handlers(props) {
                   </Link>
                 }
                 actions={[
-                    <Tooltip
-                      placement="bottomLeft"
-                      title={item.verified ? "The latest release of this handler has been validated and is safe to use." : "The latest release of this handler has not been verified. Check the FAQ for insight into the verification process."}
-                    >
-                    {item.verified ? <Icon type="safety-certificate" theme="twoTone" twoToneColor="#52c41a" /> : <Icon type="exclamation-circle" />}
-                    </Tooltip>
+                  <Tooltip
+                    placement="bottomLeft"
+                    title={item.verified ? "The latest release of this handler has been validated and is safe to use." : "The latest release of this handler has not been verified. Check the FAQ for insight into the verification process."}
+                  >
+                  {item.verified ? <Icon type="safety-certificate" theme="twoTone" twoToneColor="#52c41a" /> : <Icon type="exclamation-circle" />}
+                  </Tooltip>
                   ,
                   props.user ? (
                     <div onClick={() => star(item._id)}>
@@ -181,9 +185,17 @@ function Handlers(props) {
                       </div>
                     </Link>
                   ),
-                  <Link to={`/handler/${item._id}`}>
-                    <IconText type="download" text={item.downloadCount} key="view" />
-                  </Link>,
+                  item.downloadCount >= 1000 ? (
+                    <Tooltip placement="bottomLeft" title={item.downloadCount} arrowPointAtCenter>
+                      <Link to={`/handler/${item._id}`}>
+                        <IconText type="download" tooltip={item.downloadCount} text={kFormatter(item.downloadCount)} key="view" />
+                      </Link>
+                    </Tooltip>
+                  ) : (
+                    <Link to={`/handler/${item._id}`}>
+                      <IconText type="download" tooltip={item.downloadCount} text={kFormatter(item.downloadCount)} key="view" />
+                    </Link>
+                  ),
                   <Link to={`/handler/${item._id}`}>
                     <IconText type="message" text={item.commentCount} key="comCount" />
                   </Link>,
@@ -200,14 +212,33 @@ function Handlers(props) {
                       <Link to={`/handler/${item._id}`}>{item.gameName}</Link>
                     </div>
                   }
-                  description={<div style={{paddingTop:'10px'}}><div style={{float:'left'}}>
-                    {item.title}
-                  </div>
-                    <div style={{float:'right'}}>
-                  <Link to={`/user/${item.owner}`}>
-                    <IconText type="user" text={item.ownerName} key="creator" />
-                  </Link>
-                    </div></div>}
+                  description={
+                    <div style={{ paddingTop: '10px' }}>
+                      <div
+                        style={{
+                          float: 'left',
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                        }}
+                      >
+                        {item.title}
+                      </div>
+                      <br />
+                      <div
+                        style={{
+                          float: 'left',
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                        }}
+                      >
+                        <Link to={`/user/${item.owner}`}>
+                          <IconText type="user" text={item.ownerName} key="creator" />
+                        </Link>
+                      </div>
+                    </div>
+                  }
                 />
               </Card>
             </List.Item>
