@@ -1,4 +1,3 @@
-import { hot } from 'react-hot-loader/root';
 import React, { useState } from 'react';
 
 import Layout from 'antd/lib/layout';
@@ -23,7 +22,7 @@ import CreateHandler from '../pages/MyHandlers/CreateHandler';
 import VerifyEmail from '../pages/VerifyEmail/VerifyEmail';
 import NotFound from '../pages/Common/NotFound';
 import LoginModal from '../pages/Login/LoginModal';
-import UserHandlers from "../pages/Users/UserHandlers";
+import UserHandlers from '../pages/Users/UserHandlers';
 
 const { Header, Footer, Sider, Content } = Layout;
 Session.setDefault('loginModal', false);
@@ -112,9 +111,7 @@ function App(props) {
   );
 }
 
-export default hot(
-  withTracker(() => {
-    const loggedIn = Meteor.user();
-    return { loggedIn };
-  })(App),
-);
+export default withTracker(() => {
+  const loggedIn = Meteor.user();
+  return { loggedIn };
+})(App);

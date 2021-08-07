@@ -2,7 +2,7 @@
 
 name: CI
 
-# Controls when the action will run. Triggers the workflow on push or pull request 
+# Controls when the action will run. Triggers the workflow on push or pull request
 # events but only for the master branch
 on:
   push:
@@ -20,9 +20,9 @@ jobs:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
     - name: Setup Meteor.js environment
-      uses: meteorengineer/setup-meteor@v1.0.2
+      uses: meteorengineer/setup-meteor@v1.0.3
       with:
-        meteor-release: '1.8.1'
+        meteor-release: '2.2.1'
     - run: meteor npm install
 
     - name: Trying to build the entire application

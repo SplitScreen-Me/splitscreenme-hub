@@ -5,31 +5,34 @@
 # but you can also edit it by hand.
 
 meteor-base@1.4.0             # Packages every Meteor app needs to have
-mobile-experience@1.0.5       # Packages for a great mobile UX
-mongo@1.6.2                   # The database Meteor supports right now
-reactive-var            # Reactive variable for tracker
+mobile-experience@1.1.0       # Packages for a great mobile UX
+mongo@1.11.0                   # The database Meteor supports right now
+reactive-var@1.0.11            # Reactive variable for tracker
 
-standard-minifier-css@1.5.3   # CSS minifier run for production mode
-standard-minifier-js@2.4.1    # JS minifier run for production mode
-shell-server@0.4.0            # Server-side component of the `meteor shell` command
+standard-minifier-css@1.7.2   # CSS minifier run for production mode
+standard-minifier-js@2.6.0    # JS minifier run for production mode
+shell-server@0.5.0            # Server-side component of the `meteor shell` command
 
 react-meteor-data       # React higher-order component for reactively tracking Meteor data
 less
 aldeed:collection2@3.0.0
-ddp-rate-limiter
-service-configuration
-accounts-base
+ddp-rate-limiter@1.0.9
+service-configuration@1.0.11
+accounts-base@1.9.0
 alanning:roles
-accounts-ui
-accounts-facebook
-accounts-google
-accounts-github
-email
+accounts-ui@1.3.2
+accounts-facebook@1.3.2
+accounts-google@1.3.3
+accounts-github@1.4.3
+email@2.0.0
 ostrio:files
 simple:rest
 simple:json-routes
 lichthagel:accounts-discord
-accounts-password
-
-ardatan:webpack
-ardatan:webpack-dev-middleware
+accounts-password@1.7.0
+jquery
+blaze
+static-html
+hot-module-replacement
+ecmascript
+es5-shim
