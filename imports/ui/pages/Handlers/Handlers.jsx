@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { List, Divider, Icon, Button, Tooltip, Spin, Card, Typography, Radio } from 'antd';
-import { AutoComplete } from 'antd';
+import { List, Divider, Icon, Button, Tooltip, Spin, Card, Typography, Radio, AutoComplete } from 'antd';
 import { withTracker } from 'meteor/react-meteor-data';
 import HandlersCollection from '../../../api/Handlers/Handlers';
 import { Link } from 'react-router-dom';
@@ -36,8 +35,12 @@ function Handlers(props) {
     ]);
   };
 
-  function kFormatter(num) {
-    return Math.abs(num) > 999 ? Math.sign(num)*((Math.abs(num)/1000).toFixed(1)) + 'k' : Math.sign(num)*Math.abs(num)
+  function mAndKFormatter(num) {
+    return Math.abs(num) > 999500 ?
+        Math.sign(num)*((Math.abs(num)/1000000).toFixed(0)) + 'm' :
+        Math.abs(num) > 999 ?
+            Math.sign(num)*((Math.abs(num)/1000).toFixed(0)) + 'k' :
+            Math.sign(num)*Math.abs(num)
   }
 
   const listenToScroll = () => {
@@ -55,9 +58,9 @@ function Handlers(props) {
 
   // This effect control the infinite scrolling.
   useEffect(()=>{
-    if(props.currentLimit - 18 < props.handlers.length){
-    window.addEventListener('scroll', listenToScroll);
-    return ()=> {window.removeEventListener('scroll', listenToScroll)};
+    if(props.currentLimit - 18 < props.handlers.length) {
+        window.addEventListener('scroll', listenToScroll);
+        return ()=> {window.removeEventListener('scroll', listenToScroll)};
     }
   },[props.currentLimit, props.loading]);
 
@@ -65,6 +68,7 @@ function Handlers(props) {
     currentLimit.set(18)
     currentSearch.set(value);
   };
+
   const onSortTypeChange = value => {
     currentLimit.set(18)
     currentSearchOption.set(value.target.value);
@@ -114,13 +118,13 @@ function Handlers(props) {
         <List
           size="large"
           grid={{
-            gutter: 24,
+            gutter: 10,
             xs: 1,
             sm: 2,
-            md: 4,
+            md: 3,
             lg: 4,
             xl: 4,
-            xxl: 6,
+            xxl: 5,
           }}
           dataSource={props.handlers}
           footer={
@@ -128,7 +132,6 @@ function Handlers(props) {
               <b>SplitScreen.Me</b> compatible handlers.
             </div>
           }
-          header={<div></div>}
           renderItem={item => (
             <List.Item key={item._id}>
               <Card
@@ -188,12 +191,12 @@ function Handlers(props) {
                   item.downloadCount >= 1000 ? (
                     <Tooltip placement="bottomLeft" title={item.downloadCount} arrowPointAtCenter>
                       <Link to={`/handler/${item._id}`}>
-                        <IconText type="download" tooltip={item.downloadCount} text={kFormatter(item.downloadCount)} key="view" />
+                        <IconText type="download" text={mAndKFormatter(item.downloadCount)} key="view" />
                       </Link>
                     </Tooltip>
                   ) : (
                     <Link to={`/handler/${item._id}`}>
-                      <IconText type="download" tooltip={item.downloadCount} text={kFormatter(item.downloadCount)} key="view" />
+                      <IconText type="download" text={mAndKFormatter(item.downloadCount)} key="view" />
                     </Link>
                   ),
                   <Link to={`/handler/${item._id}`}>
