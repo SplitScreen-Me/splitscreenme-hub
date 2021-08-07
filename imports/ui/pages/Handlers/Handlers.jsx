@@ -199,9 +199,9 @@ function Handlers(props) {
                   <Link to={`/handler/${item._id}`}>
                     <IconText type="message" text={item.commentCount} key="comCount" />
                   </Link>,
-                  ...(!!isAdmin && [<Link to={`/handler/${item._id}`}>
+                  ...(!!isAdmin ? [<Link to={`/handler/${item._id}`}>
                     <IconText type="warning" text={item.reports} key="reportCount" />
-                  </Link>])
+                  </Link>] : [])
                 ]}
               >
                 <Meta
