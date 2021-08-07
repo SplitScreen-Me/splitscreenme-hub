@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { List, Divider, Icon, Button, Tooltip, Spin, Card, Typography, Radio, AutoComplete } from 'antd';
 import { withTracker } from 'meteor/react-meteor-data';
 import HandlersCollection from '../../../api/Handlers/Handlers';
+import counterFormatter from '../../../modules/counterFormatter';
 import { Link } from 'react-router-dom';
 import Avatars from '@dicebear/avatars';
 import sprites from '@dicebear/avatars-gridy-sprites';
@@ -34,14 +35,6 @@ function Handlers(props) {
       ),
     ]);
   };
-
-  function mAndKFormatter(num) {
-    return Math.abs(num) > 999500 ?
-        Math.sign(num)*((Math.abs(num)/1000000).toFixed(0)) + 'm' :
-        Math.abs(num) > 999 ?
-            Math.sign(num)*((Math.abs(num)/1000).toFixed(0)) + 'k' :
-            Math.sign(num)*Math.abs(num)
-  }
 
   const listenToScroll = () => {
     const winScroll =
@@ -152,6 +145,8 @@ function Handlers(props) {
                       }}
                       alt="Game cover"
                     />
+                      <div
+                          />
                   </Link>
                 }
                 actions={[
@@ -188,22 +183,30 @@ function Handlers(props) {
                       </div>
                     </Link>
                   ),
-                  item.downloadCount >= 1000 ? (
+                  item.downloadCount > 999 ? (
                     <Tooltip placement="bottomLeft" title={item.downloadCount} arrowPointAtCenter>
                       <Link to={`/handler/${item._id}`}>
-                        <IconText type="download" text={mAndKFormatter(item.downloadCount)} key="view" />
+                        <IconText type="download" text={counterFormatter(item.downloadCount)} key="view" />
                       </Link>
                     </Tooltip>
                   ) : (
                     <Link to={`/handler/${item._id}`}>
-                      <IconText type="download" text={mAndKFormatter(item.downloadCount)} key="view" />
+                      <IconText type="download" text={counterFormatter(item.downloadCount)} key="view" />
                     </Link>
                   ),
-                  <Link to={`/handler/${item._id}`}>
-                    <IconText type="message" text={item.commentCount} key="comCount" />
-                  </Link>,
+                  item.commentCount > 999 ? (
+                    <Tooltip placement="bottomLeft" title={item.downloadCount} arrowPointAtCenter>
+                      <Link to={`/handler/${item._id}`}>
+                          <IconText type="message" text={counterFormatter(item.commentCount)} key="comCount" />
+                      </Link>
+                    </Tooltip>
+                  ) : (
+                    <Link to={`/handler/${item._id}`}>
+                        <IconText type="message" text={counterFormatter(item.commentCount)} key="comCount" />
+                    </Link>
+                  ),
                   ...(!!isAdmin && [<Link to={`/handler/${item._id}`}>
-                    <IconText type="warning" text={item.reports} key="reportCount" />
+                    <IconText type="warning" text={counterFormatter(item.reports)} key="reportCount" />
                   </Link>])
                 ]}
               >

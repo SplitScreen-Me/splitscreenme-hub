@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { List, Avatar, Icon, Tabs, PageHeader, Alert, Typography } from 'antd';
+import {List, Avatar, Icon, Tabs, PageHeader, Alert, Typography, Tooltip} from 'antd';
 import { Result, Button } from 'antd';
 import { withTracker } from 'meteor/react-meteor-data';
 import HandlersCollection from '../../../api/Handlers/Handlers';
@@ -58,21 +58,39 @@ function MyHandlers(props) {
                   <List.Item
                     key={item._id}
                     actions={[
-                      <IconText
-                        type="fire"
-                        text={counterFormatter(item.stars)}
-                        key="list-vertical-star-o"
-                      />,
-                      <IconText
-                        type="download"
-                        text={counterFormatter(item.downloadCount)}
-                        key="list-vertical-download"
-                      />,
-                      <IconText
-                        type="message"
-                        text={counterFormatter(item.commentCount)}
-                        key="list-vertical-message"
-                      />,
+                      item.downloadCount > 999 ? (
+                          <Tooltip placement="bottomLeft" title={item.downloadCount} arrowPointAtCenter>
+                            <Link to={`/handler/${item._id}`}>
+                              <IconText type="fire" text={counterFormatter(item.stars)} key="list-vertical-star-o" />
+                            </Link>
+                          </Tooltip>
+                      ) : (
+                          <Link to={`/handler/${item._id}`}>
+                            <IconText type="fire" text={counterFormatter(item.stars)} key="list-vertical-star-o" />
+                          </Link>
+                      ),
+                      item.downloadCount > 999 ? (
+                          <Tooltip placement="bottomLeft" title={item.downloadCount} arrowPointAtCenter>
+                            <Link to={`/handler/${item._id}`}>
+                              <IconText type="download" text={counterFormatter(item.downloadCount)} key="list-vertical-download" />
+                            </Link>
+                          </Tooltip>
+                      ) : (
+                          <Link to={`/handler/${item._id}`}>
+                            <IconText type="download" text={counterFormatter(item.downloadCount)} key="list-vertical-download" />
+                          </Link>
+                      ),
+                      item.downloadCount > 999 ? (
+                          <Tooltip placement="bottomLeft" title={item.commentCount} arrowPointAtCenter>
+                            <Link to={`/handler/${item._id}`}>
+                              <IconText type="message" text={counterFormatter(item.commentCount)} key="list-vertical-message" />
+                            </Link>
+                          </Tooltip>
+                      ) : (
+                          <Link to={`/handler/${item._id}`}>
+                            <IconText type="message" text={counterFormatter(item.commentCount)} key="list-vertical-message" />
+                          </Link>
+                      ),
                     ]}
                     extra={
                       <img

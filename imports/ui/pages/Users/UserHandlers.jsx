@@ -11,7 +11,7 @@ import {
   Descriptions,
   Card,
   Spin,
-  AutoComplete
+  AutoComplete, Tooltip
 } from "antd";
 import { Result, Button } from 'antd';
 import { withTracker } from 'meteor/react-meteor-data';
@@ -116,7 +116,7 @@ function UserHandlers(props) {
                         <div>
                           <img
                             height={130}
-                            style={{ float: 'left' }}
+                            style={{ float: 'left', marginRight: '50px' }}
                             alt="logo"
                             src={
                               item.gameCover !== 'no_cover'
@@ -124,7 +124,7 @@ function UserHandlers(props) {
                                 : '/no_image.jpg'
                             }
                           />
-                          <div style={{ marginLeft: '145px' }}>
+                          <div>
                             <Link to={`/handler/${item._id}`}>{item.title}</Link>{' '}<br/>
                             <Text type="secondary" style={{ fontSize: '12px' }}>
                               {item.gameName}
@@ -132,24 +132,51 @@ function UserHandlers(props) {
                             <span>
                           Last update <Moment format="YYYY-MM-DD HH:mm">{item.updatedAt}</Moment>
                         </span><br/><br/>
-                            <IconText
-                              type="fire"
-                              text={counterFormatter(item.stars)}
-                              key="list-vertical-star-o"
-                            />
-                            <IconText
-                              type="download"
-                              text={counterFormatter(item.downloadCount)}
-                              key="list-vertical-download"
-                              style={{ marginLeft: '25px' }}
-
-                            />
-                            <IconText
-                              type="message"
-                              text={counterFormatter(item.commentCount)}
-                              key="list-vertical-message"
-                              style={{ marginLeft: '25px' }}
-                            />
+                              {
+                                  item.stars > 999 ? (
+                                      <Tooltip placement="bottomLeft" title={item.downloadCount} arrowPointAtCenter>
+                                          <Link to={`/handler/${item._id}`}>
+                                              <IconText type="fire" text={counterFormatter(item.stars)}
+                                                        key="list-vertical-star-o"/>
+                                          </Link>
+                                      </Tooltip>
+                                  ) : (
+                                      <Link to={`/handler/${item._id}`}>
+                                          <IconText type="fire" text={counterFormatter(item.stars)}
+                                                    key="list-vertical-star-o"/>
+                                      </Link>
+                                  )
+                              }
+                              {
+                                  item.downloadCount > 999 ? (
+                                      <Tooltip placement="bottomLeft" title={item.downloadCount} arrowPointAtCenter>
+                                          <Link to={`/handler/${item._id}`} style={{marginLeft: '25px'}}>
+                                              <IconText type="download" text={counterFormatter(item.downloadCount)}
+                                                        key="list-vertical-download"/>
+                                          </Link>
+                                      </Tooltip>
+                                  ) : (
+                                      <Link to={`/handler/${item._id}`} style={{marginLeft: '25px'}}>
+                                          <IconText type="download" text={counterFormatter(item.downloadCount)}
+                                                    key="list-vertical-download"/>
+                                      </Link>
+                                  )
+                              }
+                              {
+                                  item.commentCount > 999 ? (
+                                      <Tooltip placement="bottomLeft" title={item.commentCount} arrowPointAtCenter>
+                                          <Link to={`/handler/${item._id}`} style={{marginLeft: '25px'}}>
+                                              <IconText type="message" text={counterFormatter(item.commentCount)}
+                                                        key="list-vertical-message"/>
+                                          </Link>
+                                      </Tooltip>
+                                  ) : (
+                                      <Link to={`/handler/${item._id}`} style={{marginLeft: '25px'}}>
+                                          <IconText type="message" text={counterFormatter(item.commentCount)}
+                                                    key="list-vertical-message"/>
+                                      </Link>
+                                  )
+                              }
                           </div>
                         </div>
                       }
