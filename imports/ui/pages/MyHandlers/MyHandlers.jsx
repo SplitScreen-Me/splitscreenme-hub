@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import {List, Avatar, Icon, Tabs, PageHeader, Alert, Typography, Tooltip} from 'antd';
+import { List, Avatar, Icon, Tabs, PageHeader, Alert, Typography, Tooltip } from 'antd';
 import { Result, Button } from 'antd';
 import { withTracker } from 'meteor/react-meteor-data';
 import HandlersCollection from '../../../api/Handlers/Handlers';
@@ -7,6 +7,7 @@ import { Link } from 'react-router-dom';
 import Moment from 'react-moment';
 import counterFormatter from '../../../modules/counterFormatter';
 import { Session } from 'meteor/session';
+
 const { Text } = Typography;
 const { TabPane } = Tabs;
 const IconText = ({ type, text }) => (
@@ -59,37 +60,73 @@ function MyHandlers(props) {
                     key={item._id}
                     actions={[
                       item.downloadCount > 999 ? (
-                          <Tooltip placement="bottomLeft" title={item.downloadCount} arrowPointAtCenter>
-                            <Link to={`/handler/${item._id}`}>
-                              <IconText type="fire" text={counterFormatter(item.stars)} key="list-vertical-star-o" />
-                            </Link>
-                          </Tooltip>
-                      ) : (
+                        <Tooltip
+                          placement="bottomLeft"
+                          title={item.downloadCount}
+                          arrowPointAtCenter
+                        >
                           <Link to={`/handler/${item._id}`}>
-                            <IconText type="fire" text={counterFormatter(item.stars)} key="list-vertical-star-o" />
+                            <IconText
+                              type="fire"
+                              text={counterFormatter(item.stars)}
+                              key="list-vertical-star-o"
+                            />
                           </Link>
+                        </Tooltip>
+                      ) : (
+                        <Link to={`/handler/${item._id}`}>
+                          <IconText
+                            type="fire"
+                            text={counterFormatter(item.stars)}
+                            key="list-vertical-star-o"
+                          />
+                        </Link>
                       ),
                       item.downloadCount > 999 ? (
-                          <Tooltip placement="bottomLeft" title={item.downloadCount} arrowPointAtCenter>
-                            <Link to={`/handler/${item._id}`}>
-                              <IconText type="download" text={counterFormatter(item.downloadCount)} key="list-vertical-download" />
-                            </Link>
-                          </Tooltip>
-                      ) : (
+                        <Tooltip
+                          placement="bottomLeft"
+                          title={item.downloadCount}
+                          arrowPointAtCenter
+                        >
                           <Link to={`/handler/${item._id}`}>
-                            <IconText type="download" text={counterFormatter(item.downloadCount)} key="list-vertical-download" />
+                            <IconText
+                              type="download"
+                              text={counterFormatter(item.downloadCount)}
+                              key="list-vertical-download"
+                            />
                           </Link>
+                        </Tooltip>
+                      ) : (
+                        <Link to={`/handler/${item._id}`}>
+                          <IconText
+                            type="download"
+                            text={counterFormatter(item.downloadCount)}
+                            key="list-vertical-download"
+                          />
+                        </Link>
                       ),
                       item.downloadCount > 999 ? (
-                          <Tooltip placement="bottomLeft" title={item.commentCount} arrowPointAtCenter>
-                            <Link to={`/handler/${item._id}`}>
-                              <IconText type="message" text={counterFormatter(item.commentCount)} key="list-vertical-message" />
-                            </Link>
-                          </Tooltip>
-                      ) : (
+                        <Tooltip
+                          placement="bottomLeft"
+                          title={item.commentCount}
+                          arrowPointAtCenter
+                        >
                           <Link to={`/handler/${item._id}`}>
-                            <IconText type="message" text={counterFormatter(item.commentCount)} key="list-vertical-message" />
+                            <IconText
+                              type="message"
+                              text={counterFormatter(item.commentCount)}
+                              key="list-vertical-message"
+                            />
                           </Link>
+                        </Tooltip>
+                      ) : (
+                        <Link to={`/handler/${item._id}`}>
+                          <IconText
+                            type="message"
+                            text={counterFormatter(item.commentCount)}
+                            key="list-vertical-message"
+                          />
+                        </Link>
                       ),
                     ]}
                     extra={
@@ -148,6 +185,7 @@ function MyHandlers(props) {
     </div>
   );
 }
+
 export default withTracker(() => {
   const subscription = Meteor.subscribe('handlers.mine');
   const loggedIn = Meteor.user();
