@@ -145,8 +145,6 @@ function Handlers(props) {
                       }}
                       alt="Game cover"
                     />
-                      <div
-                          />
                   </Link>
                 }
                 actions={[
@@ -205,9 +203,9 @@ function Handlers(props) {
                         <IconText type="message" text={counterFormatter(item.commentCount)} key="comCount" />
                     </Link>
                   ),
-                  ...(!!isAdmin && [<Link to={`/handler/${item._id}`}>
+                  ...(!!isAdmin ? [<Link to={`/handler/${item._id}`}>
                     <IconText type="warning" text={counterFormatter(item.reports)} key="reportCount" />
-                  </Link>])
+                  </Link>] : [])
                 ]}
               >
                 <Meta
