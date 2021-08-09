@@ -32,20 +32,23 @@ function AppMenu(props) {
       style={{ lineHeight: '64px', ...(!!isAdminEnabled && {backgroundColor:'#670000'})}}
     >
       <Menu.Item key="/splitscreenme">
-        SplitScreen.Me
-        <a href="https://www.splitscreen.me" />
+        <a href="https://www.splitscreen.me">
+          <Icon
+            component={() => (
+              <img src="splitscreen-me-logo.png" height="35px" alt="SplitScreen Me logo" />
+            )}
+          />
+          SplitScreen Me
+        </a>
       </Menu.Item>
       <Menu.Item key="/">
-        Explore
-        <Link to="/" />
+        <Link to="/">Explore</Link>
       </Menu.Item>
       <Menu.Item key="/my-handlers">
-        My Handlers
-        <Link to="/my-handlers" />
+        <Link to="/my-handlers">My Handlers</Link>
       </Menu.Item>
       <Menu.Item key="/docs">
-        Docs
-        <a href="https://www.splitscreen.me/docs/create-handlers" />
+        <a href="https://www.splitscreen.me/docs/create-handlers">Docs</a>
       </Menu.Item>
 
       {props.loggedIn ? (
@@ -59,19 +62,16 @@ function AppMenu(props) {
           }
         >
           <Menu.Item key="/settings">
-            Settings
-            <Link to="/settings" />
+            <Link to="/settings">Settings</Link>
           </Menu.Item>
           <Menu.Item key={`/user/${props.loggedIn._id}`}>
-            Public profile
-            <Link to={`/user/${props.loggedIn._id}`} />
+            <Link to={`/user/${props.loggedIn._id}`}>Public profile</Link>
           </Menu.Item>
           {!!isAdmin && <Menu.Item onClick={turnAdmin} key={`adminmodeonoff`}>
-            Turn {!!isAdminEnabled ? 'off' : 'on'} admin mode
+              Turn {!!isAdminEnabled ? 'off' : 'on'} admin mode
           </Menu.Item> }
           <Menu.Item onClick={logout} key="/logout">
-            Log out
-            <Link to="/logout" />
+            <Link to="/logout">Log out</Link>
           </Menu.Item>
         </Menu.SubMenu>
       ) : (
@@ -83,8 +83,7 @@ function AppMenu(props) {
         </Menu.Item>
       )}
       <Menu.Item key="/user" style={{ float: 'right' }}>
-            Contributors
-        <Link to={`/user`} />
+        <Link to={`/user`}>Contributors</Link>
       </Menu.Item>
     </Menu>
   );

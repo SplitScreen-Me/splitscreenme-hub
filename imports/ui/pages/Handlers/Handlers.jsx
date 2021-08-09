@@ -95,17 +95,21 @@ function Handlers(props) {
   return (
     <div>
       <Typography>
-        <Title>Explore handlers</Title>
-        <Paragraph>Search for games you like and play them with your friends.</Paragraph>
+        <Title aria-label="aria-expanded">Explore handlers</Title>
+        <Paragraph aria-label="aria-level">Search for games you like and play them with your friends.</Paragraph>
       </Typography>
-      <AutoComplete
-        value={currentSearch.get()}
-        dataSource={searched}
-        style={{ width: 350 }}
-        onSearch={onSearch}
-        onChange={onChange}
-        placeholder="Search any handler"
-      />
+      <label htmlFor="handlers-search-autocomplete" aria-label="landmark">
+        <AutoComplete
+          id="handlers-search-autocomplete"
+          aria-label="search"
+          value={currentSearch.get()}
+          dataSource={searched}
+          style={{ width: 350 }}
+          onSearch={onSearch}
+          onChange={onChange}
+          placeholder="Search any handler"
+        />
+      </label>
       <Radio.Group
         style={{ marginLeft: '50px' }}
         value={currentSearchOption.get()}
@@ -151,7 +155,11 @@ function Handlers(props) {
             <List.Item key={item._id}>
               <Card
                 cover={
-                  <Link to={`/handler/${item._id}`}>
+                  <Link
+                    id={'handler-card-' + item._id}
+                    to={`/handler/${item._id}`}
+                    alt={'link to ' + item.gameName}
+                  >
                     <div
                       style={{
                         width: 'auto',
@@ -165,7 +173,7 @@ function Handlers(props) {
                             : '/no_image.jpg'
                         })`,
                       }}
-                      alt="Game cover"
+                      alt={'Game Cover for ' + item.gameName}
                     />
                   </Link>
                 }
