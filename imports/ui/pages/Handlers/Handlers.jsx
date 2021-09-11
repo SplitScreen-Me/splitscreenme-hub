@@ -1,12 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { List, Divider, Icon, Button, Tooltip, Spin, Card, Typography, Radio } from 'antd';
-import { AutoComplete } from 'antd';
+import {
+  List,
+  Divider,
+  Icon,
+  Button,
+  Tooltip,
+  Spin,
+  Card,
+  Typography,
+  Radio,
+  AutoComplete,
+} from 'antd';
 import { withTracker } from 'meteor/react-meteor-data';
 import HandlersCollection from '../../../api/Handlers/Handlers';
+import counterFormatter from '../../../modules/counterFormatter';
 import { Link } from 'react-router-dom';
 import Avatars from '@dicebear/avatars';
 import sprites from '@dicebear/avatars-gridy-sprites';
 import { Session } from 'meteor/session';
+
 const { Meta } = Card;
 let avatars = new Avatars(sprites({}));
 
@@ -36,45 +48,41 @@ function Handlers(props) {
     ]);
   };
 
-  function kFormatter(num) {
-    return Math.abs(num) > 999 ? Math.sign(num)*((Math.abs(num)/1000).toFixed(1)) + 'k' : Math.sign(num)*Math.abs(num)
-  }
-
   const listenToScroll = () => {
-    const winScroll =
-      document.body.scrollTop || document.documentElement.scrollTop;
+    const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
 
-    const height =
-      document.documentElement.scrollHeight -
-      document.documentElement.clientHeight;
+    const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
 
-    if(height - winScroll < 600 && !props.loading){
+    if (height - winScroll < 600 && !props.loading) {
       currentLimit.set(props.currentLimit + 18);
     }
   };
 
   // This effect control the infinite scrolling.
-  useEffect(()=>{
-    if(props.currentLimit - 18 < props.handlers.length){
-    window.addEventListener('scroll', listenToScroll);
-    return ()=> {window.removeEventListener('scroll', listenToScroll)};
+  useEffect(() => {
+    if (props.currentLimit - 18 < props.handlers.length) {
+      window.addEventListener('scroll', listenToScroll);
+      return () => {
+        window.removeEventListener('scroll', listenToScroll);
+      };
     }
-  },[props.currentLimit, props.loading]);
+  }, [props.currentLimit, props.loading]);
 
   const onChange = value => {
-    currentLimit.set(18)
+    currentLimit.set(18);
     currentSearch.set(value);
   };
+
   const onSortTypeChange = value => {
-    currentLimit.set(18)
+    currentLimit.set(18);
     currentSearchOption.set(value.target.value);
   };
 
   const onSortOrderChange = value => {
-    if(props.currentSearchOption === value.target.value){
-      currentOrder.set(props.currentOrder === "down" ? "up" : "down");
-    }else{
-      currentOrder.set("down");
+    if (props.currentSearchOption === value.target.value) {
+      currentOrder.set(props.currentOrder === 'down' ? 'up' : 'down');
+    } else {
+      currentOrder.set('down');
     }
   };
 
@@ -87,26 +95,41 @@ function Handlers(props) {
   return (
     <div>
       <Typography>
-        <Title>Explore handlers</Title>
-        <Paragraph>Search for games you like and play them with your friends.</Paragraph>
+        <Title aria-label="aria-expanded">Explore handlers</Title>
+        <Paragraph aria-label="aria-level">Search for games you like and play them with your friends.</Paragraph>
       </Typography>
-      <AutoComplete
-        value={currentSearch.get()}
-        dataSource={searched}
-        style={{ width: 350 }}
-        onSearch={onSearch}
-        onChange={onChange}
-        placeholder="Search any handler"
-      />
+      <label htmlFor="handlers-search-autocomplete" aria-label="landmark">
+        <AutoComplete
+          id="handlers-search-autocomplete"
+          aria-label="search"
+          value={currentSearch.get()}
+          dataSource={searched}
+          style={{ width: 350 }}
+          onSearch={onSearch}
+          onChange={onChange}
+          placeholder="Search any handler"
+        />
+      </label>
       <Radio.Group
         style={{ marginLeft: '50px' }}
         value={currentSearchOption.get()}
         onChange={onSortTypeChange}
       >
-        <Radio.Button onClick={onSortOrderChange} value="hot">{props.currentSearchOption === "hot" && <Icon type={props.currentOrder} />} Hottest</Radio.Button>
-        <Radio.Button onClick={onSortOrderChange} value="download">{props.currentSearchOption === "download" && <Icon type={props.currentOrder} />} Downloads</Radio.Button>
-        <Radio.Button onClick={onSortOrderChange} value="latest">{props.currentSearchOption === "latest" && <Icon type={props.currentOrder} />} Release date</Radio.Button>
-        {isAdmin && <Radio.Button onClick={onSortOrderChange} value="report">{props.currentSearchOption === "report" && <Icon type={props.currentOrder} />} Reports</Radio.Button>}
+        <Radio.Button onClick={onSortOrderChange} value="hot">
+          {props.currentSearchOption === 'hot' && <Icon type={props.currentOrder} />} Hottest
+        </Radio.Button>
+        <Radio.Button onClick={onSortOrderChange} value="download">
+          {props.currentSearchOption === 'download' && <Icon type={props.currentOrder} />} Downloads
+        </Radio.Button>
+        <Radio.Button onClick={onSortOrderChange} value="latest">
+          {props.currentSearchOption === 'latest' && <Icon type={props.currentOrder} />} Release
+          date
+        </Radio.Button>
+        {isAdmin && (
+          <Radio.Button onClick={onSortOrderChange} value="report">
+            {props.currentSearchOption === 'report' && <Icon type={props.currentOrder} />} Reports
+          </Radio.Button>
+        )}
       </Radio.Group>
       <br />
       <Divider />
@@ -114,13 +137,13 @@ function Handlers(props) {
         <List
           size="large"
           grid={{
-            gutter: 24,
+            gutter: 10,
             xs: 1,
             sm: 2,
-            md: 4,
+            md: 3,
             lg: 4,
             xl: 4,
-            xxl: 6,
+            xxl: 5,
           }}
           dataSource={props.handlers}
           footer={
@@ -128,12 +151,15 @@ function Handlers(props) {
               <b>SplitScreen.Me</b> compatible handlers.
             </div>
           }
-          header={<div></div>}
           renderItem={item => (
             <List.Item key={item._id}>
               <Card
                 cover={
-                  <Link to={`/handler/${item._id}`}>
+                  <Link
+                    id={'handler-card-' + item._id}
+                    to={`/handler/${item._id}`}
+                    alt={'link to ' + item.gameName}
+                  >
                     <div
                       style={{
                         width: 'auto',
@@ -147,18 +173,25 @@ function Handlers(props) {
                             : '/no_image.jpg'
                         })`,
                       }}
-                      alt="Game cover"
+                      alt={'Game Cover for ' + item.gameName}
                     />
                   </Link>
                 }
                 actions={[
                   <Tooltip
                     placement="bottomLeft"
-                    title={item.verified ? "The latest release of this handler has been validated and is safe to use." : "The latest release of this handler has not been verified. Check the FAQ for insight into the verification process."}
+                    title={
+                      item.verified
+                        ? 'The latest release of this handler has been validated and is safe to use.'
+                        : 'The latest release of this handler has not been verified. Check the FAQ for insight into the verification process.'
+                    }
                   >
-                  {item.verified ? <Icon type="safety-certificate" theme="twoTone" twoToneColor="#52c41a" /> : <Icon type="exclamation-circle" />}
-                  </Tooltip>
-                  ,
+                    {item.verified ? (
+                      <Icon type="safety-certificate" theme="twoTone" twoToneColor="#52c41a" />
+                    ) : (
+                      <Icon type="exclamation-circle" />
+                    )}
+                  </Tooltip>,
                   props.user ? (
                     <div onClick={() => star(item._id)}>
                       <IconText
@@ -185,23 +218,55 @@ function Handlers(props) {
                       </div>
                     </Link>
                   ),
-                  item.downloadCount >= 1000 ? (
+                  item.downloadCount > 999 ? (
                     <Tooltip placement="bottomLeft" title={item.downloadCount} arrowPointAtCenter>
                       <Link to={`/handler/${item._id}`}>
-                        <IconText type="download" tooltip={item.downloadCount} text={kFormatter(item.downloadCount)} key="view" />
+                        <IconText
+                          type="download"
+                          text={counterFormatter(item.downloadCount)}
+                          key="view"
+                        />
                       </Link>
                     </Tooltip>
                   ) : (
                     <Link to={`/handler/${item._id}`}>
-                      <IconText type="download" tooltip={item.downloadCount} text={kFormatter(item.downloadCount)} key="view" />
+                      <IconText
+                        type="download"
+                        text={counterFormatter(item.downloadCount)}
+                        key="view"
+                      />
                     </Link>
                   ),
-                  <Link to={`/handler/${item._id}`}>
-                    <IconText type="message" text={item.commentCount} key="comCount" />
-                  </Link>,
-                  ...(!!isAdmin ? [<Link to={`/handler/${item._id}`}>
-                    <IconText type="warning" text={item.reports} key="reportCount" />
-                  </Link>] : [])
+                  item.commentCount > 999 ? (
+                    <Tooltip placement="bottomLeft" title={item.downloadCount} arrowPointAtCenter>
+                      <Link to={`/handler/${item._id}`}>
+                        <IconText
+                          type="message"
+                          text={counterFormatter(item.commentCount)}
+                          key="comCount"
+                        />
+                      </Link>
+                    </Tooltip>
+                  ) : (
+                    <Link to={`/handler/${item._id}`}>
+                      <IconText
+                        type="message"
+                        text={counterFormatter(item.commentCount)}
+                        key="comCount"
+                      />
+                    </Link>
+                  ),
+                  ...(isAdmin
+                    ? [
+                        <Link to={`/handler/${item._id}`}>
+                          <IconText
+                            type="warning"
+                            text={counterFormatter(item.reports)}
+                            key="reportCount"
+                          />
+                        </Link>,
+                      ]
+                    : []),
                 ]}
               >
                 <Meta
@@ -248,20 +313,27 @@ function Handlers(props) {
     </div>
   );
 }
+
 export default withTracker(() => {
   const reactiveCurrentOrder = currentOrder.get();
-  const subscription = Meteor.subscribe('handlers', currentSearch.get(), currentSearchOption.get(), reactiveCurrentOrder, currentLimit.get());
+  const subscription = Meteor.subscribe(
+    'handlers',
+    currentSearch.get(),
+    currentSearchOption.get(),
+    reactiveCurrentOrder,
+    currentLimit.get(),
+  );
   const user = Meteor.user();
 
-  let sortObject = { stars: reactiveCurrentOrder === "up" ? 1 : -1 };
+  let sortObject = { stars: reactiveCurrentOrder === 'up' ? 1 : -1 };
   if (currentSearchOption.get() === 'download') {
-    sortObject = { downloadCount: reactiveCurrentOrder === "up" ? 1 : -1 };
+    sortObject = { downloadCount: reactiveCurrentOrder === 'up' ? 1 : -1 };
   }
   if (currentSearchOption.get() === 'latest') {
-    sortObject = { createdAt: reactiveCurrentOrder === "up" ? 1 : -1 };
+    sortObject = { createdAt: reactiveCurrentOrder === 'up' ? 1 : -1 };
   }
   if (currentSearchOption.get() === 'report') {
-    sortObject = { reports: reactiveCurrentOrder === "up" ? 1 : -1 };
+    sortObject = { reports: reactiveCurrentOrder === 'up' ? 1 : -1 };
   }
 
   return {
