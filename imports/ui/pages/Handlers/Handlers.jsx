@@ -125,6 +125,9 @@ function Handlers(props) {
           {props.currentSearchOption === 'latest' && <Icon type={props.currentOrder} />} Release
           date
         </Radio.Button>
+        <Radio.Button onClick={onSortOrderChange} value="alphabetical">
+          {props.currentSearchOption === 'alphabetical' && <Icon type={props.currentOrder} />} Alphabetical
+        </Radio.Button>
         {isAdmin && (
           <Radio.Button onClick={onSortOrderChange} value="report">
             {props.currentSearchOption === 'report' && <Icon type={props.currentOrder} />} Reports
@@ -137,13 +140,13 @@ function Handlers(props) {
         <List
           size="large"
           grid={{
-            gutter: 10,
+            gutter: 60,
             xs: 1,
-            sm: 2,
-            md: 3,
-            lg: 4,
-            xl: 4,
-            xxl: 5,
+            sm: 1,
+            md: 2,
+            lg: 2,
+            xl: 3,
+            xxl: 4,
           }}
           dataSource={props.handlers}
           footer={
@@ -152,7 +155,7 @@ function Handlers(props) {
             </div>
           }
           renderItem={item => (
-            <List.Item key={item._id}>
+            <List.Item key={item._id} style={{ paddingBottom: '30px' }}>
               <Card
                 cover={
                   <Link
@@ -163,7 +166,7 @@ function Handlers(props) {
                     <div
                       style={{
                         width: 'auto',
-                        height: '360px',
+                        height: '550px',
                         backgroundSize: 'cover',
                         backgroundRepeat: 'no-repeat',
                         backgroundPosition: 'center center',
@@ -334,6 +337,9 @@ export default withTracker(() => {
   }
   if (currentSearchOption.get() === 'report') {
     sortObject = { reports: reactiveCurrentOrder === 'up' ? 1 : -1 };
+  }
+  if (currentSearchOption.get() === 'alphabetical') {
+    sortObject = { gameName: reactiveCurrentOrder === 'up' ? -1 : 1 };
   }
 
   return {

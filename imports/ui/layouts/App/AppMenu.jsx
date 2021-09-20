@@ -35,7 +35,7 @@ function AppMenu(props) {
         <a href="https://www.splitscreen.me">
           <Icon
             component={() => (
-              <img src="splitscreen-me-logo.png" height="35px" alt="SplitScreen Me logo" />
+              <img src="../splitscreen-me-logo.png" height="35px" alt="SplitScreen Me logo" />
             )}
           />
           SplitScreen Me
