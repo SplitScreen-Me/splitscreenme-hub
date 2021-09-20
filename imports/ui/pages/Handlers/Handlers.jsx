@@ -144,7 +144,7 @@ function Handlers(props) {
             xs: 1,
             sm: 1,
             md: 2,
-            lg: 3,
+            lg: 2,
             xl: 3,
             xxl: 4,
           }}
