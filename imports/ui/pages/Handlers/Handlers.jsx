@@ -167,7 +167,7 @@ function Handlers(props) {
                     <div
                       style={{
                         width: 'auto',
-                        height: '400px',
+                        height: '380px',
                         backgroundSize: 'cover',
                         backgroundRepeat: 'no-repeat',
                         backgroundPosition: 'center center',
