@@ -70,7 +70,7 @@ function Handlers(props) {
 
   const onChange = value => {
     currentLimit.set(18);
-    currentSearch.set(value);
+    value === undefined ? currentSearch.set('') : currentSearch.set(value);
   };
 
   const onSortTypeChange = value => {
@@ -103,6 +103,7 @@ function Handlers(props) {
           id="handlers-search-autocomplete"
           aria-label="search"
           value={currentSearch.get()}
+          allowClear={true}
           dataSource={searched}
           style={{ width: 350 }}
           onSearch={onSearch}
@@ -140,13 +141,13 @@ function Handlers(props) {
         <List
           size="large"
           grid={{
-            gutter: 60,
+            gutter: 15,
             xs: 1,
-            sm: 1,
+            sm: 2,
             md: 2,
-            lg: 2,
-            xl: 3,
-            xxl: 4,
+            lg: 3,
+            xl: 4,
+            xxl: 6,
           }}
           dataSource={props.handlers}
           footer={
@@ -155,7 +156,7 @@ function Handlers(props) {
             </div>
           }
           renderItem={item => (
-            <List.Item key={item._id} style={{ paddingBottom: '30px' }}>
+            <List.Item key={item._id} style={{ paddingBottom: '10px' }}>
               <Card
                 cover={
                   <Link
@@ -166,7 +167,7 @@ function Handlers(props) {
                     <div
                       style={{
                         width: 'auto',
-                        height: '550px',
+                        height: '400px',
                         backgroundSize: 'cover',
                         backgroundRepeat: 'no-repeat',
                         backgroundPosition: 'center center',
@@ -281,7 +282,7 @@ function Handlers(props) {
                     </div>
                   }
                   description={
-                    <div style={{ paddingTop: '10px' }}>
+                    <div style={{ paddingTop: '5px' }}>
                       <div
                         style={{
                           float: 'left',
