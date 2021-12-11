@@ -4,6 +4,8 @@ import Handlers from '../Handlers';
 import Comments from '../../Comments/Comments';
 import escapeRegExp from '../../../modules/regexescaper';
 import Packages from '../../Packages/server/ServerPackages';
+import axios from "axios";
+import { bearerToken } from "./igdb-methods";
 
 Meteor.publish(
   'handlers',
@@ -72,6 +74,42 @@ Meteor.publish(
     httpMethod: 'get',
   },
 );
+
+
+/* This code is a PoC, its dirty */
+const screenshotsCache = {};
+
+WebApp.connectHandlers.use('/api/v1/screenshots', async (req, res, next) => {
+  res.writeHead(200);
+  const handlerId = req.url.split("/")[1];
+  if(handlerId.length > 0){
+    const handler = await Handlers.findOne({ _id: handlerId }, {fields: {gameId: 1}});
+    if(!handler?.gameId) {
+      res.end(JSON.stringify({error: 'Incorrect handlerId'}));
+      return;
+    }
+
+    if(!screenshotsCache[handler.gameId]){
+      const igdbApi = axios.create({
+        baseURL: 'https://api.igdb.com/v4/',
+        timeout: 2500,
+        headers: {
+          'Client-ID': Meteor.settings.private.IGDB_API_ID,
+          Authorization: `Bearer ${bearerToken}`,
+          'Content-Type': 'text/plain',
+          Accept: 'application/json',
+        },
+      });
+      const igdbAnswer = await igdbApi.post('screenshots', `fields *;where game = ${handler.gameId};`);
+      screenshotsCache[handler.gameId] = igdbAnswer.data;
+    }
+    res.end(JSON.stringify({screenshots: screenshotsCache[handler.gameId]}));
+  }else{
+    res.end(JSON.stringify({error: 'No handler ID provided'}))
+  }
+  res.end(JSON.stringify({error: 'Unknown error'}))
+})
+/* End of dirty PoC */
 
 WebApp.connectHandlers.use('/api/v1/hubstats', async (req, res, next) => {
   res.writeHead(200);

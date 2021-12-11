@@ -67,3 +67,9 @@ Download a package from it's ID:
 url: /cdn/storage/packages/:package_id/original/handler-{handler_id}-v{version_of_handler}.nc?download=true
 httpMethod: "get"
 ```
+
+Get IGDB screenshots for a handler:
+```
+url: "api/v1/screenshots/:handler_id",
+httpMethod: "get"
+```

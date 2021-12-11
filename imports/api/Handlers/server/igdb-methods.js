@@ -7,7 +7,7 @@ import axios from 'axios';
 import handleMethodException from '../../../modules/handle-method-exception';
 import rateLimit from '../../../modules/rate-limit';
 
-let bearerToken = '';
+export let bearerToken = '';
 
 const refreshBearer = () => {
   HTTP.call(
