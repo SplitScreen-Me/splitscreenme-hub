@@ -9,20 +9,7 @@
 
 The Hub is created using [Meteor](https://www.meteor.com/), [React](https://www.reactjs.org), [Antd Design](https://ant.design/).
 
-Feel free to **contribute & help** us build the most amazing **hub for splitscreened games** ever !
-
-## Prerequisites
-1. IDE or text editor. for example [WebStorm](https://www.jetbrains.com/webstorm/) or [VSCode](https://code.visualstudio.com/)
-2. IDE for MongoDB, we recommend [NoSQLBooster](https://nosqlbooster.com/)
-#### Installation
-```
-$ npm install
-```
-#### Local Development
-```
-$ npm run dev
-```
-This command starts a local development server and open up a browser window. Most changes are reflected live without having to restart the server.
+Feel free to [contribute](#contribute) and help us build the most amazing **hub for splitscreened games** ever!
 
 ## Basic API 🔥
 
@@ -73,3 +60,17 @@ Get IGDB screenshots for a handler:
 url: "api/v1/screenshots/:handler_id",
 httpMethod: "get"
 ```
+
+## Contribute
+### Prerequisites
+1. IDE or text editor. for example [WebStorm](https://www.jetbrains.com/webstorm/) or [VSCode](https://code.visualstudio.com/)
+2. IDE for MongoDB, we recommend [NoSQLBooster](https://nosqlbooster.com/)
+#### Installation
+```
+$ npm install
+```
+#### Local Development
+```
+$ npm run dev
+```
+This command starts a local development server and open up a browser window. Most changes are reflected live without having to restart the server.
