@@ -110,7 +110,7 @@ function CreateHandler(props) {
                   ],
                 })(<Input placeholder="What game will you create a handler for ?" />)}
               </Form.Item>
-              <Form.Item {...formItemLayout} label="Filter PC plateform only">
+              <Form.Item {...formItemLayout} label="Filter PC platform only">
                 {getFieldDecorator('searchFilter')(<Checkbox  name="searchFilter" valuePropName="checked" defaultChecked />)}
               </Form.Item>
               <Form.Item {...formTailLayout}>
