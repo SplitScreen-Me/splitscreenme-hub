@@ -3,6 +3,7 @@
 import { Meteor } from 'meteor/meteor';
 import { check, Match } from 'meteor/check';
 import Comments from './Comments';
+import { Roles } from 'meteor/alanning:roles';
 import handleMethodException from '../../modules/handle-method-exception';
 import rateLimit from '../../modules/rate-limit';
 import Handlers from '../Handlers/Handlers';
@@ -47,7 +48,7 @@ Meteor.methods({
         fields: { owner: 1, handlerId: 1 },
       });
 
-      if (docToRemove.owner === this.userId) {
+      if (docToRemove.owner === this.userId || Roles.userIsInRole(this.userId, "admin_enabled")) {
         const handler = Handlers.findOne(docToRemove.handlerId);
         if (handler.owner) {
           Handlers.update(docToRemove.handlerId, {

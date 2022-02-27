@@ -27,6 +27,8 @@ function CommentSection(props) {
   const [myComment, setMyComment] = useState('');
   const [isSending, setIsSending] = useState(false);
 
+  const isAdmin = props.user && Roles.userIsInRole(props.user._id, ['admin_enabled']);
+
   const confirmDeleteComment = commentId => e => {
     Meteor.call('comments.remove', commentId, (error, result) => {
       if (error) {
@@ -70,26 +72,26 @@ function CommentSection(props) {
   const data = props.comments.map((comment, index) => ({
     actions: [
       <div key="comment-list-report" style={{ fontSize: '10px' }}>
-        {Meteor.userId() &&
-          (comment.owner === Meteor.userId() ? (
-            <Popconfirm
-              title="Are you sure you want to delete your comment ?"
-              onConfirm={confirmDeleteComment(comment._id)}
-              okText="Yes"
-              cancelText="No"
-            >
-              <a href="#">Delete</a>
-            </Popconfirm>
-          ) : (
+        {(comment.owner === Meteor.userId() || isAdmin) &&
+        <Popconfirm
+          title="Are you sure you want to delete your comment ?"
+          onConfirm={confirmDeleteComment(comment._id)}
+          okText="Yes"
+          cancelText="No"
+        >
+          <a href="#">Delete   </a>
+        </Popconfirm>
+        }
+        {(Meteor.userId() && comment.owner !== Meteor.userId()) &&
             <Popconfirm
               title="Are you sure you want to report this comment ?"
               onConfirm={confirmReportComment}
               okText="Yes"
               cancelText="No"
             >
-              <a href="#">Delete</a>
+              <a href="#">Report</a>
             </Popconfirm>
-          ))}
+          }
       </div>,
     ],
     author: comment.ownerName,
