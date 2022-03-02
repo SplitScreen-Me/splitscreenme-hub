@@ -3,6 +3,7 @@ import { HTTP } from 'meteor/http';
 
 const adminLogging_webhookUrl = Meteor.settings.private.DISCORD_ADMIN_LOGGING_WEBHOOK || '';
 const releaseLogging_webhookUrl = Meteor.settings.private.DISCORD_RELEASE_LOGGING_WEBHOOK || '';
+const releaseLogging_roleId = Meteor.settings.private.DISCORD_RELEASE_LOGGING_ROLEID || '';
 const generalLogging_webhookUrl = Meteor.settings.private.DISCORD_GENERAL_LOGGING_WEBHOOK || '';
 
 // Discord Admin Logging :
@@ -50,7 +51,7 @@ const d_rLog = handler => {
 
   if (releaseLogging_webhookUrl.length > 0 && generalLogging_webhookUrl) {
     HTTP.call('POST', releaseLogging_webhookUrl, {
-      data: { ...discordData, content: '**New handler release!**\n<@&696472181093171300>' },
+      data: { ...discordData, content: '**New handler release!**\n<@&' + releaseLogging_roleId + '>' },
     });
     HTTP.call('POST', generalLogging_webhookUrl, {
       data: discordData,
