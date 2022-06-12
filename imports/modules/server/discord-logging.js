@@ -7,7 +7,7 @@ const releaseLogging_roleId = Meteor.settings.private.DISCORD_RELEASE_LOGGING_RO
 const generalLogging_webhookUrl = Meteor.settings.private.DISCORD_GENERAL_LOGGING_WEBHOOK || '';
 
 // Discord Admin Logging :
-const d_aLog = (title, description) => {
+const discord_admin_log = (title, description) => {
   if (adminLogging_webhookUrl.length > 0) {
     HTTP.call('POST', adminLogging_webhookUrl, {
       data: { content: `**${title}** - \`${description}\`` },
@@ -17,7 +17,7 @@ const d_aLog = (title, description) => {
   }
 };
 // Discord Release Logging :
-const d_rLog = handler => {
+const discord_release_log = handler => {
   const discordData = {
     content: '**New handler release!**',
     embeds: [
@@ -61,4 +61,4 @@ const d_rLog = handler => {
   }
 };
 
-export { d_aLog, d_rLog };
+export { discord_admin_log, discord_release_log };

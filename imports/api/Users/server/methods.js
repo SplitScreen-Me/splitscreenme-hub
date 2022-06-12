@@ -7,7 +7,7 @@ import deleteAccount from './delete-account';
 import sendWelcomeEmail from './send-welcome-email';
 import handleMethodException from '../../../modules/handle-method-exception';
 import rateLimit from '../../../modules/rate-limit';
-import {d_aLog} from '../../../modules/server/discord-logging';
+import {discord_admin_log} from '../../../modules/server/discord-logging';
 
 Meteor.methods({
   'users.sendVerificationEmail': function usersSendVerificationEmail() {
@@ -150,11 +150,11 @@ Meteor.methods({
     }
     if(Roles.userIsInRole(this.userId, 'admin_enabled')){
       Roles.removeUsersFromRoles(this.userId, 'admin_enabled');
-      d_aLog("Log out", `${Meteor.user().profile.username} turned off admin mode.`);
+      discord_admin_log("Log out", `${Meteor.user().profile.username} turned off admin mode.`);
       return "disabled";
     }else{
       Roles.addUsersToRoles(this.userId, 'admin_enabled');
-      d_aLog("Log in", `${Meteor.user().profile.username} turned on admin mode.`);
+      discord_admin_log("Log in", `${Meteor.user().profile.username} turned on admin mode.`);
       return "enabled";
     }
   }

@@ -9,7 +9,7 @@ import prettier from "prettier/standalone";
 import parserBabel from "prettier/parser-babylon";
 import handleMethodException from '../../../modules/handle-method-exception';
 import Handlers from '../../Handlers/Handlers';
-import { d_aLog } from "../../../modules/server/discord-logging";
+import { discord_admin_log } from "../../../modules/server/discord-logging";
 
 let gfs;
 if (Meteor.isServer) {
@@ -146,7 +146,7 @@ const Packages = new FilesCollection({
               Handlers.update(pkg.meta.handlerId, {
                 $set: { currentVersion: newVersion, currentPackage: pkg._id, verified: false },
               });
-              d_aLog("Package publication", `${uploadUser.profile.username} published a new package for handler ${handler.title} ${handler.gameName} (${handler._id}).`);
+              discord_admin_log("Package publication", `${uploadUser.profile.username} published a new package for handler ${handler.title} ${handler.gameName} (${handler._id}).`);
             });
         } catch (exception) {
           this.remove(pkg._id);

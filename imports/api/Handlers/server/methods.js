@@ -8,7 +8,7 @@ import Comments from '../../Comments/Comments';
 import Packages from '../../Packages/server/ServerPackages';
 import handleMethodException from '../../../modules/handle-method-exception';
 import rateLimit from '../../../modules/rate-limit';
-import { d_aLog, d_rLog } from "../../../modules/server/discord-logging";
+import { discord_admin_log, discord_release_log } from "../../../modules/server/discord-logging";
 
 Meteor.methods({
   'handlers.findOne': function handlersFindOne(handlerId) {
