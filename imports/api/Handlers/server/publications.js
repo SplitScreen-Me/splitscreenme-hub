@@ -35,7 +35,7 @@ Meteor.publish(
       },
       {
         sort: sortObject,
-        limit: Math.min(limit, 500),
+        limit: Math.min(limit, 600),
       },
     );
   },
@@ -177,7 +177,7 @@ Meteor.publish(
       },
       {
         sort: { stars: -1 },
-        limit: 500,
+        limit: 600,
       },
     );
   },
