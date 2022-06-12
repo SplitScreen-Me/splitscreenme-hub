@@ -259,7 +259,7 @@ export default withRouter(
           {
             "profile.username": {
               $regex: new RegExp(escapeRegExp(currentSearch.get())),
-              $options: "i"
+              $options: "gi"
             }
           },
           {

@@ -19,7 +19,7 @@ Meteor.publish('users.getProfile', function getProfile(userId) {
   });
 });
 Meteor.publish('users.searchProfile', function searchProfile(username) {
-  return Meteor.users.find({'profile.username':  { $regex: new RegExp(escapeRegExp(username)), $options: 'i' }}, {
+  return Meteor.users.find({'profile.username':  { $regex: new RegExp(escapeRegExp(username)), $options: 'gi' }}, {
     fields: {
       profile: 1,
     },

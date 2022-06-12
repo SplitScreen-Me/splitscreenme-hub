@@ -30,7 +30,7 @@ Meteor.publish(
     }
     return Handlers.find(
       {
-        gameName: { $regex: new RegExp(escapeRegExp(handlerTitleSearch)), $options: 'i' },
+        gameName: { $regex: new RegExp(escapeRegExp(handlerTitleSearch)), $options: 'gi' },
         private: false,
       },
       {
