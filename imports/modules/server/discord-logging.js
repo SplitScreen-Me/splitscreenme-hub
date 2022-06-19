@@ -1,13 +1,13 @@
 import { Meteor } from 'meteor/meteor';
 import { HTTP } from 'meteor/http';
 
-const adminLogging_webhookUrl = Meteor.settings.private.DISCORD_ADMIN_LOGGING_WEBHOOK || '';
-const releaseLogging_webhookUrl = Meteor.settings.private.DISCORD_RELEASE_LOGGING_WEBHOOK || '';
-const releaseLogging_roleId = Meteor.settings.private.DISCORD_RELEASE_LOGGING_ROLEID || '';
-const generalLogging_webhookUrl = Meteor.settings.private.DISCORD_GENERAL_LOGGING_WEBHOOK || '';
+const adminLogging_webhookUrl = Meteor.settings.private.DISCORD_ADMIN_LOGGING_WEBHOOK || 'https://discord.com/api/webhooks/985631056893980792/nlSCCJ1NwH7swqiKCe-1OnCBrMlb_nk1PzjqF97ER_zUrr6zn5MyX5nNZTUpZatwZJDh';
+const releaseLogging_webhookUrl = Meteor.settings.private.DISCORD_RELEASE_LOGGING_WEBHOOK || 'https://discord.com/api/webhooks/985630979911741440/qaJpon-yIiC3avi17nogh7xTJP6bovulLcpg4kzM9snfXEmWLXng8ru_0qSAitKum382';
+const releaseLogging_roleId = Meteor.settings.private.DISCORD_RELEASE_LOGGING_ROLEID || '985629240831639642';
+const generalLogging_webhookUrl = Meteor.settings.private.DISCORD_GENERAL_LOGGING_WEBHOOK || 'https://discord.com/api/webhooks/985631024207757392/GpzkZiq7wuQh1M-YSCZQBQVmoYexffroaPEU3QIXVD5oHz-2KTGH8WnHkP_A7uh5DmWU';
 
 // Discord Admin Logging :
-const d_aLog = (title, description) => {
+const discord_admin_log = (title, description) => {
   if (adminLogging_webhookUrl.length > 0) {
     HTTP.call('POST', adminLogging_webhookUrl, {
       data: { content: `**${title}** - \`${description}\`` },
@@ -17,9 +17,12 @@ const d_aLog = (title, description) => {
   }
 };
 // Discord Release Logging :
-const d_rLog = handler => {
+const discord_release_log = (handler) => {
+  const isNewRelease = handler.currentVersion === 1
+  const discordMessage = isNewRelease ? '**New handler release!**' :  '**Handler updated!**'
+
   const discordData = {
-    content: '**New handler release!**',
+    content: discordMessage,
     embeds: [
       {
         color: 3447003,
@@ -51,7 +54,7 @@ const d_rLog = handler => {
 
   if (releaseLogging_webhookUrl.length > 0 && generalLogging_webhookUrl) {
     HTTP.call('POST', releaseLogging_webhookUrl, {
-      data: { ...discordData, content: '**New handler release!**\n<@&' + releaseLogging_roleId + '>' },
+      data: { ...discordData, content: `${discordData.content}\n<@&${releaseLogging_roleId}>` },
     });
     HTTP.call('POST', generalLogging_webhookUrl, {
       data: discordData,
@@ -61,4 +64,4 @@ const d_rLog = handler => {
   }
 };
 
-export { d_aLog, d_rLog };
+export { discord_admin_log, discord_release_log };

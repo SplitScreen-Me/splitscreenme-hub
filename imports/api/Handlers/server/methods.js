@@ -8,7 +8,7 @@ import Comments from '../../Comments/Comments';
 import Packages from '../../Packages/server/ServerPackages';
 import handleMethodException from '../../../modules/handle-method-exception';
 import rateLimit from '../../../modules/rate-limit';
-import { d_aLog, d_rLog } from "../../../modules/server/discord-logging";
+import { discord_admin_log, discord_release_log } from "../../../modules/server/discord-logging";
 
 Meteor.methods({
   'handlers.findOne': function handlersFindOne(handlerId) {
@@ -111,12 +111,11 @@ Meteor.methods({
       // Switching from private to public
       if(doc.private === false && docToUpdate.private === true){
         doc.lastPublicationAt = new Date();
-        if(!docToUpdate.lastPublicationAt) d_rLog(docToUpdate);
       }
 
       if (docToUpdate.owner === this.userId || Roles.userIsInRole(this.userId, "admin_enabled")) {
         Handlers.update(handlerId, { $set: doc });
-        if(Roles.userIsInRole(this.userId, "admin_enabled")) d_aLog("Handler update", `${Meteor.user().profile.username} updated handler ${docToUpdate.title} ${docToUpdate.gameName} (${handlerId}).`);
+        if(Roles.userIsInRole(this.userId, "admin_enabled")) discord_admin_log("Handler update", `${Meteor.user().profile.username} updated handler ${docToUpdate.title} ${docToUpdate.gameName} (${handlerId}).`);
         return handlerId; // Return _id so we can redirect to document after update.
       }
 
@@ -134,7 +133,7 @@ Meteor.methods({
       if (docToRemove.owner === this.userId || Roles.userIsInRole(this.userId, "admin_enabled")) {
         Packages.remove({'meta.handlerId': handlerId});
         Comments.remove({'handlerId': handlerId});
-        if(Roles.userIsInRole(this.userId, "admin_enabled")) d_aLog("Handler removal", `${Meteor.user().profile.username} removed handler ${docToRemove.title} ${docToRemove.gameName} (${handlerId}).`);
+        if(Roles.userIsInRole(this.userId, "admin_enabled")) discord_admin_log("Handler removal", `${Meteor.user().profile.username} removed handler ${docToRemove.title} ${docToRemove.gameName} (${handlerId}).`);
         return Handlers.remove(handlerId);
       }
 
@@ -166,7 +165,7 @@ Meteor.methods({
         const handler = Handlers.findOne(handlerId);
         if(handler){
         Handlers.update(handlerId, { $set: { reports: 0 } });
-        d_aLog("Reset reports", `${Meteor.user().profile.username} resetted reports for handler ${handler.title} ${handler.gameName} (${handlerId}). Old count : ${handler.reports || 0}`);
+        discord_admin_log("Reset reports", `${Meteor.user().profile.username} resetted reports for handler ${handler.title} ${handler.gameName} (${handlerId}). Old count : ${handler.reports || 0}`);
         }else{
           throw new Meteor.Error('404', "Handler not found.");
         }
@@ -183,13 +182,18 @@ Meteor.methods({
 
     try {
         const handler = Handlers.findOne(handlerId);
+
         if(handler && handler.currentPackage){
-        Handlers.update(handlerId, { $set: { verified: !handler.verified } });
-          Packages.update(handler.currentPackage, {
-            $set: { 'meta.verified': !handler.verified },
-          });
-        d_aLog("Handler verification", `${Meteor.user().profile.username} for ${handler.title} ${handler.gameName} (${handlerId}). Changed v${handler.currentVersion} verification to : ${!handler.verified}.`);
-        }else{
+          Handlers.update(handlerId, { $set: { verified: !handler.verified } });
+            Packages.update(handler.currentPackage, {
+              $set: { 'meta.verified': !handler.verified },
+            });
+          
+          if(!handler.private && !handler.verified) {
+            discord_release_log(handler);
+          }
+          discord_admin_log("Handler verification", `${Meteor.user().profile.username} for ${handler.title} ${handler.gameName} (${handlerId}). Changed v${handler.currentVersion} verification to : ${!handler.verified}.`);
+        } else{
           throw new Meteor.Error('404', "Handler or package not found.");
         }
     } catch (exception) {
