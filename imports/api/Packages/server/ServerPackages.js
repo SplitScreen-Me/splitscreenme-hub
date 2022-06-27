@@ -38,6 +38,25 @@ const Packages = new FilesCollection({
     const handler = Handlers.findOne(pkg.meta.handlerId);
     const newVersion = parseInt(handler.currentVersion) + 1;
     const uploadUser = Meteor.users.findOne(pkg.userId);
+    const prettierConfig = {
+      arrowParens: 'avoid',
+      bracketSpacing: true,
+      htmlWhitespaceSensitivity: 'css',
+      insertPragma: false,
+      jsxBracketSameLine: false,
+      jsxSingleQuote: false,
+      printWidth: 200,
+      proseWrap: 'preserve',
+      quoteProps: 'as-needed',
+      requirePragma: false,
+      semi: true,
+      singleQuote: false,
+      tabWidth: 2,
+      trailingComma: 'none',
+      useTabs: false,
+      parser: 'babel',
+      plugins: [parserBabel]
+    }
     fs.readFile(pkg.path, (err, data) => {
       if (err) {
         throw err;
@@ -48,25 +67,7 @@ const Packages = new FilesCollection({
             .file('handler.js')
             .async('string')
             .then(data => {
-              data = prettier.format(data, {
-                arrowParens: 'avoid',
-                bracketSpacing: true,
-                htmlWhitespaceSensitivity: 'css',
-                insertPragma: false,
-                jsxBracketSameLine: false,
-                jsxSingleQuote: false,
-                printWidth: 200,
-                proseWrap: 'preserve',
-                quoteProps: 'as-needed',
-                requirePragma: false,
-                semi: true,
-                singleQuote: false,
-                tabWidth: 2,
-                trailingComma: 'none',
-                useTabs: false,
-                parser: 'babel',
-                plugins: [parserBabel]
-              });
+              data = prettier.format(data, prettierConfig);
               data = data.replace(/^Hub\.Handler\.Version.*\R?/gim, '');
               data = data.replace(/^Hub\.Maintainer\.Id.*\R?/gim, '');
               data = data.replace(/^Hub\.Maintainer\.Name.*\R?/gim, '');
@@ -82,25 +83,7 @@ const Packages = new FilesCollection({
                 currDate.toString() +
                 '.\n' +
                 data;
-              data = prettier.format(data, {
-                arrowParens: 'avoid',
-                bracketSpacing: true,
-                htmlWhitespaceSensitivity: 'css',
-                insertPragma: false,
-                jsxBracketSameLine: false,
-                jsxSingleQuote: false,
-                printWidth: 200,
-                proseWrap: 'preserve',
-                quoteProps: 'as-needed',
-                requirePragma: false,
-                semi: true,
-                singleQuote: false,
-                tabWidth: 2,
-                trailingComma: 'none',
-                useTabs: false,
-                parser: 'babel',
-                plugins: [parserBabel]
-              });
+              data = prettier.format(data, prettierConfig);
               zip.file('handler.js', data);
 
               Object.keys(pkg.versions).forEach(versionName => {

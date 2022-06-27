@@ -122,7 +122,7 @@ class AddPackage extends React.Component {
           <Step
             title="Select your handler file"
             description={
-              <Upload multiple={false} accept=".nc,.zip" {...props}>
+              <Upload multiple={false} maxCount={1} accept=".nc,.zip" {...props}>
                 <Button>
                   <Icon type="upload" /> Select File
                 </Button>

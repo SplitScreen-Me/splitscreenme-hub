@@ -84,6 +84,8 @@ Meteor.methods({
     });
 
     try {
+      const maxDescriptionLength = 10000
+      
       if (doc.title.length <= 4 || doc.title.length >= 61) {
         throw new Meteor.Error(
           'Invalid name',
@@ -96,10 +98,10 @@ Meteor.methods({
           'Please provide a description for your handler.',
         );
       }
-      if (doc.description.length > 3000) {
+      if (doc.description.length > maxDescriptionLength) {
         throw new Meteor.Error(
           'Invalid description',
-          'Your description is too long (max 3000 chars.).',
+          `Your description is too long (max ${maxDescriptionLength} chars.).`,
         );
       }
       const handlerId = doc._id;
