@@ -95,6 +95,7 @@ function CommentSection(props) {
       </div>,
     ],
     author: comment.ownerName,
+    authorId: comment.owner,
     avatar: avatars.create(comment.ownerName),
     content: <p>{comment.content}</p>,
     datetime: (
@@ -141,12 +142,14 @@ function CommentSection(props) {
               <li>
                 <Comment
                   actions={item.actions}
-                  author={item.author}
+                  author={<a href={"../user/" + item.authorId}>{item.author}</a>}
                   avatar={
-                    <div
-                      style={{ width: '35px', height: '35px' }}
-                      dangerouslySetInnerHTML={{ __html: item.avatar }}
-                    />
+                    <a href={"../user/" + item.authorId}>
+                      <div
+                        style={{ width: '35px', height: '35px' }}
+                        dangerouslySetInnerHTML={{ __html: item.avatar }}
+                      />
+                    </a>
                   }
                   content={item.content}
                   datetime={item.datetime}
