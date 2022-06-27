@@ -1,0 +1,35 @@
+name: "📇 Meta/Repository feature"
+description: Are we missing anything in our GitHub repo? Let us know what to add!
+title: '📇 <feature name>'
+labels: [📇 Meta/Repository]
+body:
+  - type: markdown
+    attributes:
+      value: "## Before you continue, please search our open/closed issues to see if a similar issue has been addressed."
+
+  - type: checkboxes
+    attributes:
+      label: I have searched through the issues and didn't find my problem.
+      options:
+        - label: Confirm
+          required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Feature description
+      description: Short description of the feature you'd like added.
+    validations:
+      required: true
+
+  - type: textarea
+    id: whyweneedthisfeature
+    attributes:
+      label: Why do we need this feature?
+      description: Tell us why you want this feature, and how it could be helpful.
+
+  - type: textarea
+    id: extrainformation
+    attributes:
+      label: Additional information
+      description: Is there anything else we should know about this feature?
