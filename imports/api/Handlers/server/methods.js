@@ -117,7 +117,7 @@ Meteor.methods({
 
       if (docToUpdate.owner === this.userId || Roles.userIsInRole(this.userId, "admin_enabled")) {
         Handlers.update(handlerId, { $set: doc });
-        if(Roles.userIsInRole(this.userId, "admin_enabled")) discord_admin_log("Handler update", `${Meteor.user().profile.username} updated handler ${docToUpdate.title} ${docToUpdate.gameName} (${handlerId}).`);
+        discord_admin_log("Handler update", `${Meteor.user().profile.username} updated handler ${docToUpdate.title} ${docToUpdate.gameName} (${handlerId}).`);
         return handlerId; // Return _id so we can redirect to document after update.
       }
 
@@ -135,7 +135,7 @@ Meteor.methods({
       if (docToRemove.owner === this.userId || Roles.userIsInRole(this.userId, "admin_enabled")) {
         Packages.remove({'meta.handlerId': handlerId});
         Comments.remove({'handlerId': handlerId});
-        if(Roles.userIsInRole(this.userId, "admin_enabled")) discord_admin_log("Handler removal", `${Meteor.user().profile.username} removed handler ${docToRemove.title} ${docToRemove.gameName} (${handlerId}).`);
+        discord_admin_log("Handler removal", `${Meteor.user().profile.username} removed handler ${docToRemove.title} ${docToRemove.gameName} (${handlerId}).`);
         return Handlers.remove(handlerId);
       }
 
