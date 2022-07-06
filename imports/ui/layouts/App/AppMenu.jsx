@@ -38,7 +38,7 @@ function AppMenu(props) {
               <img src="../splitscreen-me-logo.png" height="35px" alt="SplitScreen Me logo" />
             )}
           />
-          SplitScreen Me
+          SplitScreen.Me
         </a>
       </Menu.Item>
       <Menu.Item key="/">
