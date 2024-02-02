@@ -32,7 +32,7 @@ jobs:
       run: |
         ls -la ./output
     - name: Publish to Registry
-      uses: elgohr/Publish-Docker-Github-Action@master
+      uses: elgohr/Publish-Docker-Github-Action@v5
       with:
         name: splitscreenmehub/hub
         username: ${{ secrets.DOCKER_USERNAME }}
