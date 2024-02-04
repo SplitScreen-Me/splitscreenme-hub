@@ -10,6 +10,7 @@ import {
   Typography,
   Radio,
   AutoComplete,
+  Tag,
 } from 'antd';
 import { withTracker } from 'meteor/react-meteor-data';
 import HandlersCollection from '../../../api/Handlers/Handlers';
@@ -18,6 +19,7 @@ import { Link } from 'react-router-dom';
 import Avatars from '@dicebear/avatars';
 import sprites from '@dicebear/avatars-gridy-sprites';
 import { Session } from 'meteor/session';
+import isFromWebview from '../../helpers/isFromWebview';
 
 const { Meta } = Card;
 let avatars = new Avatars(sprites({}));
@@ -138,27 +140,25 @@ function Handlers(props) {
       <br />
       <Divider />
       <Spin spinning={props.loading}>
-        <List
-          size="large"
-          grid={{
-            gutter: 15,
-            xs: 1,
-            sm: 2,
-            md: 2,
-            lg: 3,
-            xl: 4,
-            xxl: 6,
-          }}
-          dataSource={props.handlers}
-          footer={
-            <div>
-              <b>SplitScreen.Me</b> compatible handlers.
-            </div>
-          }
-          renderItem={item => (
-            <List.Item key={item._id} style={{ paddingBottom: '10px' }}>
-              <Card
-                cover={
+        {isFromWebview.get() ? (
+          <List
+            itemLayout="vertical"
+            size="large"
+            grid={{
+              gutter: 15,
+              xs: 1
+            }}
+            dataSource={props.handlers}
+            footer={
+              <div>
+                <b>SplitScreen.Me</b> compatible handlers.
+              </div>
+            }
+            renderItem={item => (
+              <List.Item key={item._id} style={{ paddingBottom: '6px' }}>
+                <Card bodyStyle={{padding:0}}
+                >
+                  <div style={{display:'flex', flexDirection:'row'}}>
                   <Link
                     id={'handler-card-' + item._id}
                     to={`/handler/${item._id}`}
@@ -166,8 +166,8 @@ function Handlers(props) {
                   >
                     <div
                       style={{
-                        width: 'auto',
-                        height: '380px',
+                        width: '80px',
+                        height: '110px',
                         backgroundSize: 'cover',
                         backgroundRepeat: 'no-repeat',
                         backgroundPosition: 'center center',
@@ -180,50 +180,221 @@ function Handlers(props) {
                       alt={'Game Cover for ' + item.gameName}
                     />
                   </Link>
-                }
-                actions={[
-                  <Tooltip
-                    placement="bottomLeft"
-                    title={
-                      item.verified
-                        ? 'The latest release of this handler has been validated and is safe to use.'
-                        : 'The latest release of this handler has not been verified. Check the FAQ for insight into the verification process.'
-                    }
-                  >
-                    {item.verified ? (
-                      <Icon type="safety-certificate" theme="twoTone" twoToneColor="#52c41a" />
-                    ) : (
-                      <Icon type="exclamation-circle" />
-                    )}
-                  </Tooltip>,
-                  props.user ? (
-                    <div onClick={() => star(item._id)}>
-                      <IconText
-                        type="fire"
-                        theme={
-                          props.user.profile.starredHandlers.includes(item._id)
-                            ? 'twoTone'
-                            : 'outlined'
+                    <Card
+                      className={'ant-card-nhover'}
+                      bordered={false}
+                      style={{ width: '100%' }}
+                      actions={[
+                        <Tooltip
+                          placement="bottomLeft"
+                          title={
+                            item.verified
+                              ? 'The latest release of this handler has been validated and is safe to use.'
+                              : 'The latest release of this handler has not been verified. Check the FAQ for insight into the verification process.'
+                          }
+                        >
+                          {item.verified ? (
+                            <Icon type="safety-certificate" theme="twoTone" twoToneColor="#52c41a" />
+                          ) : (
+                            <Icon type="exclamation-circle" />
+                          )}
+                        </Tooltip>,
+                        props.user ? (
+                          <div onClick={() => star(item._id)}>
+                            <IconText
+                              type="fire"
+                              theme={
+                                props.user.profile.starredHandlers.includes(item._id)
+                                  ? 'twoTone'
+                                  : 'outlined'
+                              }
+                              text={item.stars}
+                              color="#eb2f96"
+                              key="list-vertical-star-o"
+                            />
+                          </div>
+                        ) : (
+                          <Link
+                            onClick={() => {
+                              Session.set('loginModal', true);
+                            }}
+                            to="#"
+                          >
+                            <div>
+                              <IconText type="fire" text={item.stars} key="list-vertical-star-o" />
+                            </div>
+                          </Link>
+                        ),
+                        item.downloadCount > 999 ? (
+                          <Tooltip placement="bottomLeft" title={item.downloadCount} arrowPointAtCenter>
+                            <Link to={`/handler/${item._id}`}>
+                              <IconText
+                                type="download"
+                                text={counterFormatter(item.downloadCount)}
+                                key="view"
+                              />
+                            </Link>
+                          </Tooltip>
+                        ) : (
+                          <Link to={`/handler/${item._id}`}>
+                            <IconText
+                              type="download"
+                              text={counterFormatter(item.downloadCount)}
+                              key="view"
+                            />
+                          </Link>
+                        ),
+                        item.commentCount > 999 ? (
+                          <Tooltip placement="bottomLeft" title={item.downloadCount} arrowPointAtCenter>
+                            <Link to={`/handler/${item._id}`}>
+                              <IconText
+                                type="message"
+                                text={counterFormatter(item.commentCount)}
+                                key="comCount"
+                              />
+                            </Link>
+                          </Tooltip>
+                        ) : (
+                          <Link to={`/handler/${item._id}`}>
+                            <IconText
+                              type="message"
+                              text={counterFormatter(item.commentCount)}
+                              key="comCount"
+                            />
+                          </Link>
+                        ),
+                        ...(isAdmin
+                          ? [
+                            <Link to={`/handler/${item._id}`}>
+                              <IconText
+                                type="warning"
+                                text={counterFormatter(item.reports)}
+                                key="reportCount"
+                              />
+                            </Link>,
+                          ]
+                          : []),
+                      ]}>
+                      <Meta
+                        style={{ height: '21px' }}
+                        description={
+                          <div style={{ paddingTop: 5, display:'flex',flexDirection:'row' }}>
+                            <div style={{marginTop:'-8px'}}>
+                              <Link style={{fontSize:19, fontWeight:500}} to={`/handler/${item._id}`}>{item.gameName}</Link>
+                            </div>
+                            <div style={{marginTop:'-3px', marginLeft:25}}>
+                              <Link to={`/user/${item.owner}`}>
+                                <IconText type="user" text={item.ownerName} key="creator" />
+                              </Link>
+                            </div>
+                            <div style={{flexGrow:1,textAlign:'right', marginTop:'-2px'}}>
+                              {props.localHandlerLibraryIds?.includes(item._id) ? (<Tag color="#87d068">Installed</Tag>) : (<Tag color="#ccc">Not installed</Tag>)}
+                            </div>
+                          </div>
                         }
-                        text={item.stars}
-                        color="#eb2f96"
-                        key="list-vertical-star-o"
                       />
-                    </div>
-                  ) : (
+                    </Card>
+                  </div>
+                </Card>
+              </List.Item>
+            )}
+          />
+        ) : (
+          <List
+            size="large"
+            grid={{
+              gutter: 15,
+              xs: 1,
+              sm: 2,
+              md: 2,
+              lg: 3,
+              xl: 4,
+              xxl: 6,
+            }}
+            dataSource={props.handlers}
+            footer={
+              <div>
+                <b>SplitScreen.Me</b> compatible handlers.
+              </div>
+            }
+            renderItem={item => (
+              <List.Item key={item._id} style={{ paddingBottom: '10px' }}>
+                <Card
+                  cover={
                     <Link
-                      onClick={() => {
-                        Session.set('loginModal', true);
-                      }}
-                      to="#"
+                      id={'handler-card-' + item._id}
+                      to={`/handler/${item._id}`}
+                      alt={'link to ' + item.gameName}
                     >
-                      <div>
-                        <IconText type="fire" text={item.stars} key="list-vertical-star-o" />
-                      </div>
+                      <div
+                        style={{
+                          width: 'auto',
+                          height: '380px',
+                          backgroundSize: 'cover',
+                          backgroundRepeat: 'no-repeat',
+                          backgroundPosition: 'center center',
+                          backgroundImage: `url(${
+                            item.gameCover !== 'no_cover'
+                              ? `https://images.igdb.com/igdb/image/upload/t_cover_big/${item.gameCover}.jpg`
+                              : '/no_image.jpg'
+                          })`,
+                        }}
+                        alt={'Game Cover for ' + item.gameName}
+                      />
                     </Link>
-                  ),
-                  item.downloadCount > 999 ? (
-                    <Tooltip placement="bottomLeft" title={item.downloadCount} arrowPointAtCenter>
+                  }
+                  actions={[
+                    <Tooltip
+                      placement="bottomLeft"
+                      title={
+                        item.verified
+                          ? 'The latest release of this handler has been validated and is safe to use.'
+                          : 'The latest release of this handler has not been verified. Check the FAQ for insight into the verification process.'
+                      }
+                    >
+                      {item.verified ? (
+                        <Icon type="safety-certificate" theme="twoTone" twoToneColor="#52c41a" />
+                      ) : (
+                        <Icon type="exclamation-circle" />
+                      )}
+                    </Tooltip>,
+                    props.user ? (
+                      <div onClick={() => star(item._id)}>
+                        <IconText
+                          type="fire"
+                          theme={
+                            props.user.profile.starredHandlers.includes(item._id)
+                              ? 'twoTone'
+                              : 'outlined'
+                          }
+                          text={item.stars}
+                          color="#eb2f96"
+                          key="list-vertical-star-o"
+                        />
+                      </div>
+                    ) : (
+                      <Link
+                        onClick={() => {
+                          Session.set('loginModal', true);
+                        }}
+                        to="#"
+                      >
+                        <div>
+                          <IconText type="fire" text={item.stars} key="list-vertical-star-o" />
+                        </div>
+                      </Link>
+                    ),
+                    item.downloadCount > 999 ? (
+                      <Tooltip placement="bottomLeft" title={item.downloadCount} arrowPointAtCenter>
+                        <Link to={`/handler/${item._id}`}>
+                          <IconText
+                            type="download"
+                            text={counterFormatter(item.downloadCount)}
+                            key="view"
+                          />
+                        </Link>
+                      </Tooltip>
+                    ) : (
                       <Link to={`/handler/${item._id}`}>
                         <IconText
                           type="download"
@@ -231,18 +402,18 @@ function Handlers(props) {
                           key="view"
                         />
                       </Link>
-                    </Tooltip>
-                  ) : (
-                    <Link to={`/handler/${item._id}`}>
-                      <IconText
-                        type="download"
-                        text={counterFormatter(item.downloadCount)}
-                        key="view"
-                      />
-                    </Link>
-                  ),
-                  item.commentCount > 999 ? (
-                    <Tooltip placement="bottomLeft" title={item.downloadCount} arrowPointAtCenter>
+                    ),
+                    item.commentCount > 999 ? (
+                      <Tooltip placement="bottomLeft" title={item.downloadCount} arrowPointAtCenter>
+                        <Link to={`/handler/${item._id}`}>
+                          <IconText
+                            type="message"
+                            text={counterFormatter(item.commentCount)}
+                            key="comCount"
+                          />
+                        </Link>
+                      </Tooltip>
+                    ) : (
                       <Link to={`/handler/${item._id}`}>
                         <IconText
                           type="message"
@@ -250,18 +421,9 @@ function Handlers(props) {
                           key="comCount"
                         />
                       </Link>
-                    </Tooltip>
-                  ) : (
-                    <Link to={`/handler/${item._id}`}>
-                      <IconText
-                        type="message"
-                        text={counterFormatter(item.commentCount)}
-                        key="comCount"
-                      />
-                    </Link>
-                  ),
-                  ...(isAdmin
-                    ? [
+                    ),
+                    ...(isAdmin
+                      ? [
                         <Link to={`/handler/${item._id}`}>
                           <IconText
                             type="warning"
@@ -270,49 +432,49 @@ function Handlers(props) {
                           />
                         </Link>,
                       ]
-                    : []),
-                ]}
-              >
-                <Meta
-                  style={{ height: '63px' }}
-                  // avatar={<div style={{width:'35px', height:'35px'}} dangerouslySetInnerHTML={{__html:avatars.create(item.ownerName) }} />}
-                  title={
-                    <div>
-                      <Link to={`/handler/${item._id}`}>{item.gameName}</Link>
-                    </div>
-                  }
-                  description={
-                    <div style={{ paddingTop: '5px' }}>
-                      <div
-                        style={{
-                          float: 'left',
-                          whiteSpace: 'nowrap',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                        }}
-                      >
-                        {item.title}
+                      : []),
+                  ]}
+                >
+                  <Meta
+                    style={{ height: '63px' }}
+                    title={
+                      <div>
+                        <Link to={`/handler/${item._id}`}>{item.gameName}</Link>
                       </div>
-                      <br />
-                      <div
-                        style={{
-                          float: 'left',
-                          whiteSpace: 'nowrap',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                        }}
-                      >
-                        <Link to={`/user/${item.owner}`}>
-                          <IconText type="user" text={item.ownerName} key="creator" />
-                        </Link>
+                    }
+                    description={
+                      <div style={{ paddingTop: '5px' }}>
+                        <div
+                          style={{
+                            float: 'left',
+                            whiteSpace: 'nowrap',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                          }}
+                        >
+                          {item.title}
+                        </div>
+                        <br />
+                        <div
+                          style={{
+                            float: 'left',
+                            whiteSpace: 'nowrap',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                          }}
+                        >
+                          <Link to={`/user/${item.owner}`}>
+                            <IconText type="user" text={item.ownerName} key="creator" />
+                          </Link>
+                        </div>
                       </div>
-                    </div>
-                  }
-                />
-              </Card>
-            </List.Item>
-          )}
-        />
+                    }
+                  />
+                </Card>
+              </List.Item>
+            )}
+          />
+        )}
       </Spin>
     </div>
   );
@@ -327,6 +489,7 @@ export default withTracker(() => {
     reactiveCurrentOrder,
     currentLimit.get(),
   );
+
   const user = Meteor.user();
 
   let sortObject = { stars: reactiveCurrentOrder === 'up' ? 1 : -1 };
@@ -349,6 +512,7 @@ export default withTracker(() => {
     currentLimit: currentLimit.get(),
     currentSearchOption: currentSearchOption.get(),
     currentOrder: reactiveCurrentOrder,
+    localHandlerLibraryIds: Session.get('localHandlerLibraryIds'),
     handlers: HandlersCollection.find(
       {},
       {

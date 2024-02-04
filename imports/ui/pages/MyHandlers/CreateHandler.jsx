@@ -13,7 +13,6 @@ import {
 } from "antd";
 import { Result, Button } from 'antd';
 import { withTracker } from 'meteor/react-meteor-data';
-import HandlersCollection from '../../../api/Handlers/Handlers';
 import { Link } from 'react-router-dom';
 import { withRouter } from 'react-router';
 import { Session } from 'meteor/session';

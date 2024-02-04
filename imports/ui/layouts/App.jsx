@@ -99,7 +99,7 @@ function App(props) {
             </div>
           </Content>
           <Footer className="footer">
-            SplitScreen.Me ©2019. Created by <a href="https://github.com/r-mach">r-mach</a>
+            SplitScreen.Me ©{new Date().getFullYear()}. Created by <a href="https://github.com/r-mach">r-mach</a>
           </Footer>
         </Layout>
       </div>
