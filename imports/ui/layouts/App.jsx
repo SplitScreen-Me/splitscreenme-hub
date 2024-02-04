@@ -1,12 +1,9 @@
 import React, { useState } from 'react';
 
 import Layout from 'antd/lib/layout';
-import Menu from 'antd/lib/menu';
 import { Alert, Spin, notification } from 'antd';
 import { Session } from 'meteor/session';
-import Home from '../pages/Home/Home';
 import { BrowserRouter as Router, Route, Link, Switch } from 'react-router-dom';
-import Icon from 'antd/lib/icon';
 import Handlers from '../pages/Handlers/Handlers';
 import Login from '../pages/Login/Login';
 import Register from '../pages/Login/Register';

@@ -66,6 +66,7 @@ httpMethod: "get"
 1. IDE or text editor. for example [WebStorm](https://www.jetbrains.com/webstorm/) or [VSCode](https://code.visualstudio.com/)
 2. IDE for MongoDB, we recommend [NoSQLBooster](https://nosqlbooster.com/)
 #### Installation
+You must use Node v12 and not a higher version.
 ```
 $ npm install
 ```
