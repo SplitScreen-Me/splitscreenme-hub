@@ -20,6 +20,7 @@ import VerifyEmail from '../pages/VerifyEmail/VerifyEmail';
 import NotFound from '../pages/Common/NotFound';
 import LoginModal from '../pages/Login/LoginModal';
 import UserHandlers from '../pages/Users/UserHandlers';
+import isFromWebview from '../helpers/isFromWebview';
 
 const { Header, Footer, Sider, Content } = Layout;
 Session.setDefault('loginModal', false);
@@ -49,9 +50,11 @@ function App(props) {
     <Router>
       <div>
         <Layout className="layout">
-          <Header className="header">
-            <AppMenu />
-          </Header>
+          {!isFromWebview.get() && (
+            <Header className="header">
+              <AppMenu />
+            </Header>
+          )}
           <Content className="content">
             {props.loggedIn &&
               props.loggedIn.emails &&

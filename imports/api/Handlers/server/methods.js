@@ -81,6 +81,10 @@ Meteor.methods({
       title: String,
       description: String,
       private: Boolean,
+      maxPlayers: Number,
+      playableControllers: Boolean,
+      playableMouseKeyboard: Boolean,
+      playableMultiMouseKeyboard: Boolean,
     });
 
     try {
@@ -102,6 +106,12 @@ Meteor.methods({
         throw new Meteor.Error(
           'Invalid description',
           `Your description is too long (max ${maxDescriptionLength} chars.).`,
+        );
+      }
+      if (!(doc.maxPlayers >= 2 && doc.maxPlayers <= 64)) {
+        throw new Meteor.Error(
+          'Invalid max player numbers',
+          `Your max player numbers should be between 2 and 64..`,
         );
       }
       const handlerId = doc._id;

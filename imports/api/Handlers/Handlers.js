@@ -150,6 +150,42 @@ Handlers.schema = new SimpleSchema({
       }
     },
   },
+  maxPlayers: {
+    type: Number,
+    label: 'The maximum player number for this handler.',
+    autoValue() {
+      if (this.isInsert) {
+        return 2;
+      }
+    },
+  },
+  playableControllers: {
+    type: Boolean,
+    label: 'Is the handler working with controllers.',
+    autoValue() {
+      if (this.isInsert) {
+        return true;
+      }
+    },
+  },
+  playableMouseKeyboard: {
+    type: Boolean,
+    label: 'Is the handler working with mouse and keyboard.',
+    autoValue() {
+      if (this.isInsert) {
+        return true;
+      }
+    },
+  },
+  playableMultiMouseKeyboard: {
+    type: Boolean,
+    label: 'Is the handler working with multiple mice and keyboards.',
+    autoValue() {
+      if (this.isInsert) {
+        return false;
+      }
+    },
+  },
 });
 
 Handlers.attachSchema(Handlers.schema);

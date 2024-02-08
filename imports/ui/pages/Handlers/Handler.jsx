@@ -13,13 +13,12 @@ import {
   Col, notification,
   Modal
 } from "antd";
-import { Descriptions, Tabs } from 'antd';
+import { Tabs } from 'antd';
 import { withTracker } from 'meteor/react-meteor-data';
 import HandlersCollection from '../../../api/Handlers/Handlers';
 import { withRouter } from 'react-router';
 import { Link } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
-import SyntaxHighlighter from 'react-syntax-highlighter';
 import ManageHandler from './ManageHandler';
 import AddPackage from './AddPackage';
 import ReadJs from './ReadJs';
@@ -27,6 +26,8 @@ import DisplayTimeline from './DisplayTimeline';
 import CommentSection from './CommentSection';
 import counterFormatter from '../../../modules/counterFormatter';
 import { Session } from 'meteor/session';
+import ControllerIcon from '../../icons/ControllerIcon';
+import KeyboardIcon from '../../icons/KeyboardIcon';
 const { Paragraph } = Typography;
 const IconText = ({ type, text, theme = 'outlined', color }) => (
   <span>
@@ -85,6 +86,7 @@ function Handler(props) {
   const handler = props.handler[0] ? props.handler[0] : false;
   const isMaintainer = props.user && (handler.owner === props.user._id);
   const isAdmin = props.user && Roles.userIsInRole(props.user._id, ['admin_enabled']);
+
 
   const confirmReport = () => {
 
@@ -184,109 +186,125 @@ function Handler(props) {
               }
             >
               <div style={{ color: 'rgba(0, 0, 0, 0.45)' }}>
+                <IconText type="team" text={handler.maxPlayers > 2 ? `2 - ${handler.maxPlayers} players` : '2 players'}
+                          key="max-players" />
+                <div style={{ width: '25px', display: 'inline-block' }}></div>
+
+                {handler.playableControllers && (<><Tooltip title={"Controller support"}>
+                  <ControllerIcon style={{ width: 22, height: 22, fill: '#8d8d8d', marginBottom:-6 }} />
+                </Tooltip><div style={{ width: '25px', display: 'inline-block' }}></div></>)}
+
+                {handler.playableMouseKeyboard && (<>
+                <Tooltip title={`${handler.playableMultiMouseKeyboard ? 'Multiple' : 'Single'} mouse + keyboard support`}>
+                  <KeyboardIcon style={{ width: 22, height: 22, fill: '#8d8d8d', marginBottom:-4 }} />
+                  {handler.playableMultiMouseKeyboard && (<KeyboardIcon style={{ width: 22, height: 22, fill: '#8d8d8d', marginBottom:-4 }} />)}
+                </Tooltip>
+                <div style={{ width: '25px', display: 'inline-block' }}></div></>)}
                 <IconText type="fire" text={counterFormatter(handler.stars)} key="total-stars" />
-                <div style={{ width: '25px', display: 'inline-block' }}> </div>
+                <div style={{ width: '25px', display: 'inline-block' }}></div>
                 <IconText
                   type="download"
                   text={counterFormatter(handler.downloadCount)}
                   key="list-vertical-message"
                 />
-                <div style={{ width: '25px', display: 'inline-block' }}> </div>
-                <Link to={`/user/${handler.owner}`}><IconText type="user" text={handler.ownerName} key="list-vertical-like-o" /></Link>
+                <div style={{ width: '25px', display: 'inline-block' }}></div>
+                <Link to={`/user/${handler.owner}`}><IconText type="user" text={handler.ownerName}
+                                                              key="list-vertical-like-o" /></Link>
               </div>
-              <Content
-                extraContent={
-                  <img
-                    src={
-                      handler.gameCover !== 'no_cover'
-                        ? `https://images.igdb.com/igdb/image/upload/t_cover_big/${handler.gameCover}.jpg`
-                        : '/no_image.jpg'
-                    }
-                    alt="game cover"
-                  />
-                }
-              >
-                <div>
-                  <Paragraph>
-                    <ReactMarkdown source={handler.description} />
-                  </Paragraph>
-                  <Row className="contentLink" type="flex">
-                    {handler.currentVersion > 0 && (
-                      <React.Fragment>
-                    <a
-                      style={{
-                        marginRight: 16,
-                        display: 'flex',
-                        alignItems: 'center',
-                      }}
-                      href={`/cdn/storage/packages/${
-                        handler.currentPackage
-                      }/original/handler-${handler._id.toLowerCase()}-v${
-                        handler.currentVersion
-                      }.nc?download=true`}
-                      download={`handler-${handler._id.toLowerCase()}-v${
-                        handler.currentVersion
-                      }.nc`}
-                      target="_parent"
-                    >
-                      <Button type="primary" ghost icon="download">
-                        Download Handler {handler.currentVersion > 1 && `(v${handler.currentVersion})`}
-                      </Button>
-                    </a>
-                    <div
-                      style={{
-                        marginRight: 16,
-                        display: 'flex',
-                        alignItems: 'center',
-                      }}
-                    >
-                      {props.user ? (
-                        <div onClick={() => star(handler._id)}>
-                          <Button>
-                            <IconText
-                              type="fire"
-                              theme={
-                                props.user.profile.starredHandlers.includes(handler._id)
-                                  ? 'twoTone'
-                                  : 'outlined'
-                              }
-                              text={
-                                props.user.profile.starredHandlers.includes(handler._id)
-                                  ? 'Hot!'
-                                  : 'Give hotness!'
-                              }
-                              color="#eb2f96"
-                              key="list-vertical-star-o"
-                            />{' '}
-                          </Button>
-                        </div>
-                      ) : (
-                        <Link
-                          onClick={() => {
-                            Session.set('loginModal', true);
-                          }}
-                          to="#"
-                        >
-                          <div>
-                            <Button icon="fire">Give hotness!</Button>
+              <Content>
+                <div style={{ display: 'flex', flexDirection: 'row' }}>
+                  <div style={{ marginLeft:-45, paddingRight:25 }}>
+                    <Paragraph>
+                      <ReactMarkdown source={handler.description} />
+                    </Paragraph>
+                    <Row style={{marginTop:45}} className="contentLink" type="flex">
+                      {handler.currentVersion > 0 && (
+                        <React.Fragment>
+                          <a
+                            style={{
+                              marginRight: 16,
+                              display: 'flex',
+                              alignItems: 'center',
+                            }}
+                            href={`/cdn/storage/packages/${
+                              handler.currentPackage
+                            }/original/handler-${handler._id.toLowerCase()}-v${
+                              handler.currentVersion
+                            }.nc?download=true`}
+                            download={`handler-${handler._id.toLowerCase()}-v${
+                              handler.currentVersion
+                            }.nc`}
+                            target="_parent"
+                          >
+                            <Button type="primary" icon="download" style={{marginBottom:5}}>
+                              Download Handler {handler.currentVersion > 1 && `(v${handler.currentVersion})`}
+                            </Button>
+                          </a>
+                          <div
+                            style={{
+                              marginRight: 16,
+                              display: 'flex',
+                              alignItems: 'center',
+                            }}
+                          >
+                            {props.user ? (
+                              <div onClick={() => star(handler._id)}>
+                                <Button style={{marginBottom:5}}>
+                                  <IconText
+                                    type="fire"
+                                    theme={
+                                      props.user.profile.starredHandlers.includes(handler._id)
+                                        ? 'twoTone'
+                                        : 'outlined'
+                                    }
+                                    text={
+                                      props.user.profile.starredHandlers.includes(handler._id)
+                                        ? 'Hot!'
+                                        : 'Give hotness!'
+                                    }
+                                    color="#eb2f96"
+                                    key="list-vertical-star-o"
+                                  />{' '}
+                                </Button>
+                              </div>
+                            ) : (
+                              <Link
+                                onClick={() => {
+                                  Session.set('loginModal', true);
+                                }}
+                                to="#"
+                              >
+                                <div>
+                                  <Button icon="fire" style={{marginBottom:5}}>Give hotness!</Button>
+                                </div>
+                              </Link>
+                            )}
                           </div>
-                        </Link>
+                        </React.Fragment>
                       )}
-                    </div>
-                      </React.Fragment>
-                      )}
-                    <a
-                      style={{
-                        marginRight: 16,
-                        display: 'flex',
-                        alignItems: 'center',
-                      }}
-                      href={handler.gameUrl}
-                      target="_blank"
-                    >
-                      <Button icon="info-circle">Game informations</Button>
-                    </a>
-                  </Row>
+                      <a
+                        style={{
+                          marginRight: 16,
+                          display: 'flex',
+                          alignItems: 'center',
+                        }}
+                        href={handler.gameUrl}
+                        target="_blank"
+                      >
+                        <Button icon="info-circle" style={{marginBottom:5}}>Game informations</Button>
+                      </a>
+                    </Row>
+                  </div>
+                  <div style={{marginRight:-126, paddingLeft:26,marginTop:-84}}>
+                    <img
+                      src={
+                        handler.gameCover !== 'no_cover'
+                          ? `https://images.igdb.com/igdb/image/upload/t_cover_big/${handler.gameCover}.jpg`
+                          : '/no_image.jpg'
+                      }
+                      alt="game cover"
+                    />
+                  </div>
                 </div>
               </Content>
             </PageHeader>
@@ -345,6 +363,10 @@ function Handler(props) {
                         initialTitle={handler.title}
                         handlerStatus={handler.private}
                         handlerVersion={handler.currentVersion}
+                        maxPlayers={handler.maxPlayers}
+                        playableControllers={handler.playableControllers}
+                        playableMultiMouseKeyboard={handler.playableMultiMouseKeyboard}
+                        playableMouseKeyboard={handler.playableMouseKeyboard}
                       />
                     </Col>
                     <Col span={12}>

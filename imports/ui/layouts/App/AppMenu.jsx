@@ -5,7 +5,6 @@ import Icon from 'antd/lib/icon';
 import { withTracker } from 'meteor/react-meteor-data';
 import { withRouter } from 'react-router';
 import { Session } from 'meteor/session';
-import isFromWebview from '../../helpers/isFromWebview';
 
 function AppMenu(props) {
   const logout = () => {
@@ -31,7 +30,7 @@ function AppMenu(props) {
       selectedKeys={[props.history.location.pathname]}
       style={{ lineHeight: '64px', ...(!!isAdminEnabled && {backgroundColor:'#670000'})}}
     >
-      {!isFromWebview.get() && (<Menu.Item key="/splitscreenme">
+      <Menu.Item key="/splitscreenme">
         <a href="https://www.splitscreen.me">
           <Icon
             component={() => (
@@ -40,16 +39,16 @@ function AppMenu(props) {
           />
           SplitScreen.Me
         </a>
-      </Menu.Item>)}
+      </Menu.Item>
       <Menu.Item key="/">
         <Link to="/">Explore</Link>
       </Menu.Item>
       <Menu.Item key="/my-handlers">
         <Link to="/my-handlers">My Handlers</Link>
       </Menu.Item>
-      {!isFromWebview.get() && (<Menu.Item key="/docs">
+      <Menu.Item key="/docs">
         <a href="https://www.splitscreen.me/docs/create-handlers">Docs</a>
-      </Menu.Item>)}
+      </Menu.Item>
 
       {props.loggedIn ? (
         <Menu.SubMenu

@@ -11,13 +11,23 @@ Accounts.onLogin(function() {
   }, 3000);
 });
 
-if(window.location.search.includes('fromWebview')){
+// We store webview mode in local storage because sometimes people enter
+// the website from a webview and then navigate to another page, then come back.
+
+if(window.location.search.includes('fromWebview=false')){
+  localStorage.setItem("fromWebview", "false");
+}
+
+if(window.location.search.includes('fromWebview=true') || localStorage.getItem("fromWebview") === "true"){
   console.log("This page is loaded from the Nucleus webview");
+  localStorage.setItem("fromWebview", "true");
   isFromWebview.set(true);
 }
+
+
 NucleusWebview = {
-  setLocalHandlerLibraryIds:  (ids) => {
-    Session.set('localHandlerLibraryIds', ids);
+  setLocalHandlerLibraryArray:  (handlerArray) => {
+    Session.set('localHandlerLibraryArray', handlerArray);
   }
 };
 
