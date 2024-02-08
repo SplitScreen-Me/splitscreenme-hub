@@ -316,7 +316,7 @@ function Handlers(props) {
                                   target="_parent"
                                 >
                                   <Button type="primary" style={{backgroundColor:"#e99c18", borderColor:"#e99c18"}} icon="sync">
-                                    Update (v{props.localHandlerLibraryArray?.find(handler => handler.id).version} ➜ v{item.currentVersion})
+                                    Update (v{props.localHandlerLibraryArray?.find(handler => handler.id === item._id).version} ➜ v{item.currentVersion})
                                   </Button>
                                 </a>
                               ) : (
