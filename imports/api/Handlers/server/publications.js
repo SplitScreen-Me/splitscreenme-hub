@@ -14,7 +14,11 @@ Meteor.publish(
     handlerOptionSearch = 'hot',
     handlerSortOrder = 'down',
     limit = 18,
+    localHandlerIds = [],
   ) {
+
+    const isSearchFromArray = localHandlerIds.length > 0;
+
     let sortObject = { stars: handlerSortOrder === 'up' ? 1 : -1 };
     if (handlerOptionSearch === 'download') {
       sortObject = { downloadCount: handlerSortOrder === 'up' ? 1 : -1 };
@@ -28,14 +32,17 @@ Meteor.publish(
     if (handlerOptionSearch === 'alphabetical') {
       sortObject = { gameName: handlerSortOrder === 'up' ? -1 : 1 };
     }
+    const searchInArraySelectorCondition = isSearchFromArray > 0 ? {_id: { $in: localHandlerIds }} : {};
+
     return Handlers.find(
       {
+        ...searchInArraySelectorCondition,
         gameName: { $regex: new RegExp(escapeRegExp(handlerTitleSearch)), $options: 'gi' },
         private: false,
       },
       {
         sort: sortObject,
-        limit: Math.min(limit, 600),
+        limit: Math.min(isSearchFromArray ? localHandlerIds.length : limit, 600),
       },
     );
   },

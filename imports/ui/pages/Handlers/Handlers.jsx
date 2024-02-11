@@ -94,14 +94,24 @@ function Handlers(props) {
     Meteor.call('handlers.starring', handlerId);
   };
 
+  const [totalHandlers, setTotalHandlers] = useState('...');
+
+  useEffect(() => {
+    Meteor.call('handlers.countPublic', (err, res) => {
+      if(!err) {
+        setTotalHandlers(res);
+      }
+    })
+  }, [])
+
   const isAdmin = props.user && Roles.userIsInRole(props.user._id, ['admin_enabled']);
 
   return (
     <div>
-      <Typography>
+      {!isFromWebview.get() && (<Typography>
         <Title aria-label="aria-expanded">Explore handlers</Title>
         <Paragraph aria-label="aria-level">Search for games you like and play them with your friends.</Paragraph>
-      </Typography>
+      </Typography>)}
       <label htmlFor="handlers-search-autocomplete" aria-label="landmark">
         <AutoComplete
           id="handlers-search-autocomplete"
@@ -112,11 +122,11 @@ function Handlers(props) {
           style={{ width: 350 }}
           onSearch={onSearch}
           onChange={onChange}
-          placeholder="Search any handler"
+          placeholder={`Search among ${totalHandlers} games...`}
         />
       </label>
       <Radio.Group
-        style={{ marginLeft: '50px' }}
+        style={{ float:'right' }}
         value={currentSearchOption.get()}
         onChange={onSortTypeChange}
       >
@@ -140,24 +150,25 @@ function Handlers(props) {
         )}
       </Radio.Group>
       <br />
-      <Divider />
+      <Divider style={{opacity:0}} />
       <Spin spinning={props.loading}>
         {isFromWebview.get() ? (
           <List
+            locale={{ emptyText: 'Sorry ! No game found 😞' }}
             itemLayout="vertical"
             size="large"
             grid={{
               gutter: 15,
               xs: 1
             }}
-            dataSource={props.handlers}
+            dataSource={[...props.localHandlers.map(handler => ({...handler, local: true})),...props.handlers]}
             footer={
               <div>
                 <b>SplitScreen.Me</b> compatible handlers.
               </div>
             }
             renderItem={item => (
-              <List.Item key={item._id} style={{ paddingBottom: '6px' }}>
+              <List.Item key={item._id} style={{ paddingBottom: '6px'}}>
                 <Card bodyStyle={{padding:0}}
                 >
                   <div style={{display:'flex', flexDirection:'row'}}>
@@ -168,8 +179,10 @@ function Handlers(props) {
                   >
                     <div
                       style={{
+                        position:'relative',
                         width: '80px',
                         height: '110px',
+                        borderRadius:5,
                         backgroundSize: 'cover',
                         backgroundRepeat: 'no-repeat',
                         backgroundPosition: 'center center',
@@ -180,7 +193,11 @@ function Handlers(props) {
                         })`,
                       }}
                       alt={'Game Cover for ' + item.gameName}
-                    />
+                    >
+                      {item.local && (<div style={{width:20, height:20, top:-5,left:-5,position:'absolute'}}>
+                        <Icon style={{fontSize:18,borderRadius:1000, boxShadow: 'rgb(82 196 26 / 30%) 2px 1px 15px 0px'}} type="check-circle" theme="twoTone" twoToneColor="#52c41a" />
+                      </div>)}
+                    </div>
                   </Link>
                     <Card
                       className={'ant-card-nhover'}
@@ -337,6 +354,7 @@ function Handlers(props) {
         ) : (
           <List
             size="large"
+            locale={{ emptyText: 'Sorry ! No game found 😞' }}
             grid={{
               gutter: 15,
               xs: 1,
@@ -517,6 +535,16 @@ function Handlers(props) {
 
 export default withTracker(() => {
   const reactiveCurrentOrder = currentOrder.get();
+  if(Session.get('localHandlerLibraryArray')?.length > 0){
+    const subscriptionForLocalHandlers = Meteor.subscribe(
+      'handlers',
+      currentSearch.get(),
+      currentSearchOption.get(),
+      reactiveCurrentOrder,
+      currentLimit.get(),
+      Session.get('localHandlerLibraryArray')?.map(handler => handler.id),
+    );
+  }
   const subscription = Meteor.subscribe(
     'handlers',
     currentSearch.get(),
@@ -524,6 +552,7 @@ export default withTracker(() => {
     reactiveCurrentOrder,
     currentLimit.get(),
   );
+
 
   const user = Meteor.user();
 
@@ -548,8 +577,15 @@ export default withTracker(() => {
     currentSearchOption: currentSearchOption.get(),
     currentOrder: reactiveCurrentOrder,
     localHandlerLibraryArray: Session.get('localHandlerLibraryArray'),
+    localHandlers: HandlersCollection.find(
+      {_id: { $in: Session.get('localHandlerLibraryArray')?.map(handler => handler.id) || [] }},
+      {
+        sort: sortObject,
+        limit: currentLimit.get(),
+      },
+    ).fetch(),
     handlers: HandlersCollection.find(
-      {},
+      {_id: { $nin: Session.get('localHandlerLibraryArray')?.map(handler => handler.id) || [] }},
       {
         sort: sortObject,
         limit: currentLimit.get(),

@@ -19,6 +19,13 @@ Meteor.methods({
       handleMethodException(exception);
     }
   },
+  'handlers.countPublic': function handlersCountPublic() {
+    try {
+      return Handlers.find({ private: false }).count();
+    } catch (exception) {
+      handleMethodException(exception);
+    }
+  },
   'handlers.starring': function handlerStarring(handlerId) {
     check(handlerId, Match.OneOf(String, undefined));
     try {
