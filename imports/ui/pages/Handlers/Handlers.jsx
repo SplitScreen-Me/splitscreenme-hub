@@ -535,16 +535,16 @@ function Handlers(props) {
 
 export default withTracker(() => {
   const reactiveCurrentOrder = currentOrder.get();
-  if(Session.get('localHandlerLibraryArray')?.length > 0){
+
     const subscriptionForLocalHandlers = Meteor.subscribe(
       'handlers',
       currentSearch.get(),
       currentSearchOption.get(),
       reactiveCurrentOrder,
       currentLimit.get(),
-      Session.get('localHandlerLibraryArray')?.map(handler => handler.id),
+      Session.get('localHandlerLibraryArray')?.map(handler => handler.id) || [],
     );
-  }
+
   const subscription = Meteor.subscribe(
     'handlers',
     currentSearch.get(),
@@ -571,7 +571,7 @@ export default withTracker(() => {
   }
 
   return {
-    loading: !subscription.ready(),
+    loading: !subscription.ready() || !subscriptionForLocalHandlers.ready(),
     user,
     currentLimit: currentLimit.get(),
     currentSearchOption: currentSearchOption.get(),
@@ -581,7 +581,6 @@ export default withTracker(() => {
       {_id: { $in: Session.get('localHandlerLibraryArray')?.map(handler => handler.id) || [] }},
       {
         sort: sortObject,
-        limit: currentLimit.get(),
       },
     ).fetch(),
     handlers: HandlersCollection.find(
