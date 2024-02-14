@@ -7,6 +7,7 @@ import { Roles } from 'meteor/alanning:roles';
 import handleMethodException from '../../modules/handle-method-exception';
 import rateLimit from '../../modules/rate-limit';
 import Handlers from '../Handlers/Handlers';
+import { discord_admin_log } from "../../modules/server/discord-logging";
 
 Meteor.methods({
   'comments.insert': function commentsInsert(doc) {
@@ -23,6 +24,7 @@ Meteor.methods({
             Handlers.update(doc.handlerId, {
               $set: { commentCount: handler.commentCount + 1 },
             });
+            discord_admin_log("New comment", `${Meteor.user().profile.username} added a comment on handler ${handler?.title} : https://hub.splitscreen.me/handler/${handlerId} .`);
             return Comments.insert({
               owner: this.userId,
               ownerName: user.profile.username,
