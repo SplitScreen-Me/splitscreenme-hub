@@ -24,7 +24,7 @@ Meteor.methods({
             Handlers.update(doc.handlerId, {
               $set: { commentCount: handler.commentCount + 1 },
             });
-            discord_admin_log("New comment", `${Meteor.user().profile.username} added a comment on handler ${handler?.title} : https://hub.splitscreen.me/handler/${handlerId} .`);
+            discord_admin_log("New comment", `${Meteor.user().profile.username} added a comment on handler ${handler?.title} : https://hub.splitscreen.me/handler/${doc.handlerId} .`);
             return Comments.insert({
               owner: this.userId,
               ownerName: user.profile.username,
