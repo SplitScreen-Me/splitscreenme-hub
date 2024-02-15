@@ -8,12 +8,15 @@ import handleMethodException from '../../modules/handle-method-exception';
 import rateLimit from '../../modules/rate-limit';
 import Handlers from '../Handlers/Handlers';
 import { discord_admin_log } from "../../modules/server/discord-logging";
+import sendReplyEmail from './server/send-reply-email';
 
 Meteor.methods({
   'comments.insert': function commentsInsert(doc) {
+    console.log(doc);
     check(doc, {
       content: String,
       handlerId: String,
+      replyTo: Match.Maybe(String),
     });
     if (doc.content.length >= 4 && doc.content.length <= 800) {
       try {
@@ -25,7 +28,13 @@ Meteor.methods({
               $set: { commentCount: handler.commentCount + 1 },
             });
             discord_admin_log("New comment", `${Meteor.user().profile.username} added a comment on handler ${handler?.title} : https://hub.splitscreen.me/handler/${doc.handlerId} .`);
-            return Comments.insert({
+            if(doc.replyTo?.length > 0) {
+            const repliedToUserId = Comments.findOne(doc.replyTo)?.owner;
+            if(repliedToUserId !== Meteor.userId()) {
+            sendReplyEmail(repliedToUserId, handler.title, `${doc.content.substring(0,50)}...`, `https://hub.splitscreen.me/handler/${doc.handlerId}`)
+            }
+            }
+              return Comments.insert({
               owner: this.userId,
               ownerName: user.profile.username,
               ...doc,
@@ -47,16 +56,18 @@ Meteor.methods({
     check(commentId, String);
     try {
       const docToRemove = Comments.findOne(commentId, {
-        fields: { owner: 1, handlerId: 1 },
+        fields: { owner: 1, handlerId: 1, content:1, ownerName: 1 },
       });
 
       if (docToRemove.owner === this.userId || Roles.userIsInRole(this.userId, "admin_enabled")) {
         const handler = Handlers.findOne(docToRemove.handlerId);
         if (handler.owner) {
+          const repliedComments = Comments.find({ replyTo: commentId }).fetch();
           Handlers.update(docToRemove.handlerId, {
-            $set: { commentCount: handler.commentCount - 1 },
+            $set: { commentCount: handler.commentCount - (1 + repliedComments.length) },
           });
-          return Comments.remove(commentId);
+          discord_admin_log("Comment removed", `${Meteor.user().profile.username} removed a comment by ${docToRemove.ownerName} on handler ${handler?.title} : https://hub.splitscreen.me/handler/${docToRemove.handlerId}, saying : ${docToRemove.content}`);
+          return Comments.remove({ $or:[{_id: commentId }, { replyTo: commentId }] });
         } else {
           handleMethodException('Invalid Handler Id!');
         }

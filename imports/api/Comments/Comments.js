@@ -43,6 +43,11 @@ Comments.schema = new SimpleSchema({
     type: String,
     label: 'The comment on the handler.',
   },
+  replyTo: {
+    type: String,
+    label: 'The comment ID this comment is a reply to.',
+    required: false,
+  },
 });
 
 Comments.attachSchema(Comments.schema);

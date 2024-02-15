@@ -1,0 +1,12 @@
+Hey, {{toFirstName}}!
+
+User {{fromFirstName}} replied to your comment about {{handlerGameName}}.
+
+"{{ellipsedComment}}"
+
+You can see his full response in the thread here:
+
+[See comment]({{handlerUrl}})
+
+Cheers,
+{{productName}} Team

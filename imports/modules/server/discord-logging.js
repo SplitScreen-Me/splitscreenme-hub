@@ -1,10 +1,10 @@
 import { Meteor } from 'meteor/meteor';
 import { HTTP } from 'meteor/http';
 
-const adminLogging_webhookUrl = Meteor.settings.private.DISCORD_ADMIN_LOGGING_WEBHOOK || 'https://discord.com/api/webhooks/985631056893980792/nlSCCJ1NwH7swqiKCe-1OnCBrMlb_nk1PzjqF97ER_zUrr6zn5MyX5nNZTUpZatwZJDh';
-const releaseLogging_webhookUrl = Meteor.settings.private.DISCORD_RELEASE_LOGGING_WEBHOOK || 'https://discord.com/api/webhooks/985630979911741440/qaJpon-yIiC3avi17nogh7xTJP6bovulLcpg4kzM9snfXEmWLXng8ru_0qSAitKum382';
-const releaseLogging_roleId = Meteor.settings.private.DISCORD_RELEASE_LOGGING_ROLEID || '985629240831639642';
-const generalLogging_webhookUrl = Meteor.settings.private.DISCORD_GENERAL_LOGGING_WEBHOOK || 'https://discord.com/api/webhooks/985631024207757392/GpzkZiq7wuQh1M-YSCZQBQVmoYexffroaPEU3QIXVD5oHz-2KTGH8WnHkP_A7uh5DmWU';
+const adminLogging_webhookUrl = Meteor.settings.private.DISCORD_ADMIN_LOGGING_WEBHOOK;
+const releaseLogging_webhookUrl = Meteor.settings.private.DISCORD_RELEASE_LOGGING_WEBHOOK;
+const releaseLogging_roleId = Meteor.settings.private.DISCORD_RELEASE_LOGGING_ROLEID;
+const generalLogging_webhookUrl = Meteor.settings.private.DISCORD_GENERAL_LOGGING_WEBHOOK;
 
 // Discord Admin Logging :
 const discord_admin_log = (title, description) => {
