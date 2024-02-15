@@ -42,7 +42,7 @@ function CommentSection(props) {
   };
   const confirmReportComment = e => {
     console.log(e);
-    message.success('Comment deleted');
+    message.success('Comment reported');
   };
 
   const handleChange = e => {
