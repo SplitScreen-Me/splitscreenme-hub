@@ -1,6 +1,5 @@
 import { Meteor } from 'meteor/meteor';
 import { check, Match } from 'meteor/check';
-import Handlers from '../../Handlers/Handlers';
 import handleMethodException from '../../../modules/handle-method-exception';
 import Packages from './ServerPackages';
 

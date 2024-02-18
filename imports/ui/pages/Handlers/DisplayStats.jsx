@@ -5,7 +5,7 @@ import { Spin, Row, Col, Typography } from 'antd';
 
 function DisplayStats(props) {
   const { handlerId } = props;
-  const [stats, setStats] = useState([]);
+  const [stats, setStats] = useState({  });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -19,8 +19,20 @@ function DisplayStats(props) {
     });
   }, [handlerId]);
 
-  const statsFormatted = stats.map(stat => ([new Date(stat.date), stat.downloads]));
-
+  const statsFormatted = stats?.statsDownloads?.map(stat => ([new Date(stat.date), stat.downloads])) || [];
+  const annotationsFormatted = stats?.statsPackages?.map(stat => ({
+    x: new Date(stat?.meta?.releaseDate).setSeconds(0) || new Date(),
+    strokeDashArray: 0,
+    borderColor: '#775DD0',
+    label: {
+      borderColor: '#775DD0',
+      style: {
+        color: '#fff',
+        background: '#775DD0',
+      },
+      text: 'v' + stat?.meta?.handlerVersion,
+    }
+  })) || [];
   const chartInfos = {
     series: [
       {
@@ -41,6 +53,9 @@ function DisplayStats(props) {
         toolbar: {
           autoSelected: 'zoom',
         },
+      },
+      annotations: {
+        xaxis: annotationsFormatted,
       },
       dataLabels: {
         enabled: false,
