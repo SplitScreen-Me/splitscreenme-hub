@@ -54,7 +54,6 @@ function DisplayTimeline(props) {
 }
 export default withTracker(props => {
   const subscription = Meteor.subscribe('packages.viewforhandler', props.handlerId);
-  console.log(Packages.findOne());
   return {
     loading: !subscription.ready(),
     releases: Packages.collection

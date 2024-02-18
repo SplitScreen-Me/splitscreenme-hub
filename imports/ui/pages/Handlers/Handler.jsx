@@ -28,6 +28,7 @@ import counterFormatter from '../../../modules/counterFormatter';
 import { Session } from 'meteor/session';
 import ControllerIcon from '../../icons/ControllerIcon';
 import KeyboardIcon from '../../icons/KeyboardIcon';
+import DisplayStats from './DisplayStats';
 const { Paragraph } = Typography;
 const IconText = ({ type, text, theme = 'outlined', color }) => (
   <span>
@@ -345,6 +346,18 @@ function Handler(props) {
               >
                 <DisplayTimeline handlerId={handler._id} />
               </TabPane>
+              <TabPane
+                disabled={!handler.currentVersion}
+                tab={
+                  <span>
+                    <Icon type="line-chart" />
+                    Statistics
+                  </span>
+                }
+                key="4"
+              >
+                <DisplayStats handlerId={handler._id} />
+              </TabPane>
               {(isMaintainer || isAdmin) && (
                 <TabPane
                   tab={
@@ -353,7 +366,7 @@ function Handler(props) {
                       Edit & Manage
                     </span>
                   }
-                  key="4"
+                  key="5"
                 >
                   <Row gutter={48}>
                     <Col span={12}>

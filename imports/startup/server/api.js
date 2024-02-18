@@ -13,3 +13,6 @@ import '../../api/Users/server/publications';
 
 import '../../api/Comments/server/indexes';
 import '../../api/Comments/server/publications';
+
+import '../../api/HandlersStats/server/indexes';
+import '../../api/HandlersStats/server/methods';

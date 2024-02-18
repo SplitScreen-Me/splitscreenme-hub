@@ -10,6 +10,7 @@ import parserBabel from "prettier/parser-babylon";
 import handleMethodException from '../../../modules/handle-method-exception';
 import Handlers from '../../Handlers/Handlers';
 import { discord_admin_log } from "../../../modules/server/discord-logging";
+import HandlersStats from '../../HandlersStats/HandlersStats';
 
 let gfs;
 if (Meteor.isServer) {
@@ -171,6 +172,8 @@ const Packages = new FilesCollection({
       // Increment downloads counter
       Packages.update(fileObj._id, { $inc: { 'meta.downloads': 1 } });
       Handlers.update(fileObj.meta.handlerId, { $inc: { downloadCount: 1 } });
+      const midnightDate = new Date(new Date().setHours(0, 0, 0, 0));
+      HandlersStats.update({handlerId:fileObj.meta.handlerId, date: midnightDate }, { $inc: { downloads: 1 } }, {upsert: true});
     }
     // Must return true to continue download
     return true;
