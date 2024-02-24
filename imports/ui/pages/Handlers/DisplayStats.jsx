@@ -78,6 +78,8 @@ function DisplayStats(props) {
         },
       },
       yaxis: {
+        forceNiceScale: true,
+        min: 0,
         labels: {
           formatter: function(val) {
             return val.toFixed(0);
