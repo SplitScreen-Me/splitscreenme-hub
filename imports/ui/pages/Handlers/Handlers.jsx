@@ -28,7 +28,7 @@ let avatars = new Avatars(sprites({}));
 
 const currentSearch = new ReactiveVar('');
 const currentOrder = new ReactiveVar('down');
-const currentSearchOption = new ReactiveVar('hot');
+const currentSearchOption = new ReactiveVar('trend');
 const currentLimit = new ReactiveVar(18);
 
 const { Title, Paragraph, Text } = Typography;
@@ -130,6 +130,9 @@ function Handlers(props) {
         value={currentSearchOption.get()}
         onChange={onSortTypeChange}
       >
+        <Radio.Button onClick={onSortOrderChange} value="trend">
+          {props.currentSearchOption === 'trend' && <Icon type={props.currentOrder} />} Trending
+        </Radio.Button>
         <Radio.Button onClick={onSortOrderChange} value="hot">
           {props.currentSearchOption === 'hot' && <Icon type={props.currentOrder} />} Hottest
         </Radio.Button>
@@ -556,7 +559,10 @@ export default withTracker(() => {
 
   const user = Meteor.user();
 
-  let sortObject = { stars: reactiveCurrentOrder === 'up' ? 1 : -1 };
+  let sortObject = { trendScore: reactiveCurrentOrder === 'up' ? 1 : -1 };
+  if (currentSearchOption.get() === 'hot') {
+    sortObject = { stars: reactiveCurrentOrder === 'up' ? 1 : -1 };
+  }
   if (currentSearchOption.get() === 'download') {
     sortObject = { downloadCount: reactiveCurrentOrder === 'up' ? 1 : -1 };
   }

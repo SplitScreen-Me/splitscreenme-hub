@@ -11,7 +11,7 @@ Meteor.publish(
   'handlers',
   function handlers(
     handlerTitleSearch = '',
-    handlerOptionSearch = 'hot',
+    handlerOptionSearch = 'trend',
     handlerSortOrder = 'down',
     limit = 18,
     localHandlerIds = [],
@@ -19,7 +19,11 @@ Meteor.publish(
 
     const isSearchFromArray = localHandlerIds.length > 0;
 
-    let sortObject = { stars: handlerSortOrder === 'up' ? 1 : -1 };
+    let sortObject = { trendScore: handlerSortOrder === 'up' ? 1 : -1 };
+
+    if (handlerOptionSearch === 'hot') {
+      sortObject = { stars: handlerSortOrder === 'up' ? 1 : -1 };
+    }
     if (handlerOptionSearch === 'download') {
       sortObject = { downloadCount: handlerSortOrder === 'up' ? 1 : -1 };
     }
@@ -164,7 +168,7 @@ Meteor.publish(
     return Handlers.find(
       { private: false },
       {
-        sort: { downloadCount: -1 },
+        sort: { trendScore: -1 },
         limit: 15,
       },
     );

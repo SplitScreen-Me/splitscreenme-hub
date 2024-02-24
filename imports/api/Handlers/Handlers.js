@@ -186,6 +186,24 @@ Handlers.schema = new SimpleSchema({
       }
     },
   },
+  trendScore: {
+    type: Number,
+    label: 'The trend score for this handler.',
+    autoValue() {
+      if (this.isInsert) {
+        return 0;
+      }
+    },
+  },
+  trendScoreLastUpdate: {
+    type: Date,
+    label: 'The date this handler trend score was last updated.',
+    autoValue() {
+      if (this.isInsert) {
+        return new Date();
+      }
+    },
+  },
 });
 
 Handlers.attachSchema(Handlers.schema);
