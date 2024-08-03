@@ -1,6 +1,6 @@
 import React from 'react';
 import { Accounts } from 'meteor/accounts-base';
-import { Form, Icon, Input, Button, notification, Checkbox, Popconfirm, Divider, Radio } from "antd";
+import { Form, Icon, Input, Button, notification, Checkbox, Popconfirm, Divider, Radio, Tooltip, Tag } from 'antd';
 import { withRouter } from 'react-router';
 const FormItem = Form.Item;
 const { TextArea } = Input;
@@ -41,7 +41,7 @@ class ManageHandler extends React.Component {
     });
   }
   render() {
-    const { getFieldDecorator } = this.props.form;
+    const { getFieldDecorator, getFieldValue } = this.props.form;
     return (
       <React.Fragment>
         <Form onSubmit={this.handleSubmit} className="login-form">
@@ -107,7 +107,23 @@ class ManageHandler extends React.Component {
                 {' '}
                 I want to publicly share my handler.
               </Checkbox>,
-            )}
+            )}<br />
+            {getFieldValue('isPublic') && (this.props.handlerPublicAuthorized ? (
+              <Tooltip
+                placement="topRight"
+                title="Your handler is visible to the world ! Thank you for you contribution <3"
+              >
+                <Tag color="green"><Icon type="safety-certificate"  theme="filled" style={{ marginRight: 4 }} /> Status : Published</Tag>
+              </Tooltip>
+            ) : (
+              <Tooltip
+                placement="bottomRight"
+                title="Your handler won't be published until an administrator manually validate its safety."
+              >
+                <Tag><Icon type="exclamation-circle"  style={{ marginRight: 4 }} /> Status : pending validation</Tag>
+              </Tooltip>
+            ))
+            }
           </FormItem>
           <FormItem>
             <Button type="primary" htmlType="submit">

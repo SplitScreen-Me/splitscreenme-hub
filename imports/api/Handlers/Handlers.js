@@ -108,6 +108,15 @@ Handlers.schema = new SimpleSchema({
       }
     },
   },
+  publicAuthorized: {
+    type: Boolean,
+    label: 'This version is allowed by an admin to go public.',
+    autoValue() {
+      if (this.isInsert) {
+        return false;
+      }
+    },
+  },
   lastPublicationAt: {
     type: Date,
     label: 'Last time this went public.',

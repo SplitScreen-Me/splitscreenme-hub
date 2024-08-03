@@ -27,7 +27,7 @@ Meteor.publish(
     if (handlerOptionSearch === 'download') {
       sortObject = { downloadCount: handlerSortOrder === 'up' ? 1 : -1 };
     }
-    if (handlerOptionSearch === 'latest') {
+    if (handlerOptionSearch === 'latest' || handlerOptionSearch === 'unauthorized') {
       sortObject = { createdAt: handlerSortOrder === 'up' ? 1 : -1 };
     }
     if (handlerOptionSearch === 'report') {
@@ -43,6 +43,7 @@ Meteor.publish(
         ...searchInArraySelectorCondition,
         gameName: { $regex: new RegExp(escapeRegExp(handlerTitleSearch)), $options: 'gi' },
         private: false,
+        publicAuthorized: handlerOptionSearch !== 'unauthorized',
       },
       {
         sort: sortObject,
@@ -66,7 +67,7 @@ Meteor.publish('handlers.mine', function handlersMine() {
 });
 Meteor.publish('handlers.user', function handlersUser(userId) {
   return Handlers.find(
-    { owner: userId, private: false },
+    { owner: userId, private: false, publicAuthorized: true },
     {
       sort: { createdAt: -1 },
     },
@@ -166,7 +167,7 @@ Meteor.publish(
   'handlers.webdisplay',
   function handlers() {
     return Handlers.find(
-      { private: false },
+      { private: false, publicAuthorized: true },
       {
         sort: { trendScore: -1 },
         limit: 15,
@@ -184,7 +185,7 @@ Meteor.publish(
   function handlersFull() {
     return Handlers.find(
       {
-        private: false,
+        private: false, publicAuthorized: true
       },
       {
         sort: { stars: -1 },

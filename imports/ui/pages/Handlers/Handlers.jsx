@@ -146,10 +146,14 @@ function Handlers(props) {
         <Radio.Button onClick={onSortOrderChange} value="alphabetical">
           {props.currentSearchOption === 'alphabetical' && <Icon type={props.currentOrder} />} Alphabetical
         </Radio.Button>
-        {isAdmin && (
+        {isAdmin && (<>
+          <Radio.Button onClick={onSortOrderChange} value="unauthorized">
+            {props.currentSearchOption === 'unauthorized' && <Icon type={props.currentOrder} />} Pending Authorization
+          </Radio.Button>
           <Radio.Button onClick={onSortOrderChange} value="report">
             {props.currentSearchOption === 'report' && <Icon type={props.currentOrder} />} Reports
           </Radio.Button>
+          </>
         )}
       </Radio.Group>
       <br />
@@ -566,7 +570,7 @@ export default withTracker(() => {
   if (currentSearchOption.get() === 'download') {
     sortObject = { downloadCount: reactiveCurrentOrder === 'up' ? 1 : -1 };
   }
-  if (currentSearchOption.get() === 'latest') {
+  if (currentSearchOption.get() === 'latest' || currentSearchOption.get() === 'unauthorized') {
     sortObject = { createdAt: reactiveCurrentOrder === 'up' ? 1 : -1 };
   }
   if (currentSearchOption.get() === 'report') {

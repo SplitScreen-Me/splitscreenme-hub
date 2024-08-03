@@ -140,6 +140,18 @@ function Handler(props) {
           }
      })
   };
+  const authorizeHandler = () => {
+        Meteor.call('handlers.publicAuthorized', handler._id, (err, res)=>{
+          if(err){
+            notification.error({ message: 'Error authorizing', description: err.reason });
+          }else{
+          notification.success({
+            message: 'Handler authorization',
+            description: `The authorization has successfuly been updated.`,
+          });
+          }
+     })
+  };
 
   return (
     <div>
@@ -178,10 +190,14 @@ function Handler(props) {
                       Reset report count
                     </Button>
                   )}
-                  {isAdmin && handler.currentVersion > 0 && (
+                  {isAdmin && handler.currentVersion > 0 && (<>
                     <Button type="primary" key="3" ghost onClick={verifyHandler}>
                       {handler.verified ? "Un-verify" : "Verify"}
                     </Button>
+                    <Button type="primary" key="4" ghost onClick={authorizeHandler}>
+                      {handler.publicAuthorized ? "Unauthorize" : "Authorize"}
+                    </Button>
+                    </>
                   )}
                 </div>
               }
@@ -375,6 +391,7 @@ function Handler(props) {
                         initialDescription={handler.description}
                         initialTitle={handler.title}
                         handlerStatus={handler.private}
+                        handlerPublicAuthorized={handler.publicAuthorized}
                         handlerVersion={handler.currentVersion}
                         maxPlayers={handler.maxPlayers}
                         playableControllers={handler.playableControllers}

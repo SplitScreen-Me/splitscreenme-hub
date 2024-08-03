@@ -108,6 +108,7 @@ async function handlerCommand(argume, receivedMessage) {
     {
       gameName: { $regex: new RegExp(totalGame), $options: 'i' },
       private: false,
+      publicAuthorized: true,
     },
     {
       sort: { stars: -1 },

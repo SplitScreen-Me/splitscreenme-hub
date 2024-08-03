@@ -219,10 +219,31 @@ Meteor.methods({
       handleMethodException(exception);
     }
   },
+  'handlers.publicAuthorized': function handlersPublicAuthorize(handlerId) {
+    check(handlerId, String);
+
+    if (!Roles.userIsInRole(this.userId, 'admin_enabled')) {
+      throw new Meteor.Error('403', 'Sorry, you need to be an administrator to do this.');
+    }
+
+    try {
+        const handler = Handlers.findOne(handlerId);
+
+        if(handler){
+          Handlers.update(handlerId, { $set: { publicAuthorized: !handler.publicAuthorized } });
+
+          discord_admin_log("Handler authorized", `${Meteor.user().profile.username} for ${handler.title} ${handler.gameName} (${handlerId}). Changed public authorization to : ${!handler.publicAuthorized}.`);
+        } else {
+          throw new Meteor.Error('404', "Handler or package not found.");
+        }
+    } catch (exception) {
+      handleMethodException(exception);
+    }
+  },
 });
 
 rateLimit({
-  methods: ['handlers.insert', 'handlers.update', 'handlers.remove', 'handlers.resetReport', 'handlers.verify'],
+  methods: ['handlers.insert', 'handlers.update', 'handlers.remove', 'handlers.resetReport', 'handlers.verify', 'handlers.publicAuthorized'],
   limit: 5,
   timeRange: 1000,
 });
