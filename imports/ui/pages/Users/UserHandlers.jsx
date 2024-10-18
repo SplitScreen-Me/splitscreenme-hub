@@ -228,11 +228,10 @@ function UserHandlers(props) {
         </Spin>
       ) : (
         <div>
-          🍏 🍎 🍐 🍊 🍋 🍌 🍉 I don't know what to write or display here.{" "}
+          🍏 🍎 🍐 🍊 🍋 🍌 🍉 List of Patrons: {" "}
           <a href="https://github.com/SplitScreen-Me/splitscreenme-hub/issues/1" target="_blank">
             Please help
           </a>{" "}
-          🍇 🍓 🍈 🍒 🍑 🍍 🥭
         </div>
       )}
     </div>
