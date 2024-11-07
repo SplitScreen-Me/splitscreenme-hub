@@ -228,10 +228,22 @@ function UserHandlers(props) {
         </Spin>
       ) : (
         <div>
-          🍏 🍎 🍐 🍊 🍋 🍌 🍉 List of Patrons: {" "}
-          <a href="https://github.com/SplitScreen-Me/splitscreenme-hub/issues/1" target="_blank">
-            Please help
-          </a>{" "}
+          🍏 🍎 🍐 🍊 🍋 🍌 🍉 List of Patrons: 
+          Yockstar
+          Distro Lucas
+          Teagan
+          Moon__Shyne
+          rafciu12
+          Telmo Lourenço
+          Chris Suffern
+          Nils Solheim
+          Christian Röder
+          Charlie Illingworth
+          Jackson Bashford
+          Riley Hales
+          Misha
+          Shahid Ilyas
+          Vadim Pelau
         </div>
       )}
     </div>
