@@ -229,21 +229,22 @@ function UserHandlers(props) {
       ) : (
         <div>
           🍏 🍎 🍐 🍊 🍋 🍌 🍉 List of Patrons: 
-          Yockstar
-          Distro Lucas
-          Teagan
-          Moon__Shyne
-          rafciu12
-          Telmo Lourenço
-          Chris Suffern
-          Nils Solheim
-          Christian Röder
-          Charlie Illingworth
-          Jackson Bashford
-          Riley Hales
-          Misha
-          Shahid Ilyas
-          Vadim Pelau
+          
+          Yockstar,
+          Distro Lucas,
+          Teagan,
+          Moon__Shyne,
+          rafciu12,
+          Telmo Lourenço,
+          Chris Suffern,
+          Nils Solheim,
+          Christian Röder,
+          Charlie Illingworth,
+          Jackson Bashford,
+          Riley Hales,
+          Misha,
+          Shahid Ilyas,
+          Vadim Pelau,
         </div>
       )}
     </div>
