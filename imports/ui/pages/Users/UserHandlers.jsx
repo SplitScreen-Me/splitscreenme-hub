@@ -228,9 +228,10 @@ function UserHandlers(props) {
         </Spin>
       ) : (
         <div>
-          🍏 🍎 🍐 🍊 🍋 🍌 🍉 List of Patrons: 
-          
-          Yockstar,
+          🍏 🍎 🍐 🍊 🍋 🍌 🍉 List of Patrons:<br>
+          Luke Bilyk <br>
+          Aaron E Rexwinkle <br>
+          Yockstar <br>
           Distro Lucas,
           Teagan,
           Moon__Shyne,
