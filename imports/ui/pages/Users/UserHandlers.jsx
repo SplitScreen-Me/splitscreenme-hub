@@ -246,7 +246,6 @@ function UserHandlers(props) {
          <div> Misha <div>
          <div> Shahid Ilyas <div>
          <div> Vadim Pelau <div>
-        </div>
       )}
     </div>
   );
