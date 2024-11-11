@@ -228,7 +228,7 @@ function UserHandlers(props) {
         </Spin>
       ) : (
         <div>
-          List of Patrons
+          List of Patrons:
           Luke Bilyk,
           Aaron E Rexwinkle,
           Yockstar, 
