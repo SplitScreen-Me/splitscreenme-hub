@@ -228,24 +228,29 @@ function UserHandlers(props) {
         </Spin>
       ) : (
         <div>
-          List of Patrons:
-          Luke Bilyk,
-          Aaron E Rexwinkle,
-          Yockstar, 
-          Distro Lucas, 
-          Teagan,
-          Moon__Shyne,
-          rafciu12, 
-          Telmo Lourenço,
-          Chris Suffern, 
-          Nils Solheim, 
-          Christian Röder, 
-          Charlie Illingworth, 
-          Jackson Bashford, 
-          Riley Hales, 
-          Misha, 
-          Shahid Ilyas,
-          Vadim Pelau,
+          <div>List of Patrons:</div>
+          <div>Aaron E Rexwinkle</div>
+          <div>Alí Al-Qudah Galván</div>
+          <div>Charlie Illingworth</div> 
+          <div>Chris Suffern</div>
+          <div>Christian Röder</div> 
+          <div>Daniel Lindsay</div>
+          <div>Distro Lucas</div> 
+          <div>Jackson Bashford</div> 
+          <div>Katrina Lenselink</div>
+          <div>Kevin Krüger</div>
+          <div>Luke Bilyk</div>
+          <div>Martín García Dietrich</div>
+          <div>Misha</div> 
+          <div>Moon__Shyne</div>
+          <div>Nils Solheim</div>          
+          <div>rafciu12</div>         
+          <div>Riley Hales</div> 
+          <div>Shahid Ilyas</div>
+          <div>Teagan</div>
+          <div>Telmo Lourenço</div>
+          <div>Vadim Pelau</div>
+          <div>Yockstar</div> 
         </div>
       )}
     </div>
