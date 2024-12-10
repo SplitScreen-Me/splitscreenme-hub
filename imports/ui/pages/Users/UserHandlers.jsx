@@ -234,8 +234,10 @@ function UserHandlers(props) {
           <div>Charlie Illingworth</div> 
           <div>Chris Suffern</div>
           <div>Christian Röder</div> 
+          <div>Dan Dubicki</div>
           <div>Daniel Lindsay</div>
-          <div>Distro Lucas</div> 
+          <div>Distro Helena</div> 
+          <div>Doge</div> 
           <div>Jackson Bashford</div> 
           <div>Katrina Lenselink</div>
           <div>Kevin Krüger</div>
@@ -245,8 +247,10 @@ function UserHandlers(props) {
           <div>Moon__Shyne</div>
           <div>Nils Solheim</div>          
           <div>rafciu12</div>         
-          <div>Riley Hales</div> 
+          <div>Riley Hales</div>
+          <div>Ryan</div>
           <div>Shahid Ilyas</div>
+          <div>Steven Huddleston</div>
           <div>Teagan</div>
           <div>Telmo Lourenço</div>
           <div>Vadim Pelau</div>
