@@ -238,6 +238,7 @@ function UserHandlers(props) {
           <div>Daniel Lindsay</div>
           <div>Distro Helena</div> 
           <div>Doge</div> 
+          <div>Isaiah Nonya</div> 
           <div>Jackson Bashford</div> 
           <div>Katrina Lenselink</div>
           <div>Kevin Krüger</div>
@@ -250,8 +251,10 @@ function UserHandlers(props) {
           <div>Riley Hales</div>
           <div>Ryan</div>
           <div>Shahid Ilyas</div>
+          <div>Soothing Ruby</div>
           <div>Steven Huddleston</div>
           <div>Teagan</div>
+          <div>telegangster</div>
           <div>Telmo Lourenço</div>
           <div>Vadim Pelau</div>
           <div>Yockstar</div> 
