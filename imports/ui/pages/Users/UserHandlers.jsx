@@ -231,6 +231,8 @@ function UserHandlers(props) {
           <div>List of Patrons:</div>
           <div>Aaron E Rexwinkle</div>
           <div>Alí Al-Qudah Galván</div>
+          <div>Austin Archibald</div>
+          <div>Božo Škegro</div>
           <div>Charlie Illingworth</div> 
           <div>Chris Suffern</div>
           <div>Christian Röder</div> 
@@ -248,10 +250,12 @@ function UserHandlers(props) {
           <div>Kevin Krüger</div>
           <div>Luke Bilyk</div>
           <div>Marc Lemieux</div>
+          <div>Maroon</div>
           <div>Martín García Dietrich</div>
           <div>Misha</div> 
           <div>Moon__Shyne</div>
           <div>Nils Solheim</div> 
+          <div>ollymaster</div>
           <div>Paveion</div>
           <div>rafciu12</div>         
           <div>Riley Hales</div>
@@ -265,6 +269,7 @@ function UserHandlers(props) {
           <div>Telmo Lourenço</div>
           <div>Vadim Pelau</div>
           <div>Yockstar</div> 
+          <div>Yztirf Snavelk</div>
         </div>
       )}
     </div>
