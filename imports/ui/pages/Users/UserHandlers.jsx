@@ -232,6 +232,7 @@ function UserHandlers(props) {
           <div>Aaron E Rexwinkle</div>
           <div>Alí Al-Qudah Galván</div>
           <div>Austin Archibald</div>
+          <div>Azivar Azivat</div>
           <div>Božo Škegro</div>
           <div>Charlie Illingworth</div> 
           <div>Chris Suffern</div>
@@ -254,7 +255,8 @@ function UserHandlers(props) {
           <div>Martín García Dietrich</div>
           <div>Misha</div> 
           <div>Moon__Shyne</div>
-          <div>Nils Solheim</div> 
+          <div>Nils Solheim</div>
+          <div>Norwin</div>
           <div>ollymaster</div>
           <div>Paveion</div>
           <div>rafciu12</div>         
