@@ -9,6 +9,7 @@
   },
   "private": {
     "IGDB_API_KEY": "",
+    "GITHUB_PERSONAL_ACCESS_TOKEN": "",
     "MAIL_URL": "",
     "DISCORD_BOT_SECRET_TOKEN": "",
     "DISCORD_ADMIN_LOGGING_WEBHOOK": "",
