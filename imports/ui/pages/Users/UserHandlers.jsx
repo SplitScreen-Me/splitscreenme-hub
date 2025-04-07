@@ -244,6 +244,7 @@ function UserHandlers(props) {
           <div>Distro Helena</div> 
           <div>Doge</div> 
           <div>Ethan</div>
+          <div>ezetrex57</div>
           <div>Francine Smith</div>
           <div>Hameesh</div>
           <div>inRaz</div>
