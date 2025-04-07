@@ -231,6 +231,7 @@ function UserHandlers(props) {
           <div>List of Patrons:</div>
           <div>Aaron E Rexwinkle</div>
           <div>Alí Al-Qudah Galván</div>
+          <div>Alvin Chan</div>
           <div>Austin Archibald</div>
           <div>Azivar Azivat</div>
           <div>Božo Škegro</div>
@@ -238,9 +239,11 @@ function UserHandlers(props) {
           <div>Chris Suffern</div>
           <div>Christian Röder</div> 
           <div>Dan Dubicki</div>
+          <div>DaNiEl H</div>
           <div>Daniel Lindsay</div>
           <div>Distro Helena</div> 
           <div>Doge</div> 
+          <div>Ethan</div>
           <div>Francine Smith</div>
           <div>Hameesh</div>
           <div>inRaz</div>
