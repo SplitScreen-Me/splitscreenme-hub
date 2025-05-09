@@ -4,8 +4,10 @@ import Handlers from '../Handlers';
 import Comments from '../../Comments/Comments';
 import escapeRegExp from '../../../modules/regexescaper';
 import Packages from '../../Packages/server/ServerPackages';
-import axios from "axios";
-import { bearerToken } from "./igdb-methods";
+import axios from 'axios';
+import { bearerToken } from './igdb-methods';
+import { getGitHubStars, getGitHubDownloads } from './github-methods';
+import formatNumbers from '../../../modules/formatNumbers';
 
 Meteor.publish(
   'handlers',
@@ -16,7 +18,6 @@ Meteor.publish(
     limit = 18,
     localHandlerIds = [],
   ) {
-
     const isSearchFromArray = localHandlerIds.length > 0;
 
     let sortObject = { trendScore: handlerSortOrder === 'up' ? 1 : -1 };
@@ -36,7 +37,8 @@ Meteor.publish(
     if (handlerOptionSearch === 'alphabetical') {
       sortObject = { gameName: handlerSortOrder === 'up' ? -1 : 1 };
     }
-    const searchInArraySelectorCondition = isSearchFromArray > 0 ? {_id: { $in: localHandlerIds }} : {};
+    const searchInArraySelectorCondition =
+      isSearchFromArray > 0 ? { _id: { $in: localHandlerIds } } : {};
 
     return Handlers.find(
       {
@@ -87,21 +89,20 @@ Meteor.publish(
   },
 );
 
-
 /* This code is a PoC, its dirty */
 const screenshotsCache = {};
 
 WebApp.connectHandlers.use('/api/v1/screenshots', async (req, res, next) => {
   res.writeHead(200);
-  const handlerId = req.url.split("/")[1];
-  if(handlerId.length > 0){
-    const handler = await Handlers.findOne({ _id: handlerId }, {fields: {gameId: 1}});
-    if(!handler?.gameId) {
-      res.end(JSON.stringify({error: 'Incorrect handlerId'}));
+  const handlerId = req.url.split('/')[1];
+  if (handlerId.length > 0) {
+    const handler = await Handlers.findOne({ _id: handlerId }, { fields: { gameId: 1 } });
+    if (!handler?.gameId) {
+      res.end(JSON.stringify({ error: 'Incorrect handlerId' }));
       return;
     }
 
-    if(!screenshotsCache[handler.gameId]){
+    if (!screenshotsCache[handler.gameId]) {
       const igdbApi = axios.create({
         baseURL: 'https://api.igdb.com/v4/',
         timeout: 2500,
@@ -112,49 +113,68 @@ WebApp.connectHandlers.use('/api/v1/screenshots', async (req, res, next) => {
           Accept: 'application/json',
         },
       });
-      const igdbAnswer = await igdbApi.post('screenshots', `fields *;where game = ${handler.gameId};`);
+      const igdbAnswer = await igdbApi.post(
+        'screenshots',
+        `fields *;where game = ${handler.gameId};`,
+      );
       screenshotsCache[handler.gameId] = igdbAnswer.data;
     }
-    res.end(JSON.stringify({screenshots: screenshotsCache[handler.gameId]}));
-  }else{
-    res.end(JSON.stringify({error: 'No handler ID provided'}))
+    res.end(JSON.stringify({ screenshots: screenshotsCache[handler.gameId] }));
+  } else {
+    res.end(JSON.stringify({ error: 'No handler ID provided' }));
   }
-  res.end(JSON.stringify({error: 'Unknown error'}))
-})
+  res.end(JSON.stringify({ error: 'Unknown error' }));
+});
 /* End of dirty PoC */
 
 WebApp.connectHandlers.use('/api/v1/hubstats', async (req, res, next) => {
   res.writeHead(200);
   let downloadsSum = 0;
   let hotnessSum = 0;
-  let handlerCount = 0;
-  let usersCount = 0;
+  // TODO: Store these in a database and update it every few hours
+  const totalNucleusCoopGitHubStars =
+    (await getGitHubStars('SplitScreen-Me', 'splitscreenme-nucleus')) +
+    (await getGitHubStars('ZeroFox5866', 'nucleuscoop')) +
+    (await getGitHubStars('nucleuscoop', 'nucleuscoop')) +
+    (await getGitHubStars('distrohelena', 'nucleuscoop'));
+  const totalNucleusCoopGitHubDownloads =
+    (await getGitHubDownloads('SplitScreen-Me', 'splitscreenme-nucleus')) +
+    (await getGitHubDownloads('ZeroFox5866', 'nucleuscoop')) +
+    (await getGitHubDownloads('nucleuscoop', 'nucleuscoop')) +
+    (await getGitHubDownloads('distrohelena', 'nucleuscoop'));
+
   const allPackages = Packages.collection.find({}).fetch();
-  allPackages.forEach(pkg => {
+  for (pkg of allPackages) {
     if (pkg.meta.downloads > 0) {
       downloadsSum = downloadsSum + pkg.meta.downloads;
     }
-  });
+  }
   const allHandlers = Handlers.find({ private: false }).fetch();
-  allHandlers.forEach(hndl => {
+  for (const hndl of allHandlers) {
     if (hndl.stars > 0) {
       hotnessSum = hotnessSum + hndl.stars;
     }
-  });
-  handlerCount = allHandlers.length;
+  }
 
   const allUsers = Meteor.users.find({}).fetch();
-  usersCount = allUsers.length;
+  const usersCount = allUsers.length;
+
+  const usersWithHandlersCount = Meteor.users
+    .find({ 'profile.handlerId': { $exists: true } })
+    .fetch().length;
 
   const allComments = Comments.find({}).fetch();
   const commentsCount = allComments.length;
 
   res.end(
-    `Total downloads: ${downloadsSum}` +
-    `\nTotal hotness: ${hotnessSum}` +
-    `\nTotal handlers: ${handlerCount}` +
-    `\nTotal users: ${usersCount}` +
-    `\nTotal comments ${commentsCount}`
+    `Total downloads: ${formatNumbers(downloadsSum)}` +
+      `\nTotal hotness: ${formatNumbers(hotnessSum)}` +
+      `\nTotal handlers: ${formatNumbers(allHandlers.length)}` +
+      `\nTotal users: ${formatNumbers(usersCount)}` +
+      `\nTotal handler authors: ${formatNumbers(usersWithHandlersCount)}` +
+      `\nTotal comments ${formatNumbers(commentsCount)}` +
+      `\nTotal Nucleus Co-Op GitHub stars: ${formatNumbers(totalNucleusCoopGitHubStars)}` +
+      `\nTotal Nucleus Co-Op GitHub downloads: ${formatNumbers(totalNucleusCoopGitHubDownloads)}`,
   );
 });
 
@@ -185,7 +205,8 @@ Meteor.publish(
   function handlersFull() {
     return Handlers.find(
       {
-        private: false, publicAuthorized: true
+        private: false,
+        publicAuthorized: true,
       },
       {
         sort: { stars: -1 },
