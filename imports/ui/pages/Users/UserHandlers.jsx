@@ -228,7 +228,7 @@ function UserHandlers(props) {
         </Spin>
       ) : (
         <div>
-<div>List of Patrons: https://github.com/SplitScreen-Me/splitscreenme-patreon.</div>
+<div>[List of Patrons](https://github.com/SplitScreen-Me/splitscreenme-patreon).</div>
         </div>
       )}
     </div>
