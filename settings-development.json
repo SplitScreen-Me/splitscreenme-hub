@@ -8,6 +8,7 @@
     "productAddress": "https://www.splitscreen.me/"
   },
   "private": {
+    "IGDB_API_ID": "",
     "IGDB_API_KEY": "",
     "MAIL_URL": "",
     "DISCORD_BOT_SECRET_TOKEN": "",
