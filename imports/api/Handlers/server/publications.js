@@ -1,5 +1,5 @@
 import { Meteor } from 'meteor/meteor';
-import { check } from 'meteor/check';
+import { check, Match } from 'meteor/check';
 import Handlers from '../Handlers';
 import Comments from '../../Comments/Comments';
 import escapeRegExp from '../../../modules/regexescaper';
@@ -15,9 +15,11 @@ Meteor.publish(
     handlerSortOrder = 'down',
     limit = 18,
     localHandlerIds = [],
+    handlerTagSearch = '',
   ) {
-
-    const isSearchFromArray = localHandlerIds.length > 0;
+    // Protect from Cannot read property 'length' of null
+    const safeLocalHandlerIds = Array.isArray(localHandlerIds) ? localHandlerIds : [];
+    const isSearchFromArray = safeLocalHandlerIds.length > 0;
 
     let sortObject = { trendScore: handlerSortOrder === 'up' ? 1 : -1 };
 
@@ -36,18 +38,53 @@ Meteor.publish(
     if (handlerOptionSearch === 'alphabetical') {
       sortObject = { gameName: handlerSortOrder === 'up' ? -1 : 1 };
     }
-    const searchInArraySelectorCondition = isSearchFromArray > 0 ? {_id: { $in: localHandlerIds }} : {};
+    const searchInArraySelectorCondition = isSearchFromArray > 0 ? {_id: { $in: safeLocalHandlerIds } } : {};
+
+    // Tags come from the "Filter by tags" select: IGDB genres, "support:*" and "players:<min>".
+    check(handlerTagSearch, Match.Maybe(Match.OneOf(String, [String])));
+    const tagSearches = (handlerTagSearch ? [].concat(handlerTagSearch) : [])
+      .filter(tag => tag.length > 0)
+      .slice(0, 20);
+
+    const genreSearches = tagSearches.filter(
+      tag => !tag.startsWith('support:') && !tag.startsWith('players:'),
+    );
+    const genreSelectorCondition = genreSearches.length
+      ? { genres: { $all: genreSearches.map(genre => new RegExp(`^${escapeRegExp(genre)}$`, 'i')) } } //all = must have all, similar to steam/steamdb
+      : {};
+
+    // Every selected support must be available. Multiple keyboards/mice implies keyboard/mouse support.
+    const compatibilitySelectorCondition = {};
+    if (tagSearches.includes('support:controller')) {
+      compatibilitySelectorCondition.playableControllers = true;
+    }
+    if (tagSearches.includes('support:KeyboardMouse') || tagSearches.includes('support:MultiKeyboardMouse')) {
+      compatibilitySelectorCondition.playableMouseKeyboard = true;
+    }
+    if (tagSearches.includes('support:MultiKeyboardMouse')) {
+      compatibilitySelectorCondition.playableMultiMouseKeyboard = true;
+    }
+
+    // "players:<n>" means playable by at least n players. If several are selected, the highest wins.
+    const minPlayers = Math.max(
+      0,
+      ...tagSearches.filter(tag => /^players:\d{1,2}$/.test(tag)).map(tag => Number(tag.slice('players:'.length))),
+    );
+    const playerCountSelectorCondition = minPlayers > 2 ? { maxPlayers: { $gte: minPlayers } } : {};
 
     return Handlers.find(
       {
         ...searchInArraySelectorCondition,
+        ...genreSelectorCondition,
+        ...compatibilitySelectorCondition,
+        ...playerCountSelectorCondition,
         gameName: { $regex: new RegExp(escapeRegExp(handlerTitleSearch)), $options: 'gi' },
         private: false,
         publicAuthorized: handlerOptionSearch !== 'unauthorized',
       },
       {
         sort: sortObject,
-        limit: Math.min(isSearchFromArray ? localHandlerIds.length : limit, 600),
+        limit: Math.min(isSearchFromArray ? safeLocalHandlerIds.length : limit, 600),
       },
     );
   },

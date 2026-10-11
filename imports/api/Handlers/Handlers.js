@@ -72,6 +72,14 @@ Handlers.schema = new SimpleSchema({
     type: String,
     label: 'The IGDB url of the game.',
   },
+  genres: {
+    type: Array,
+    label: 'The IGDB genres of the game.',
+    optional: true,
+  },
+  'genres.$': {
+    type: String,
+  },
   stars: {
     type: Number,
     label: 'The stars of the handler.',

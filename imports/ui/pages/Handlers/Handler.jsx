@@ -1,40 +1,50 @@
-import React, { useState } from 'react';
 import {
-  Icon,
   Button,
-  Tooltip,
-  Spin,
+  Col,
+  Icon,
+  Modal,
+  notification,
   PageHeader,
-  Typography,
-  Row,
-  Tag,
   Result,
+  Row,
   Skeleton,
-  Col, notification,
-  Modal
+  Spin,
+  Tabs,
+  Tag,
+  Tooltip,
+  Typography
 } from "antd";
-import { Tabs } from 'antd';
 import { withTracker } from 'meteor/react-meteor-data';
-import HandlersCollection from '../../../api/Handlers/Handlers';
+import { Session } from 'meteor/session';
+import React from 'react';
+import ReactMarkdown from 'react-markdown';
 import { withRouter } from 'react-router';
 import { Link } from 'react-router-dom';
-import ReactMarkdown from 'react-markdown';
-import ManageHandler from './ManageHandler';
-import AddPackage from './AddPackage';
-import ReadJs from './ReadJs';
-import DisplayTimeline from './DisplayTimeline';
-import CommentSection from './CommentSection';
+import HandlersCollection from '../../../api/Handlers/Handlers';
 import counterFormatter from '../../../modules/counterFormatter';
-import { Session } from 'meteor/session';
 import ControllerIcon from '../../icons/ControllerIcon';
 import KeyboardIcon from '../../icons/KeyboardIcon';
+import AddPackage from './AddPackage';
+import CommentSection from './CommentSection';
 import DisplayStats from './DisplayStats';
+import DisplayTimeline from './DisplayTimeline';
+import ManageHandler from './ManageHandler';
+import ReadJs from './ReadJs';
 const { Paragraph } = Typography;
 const IconText = ({ type, text, theme = 'outlined', color }) => (
   <span>
     <Icon type={type} twoToneColor={color} theme={theme} style={{ marginRight: 8 }} />
     {text}
   </span>
+);
+const InfoItem = ({ icon, label, value, children }) => (
+  <div className="handler-info-item">
+    <div className="handler-info-icon">{children || <Icon type={icon} />}</div>
+    <div>
+      <div className="handler-info-label">{label}</div>
+      <div className="handler-info-value">{value}</div>
+    </div>
+  </div>
 );
 const { TabPane } = Tabs;
 const { confirm } = Modal;
@@ -85,6 +95,8 @@ function Handler(props) {
     Meteor.call('handlers.starring', handlerId);
   };
   const handler = props.handler[0] ? props.handler[0] : false;
+  const genres = (handler && handler.genres) || [];
+
   const isMaintainer = props.user && (handler.owner === props.user._id);
   const isAdmin = props.user && Roles.userIsInRole(props.user._id, ['admin_enabled']);
 
@@ -167,14 +179,14 @@ function Handler(props) {
                     placement="topRight"
                     title="The latest release of this handler has been validated and is safe to use."
                   >
-                    <Tag color="green"><Icon type="safety-certificate"  theme="filled" style={{ marginRight: 4 }} /> Verified</Tag>
+                    <Tag color="green"><Icon type="safety-certificate"  theme="filled" style={{ marginRight: 4 }} /> Handler Verified</Tag>
                   </Tooltip>
                 ) : (
                   <Tooltip
                     placement="bottomRight"
                     title="The latest release of this handler has not been verified. Check the FAQ for insight into the verification process."
                   >
-                    <Tag><Icon type="exclamation-circle"  style={{ marginRight: 4 }} /> Unverified</Tag>
+                    <Tag><Icon type="exclamation-circle"  style={{ marginRight: 4 }} /> Handler Unverified</Tag>
                   </Tooltip>
                 )
               }
@@ -202,35 +214,44 @@ function Handler(props) {
                 </div>
               }
             >
-              <div style={{ color: 'rgba(0, 0, 0, 0.45)' }}>
-                <IconText type="team" text={handler.maxPlayers > 2 ? `2 - ${handler.maxPlayers} players` : '2 players'}
-                          key="max-players" />
-                <div style={{ width: '25px', display: 'inline-block' }}></div>
-
-                {handler.playableControllers && (<><Tooltip title={"Controller support"}>
-                  <ControllerIcon style={{ width: 22, height: 22, fill: '#8d8d8d', marginBottom:-6 }} />
-                </Tooltip><div style={{ width: '25px', display: 'inline-block' }}></div></>)}
-
-                {handler.playableMouseKeyboard && (<>
-                <Tooltip title={`${handler.playableMultiMouseKeyboard ? 'Multiple' : 'Single'} mouse + keyboard support`}>
-                  <KeyboardIcon style={{ width: 22, height: 22, fill: '#8d8d8d', marginBottom:-4 }} />
-                  {handler.playableMultiMouseKeyboard && (<KeyboardIcon style={{ width: 22, height: 22, fill: '#8d8d8d', marginBottom:-4 }} />)}
-                </Tooltip>
-                <div style={{ width: '25px', display: 'inline-block' }}></div></>)}
-                <IconText type="fire" text={counterFormatter(handler.stars)} key="total-stars" />
-                <div style={{ width: '25px', display: 'inline-block' }}></div>
-                <IconText
-                  type="download"
-                  text={counterFormatter(handler.downloadCount)}
-                  key="list-vertical-message"
+              {genres.length > 0 && (
+                <div className="handler-genres">
+                  {genres.map(genre => (
+                    <Tag color="green" key={genre}>
+                      {genre}
+                    </Tag>
+                  ))}
+                </div>
+              )}
+              <div className="handler-info">
+                <InfoItem
+                  icon="team"
+                  label="Max players"
+                  value={handler.maxPlayers > 2 ? `2 - ${handler.maxPlayers}` : '2'}
                 />
-                <div style={{ width: '25px', display: 'inline-block' }}></div>
-                <Link to={`/user/${handler.owner}`}><IconText type="user" text={handler.ownerName}
-                                                              key="list-vertical-like-o" /></Link>
+                <InfoItem
+                  label="Controller support"
+                  value={handler.playableControllers ? 'Supported' : 'Not supported'}
+                >
+                  <ControllerIcon className="handler-info-svg" />
+                </InfoItem>
+                <InfoItem
+                  label="Mouse + keyboard"
+                  value={handler.playableMouseKeyboard
+                    ? (handler.playableMultiMouseKeyboard ? 'Multiple' : 'Single')
+                    : 'Not supported'}
+                >
+                  <KeyboardIcon className="handler-info-svg" />
+                </InfoItem>
+                <InfoItem icon="fire" label="Hotness" value={counterFormatter(handler.stars)} />
+                <InfoItem icon="download" label="Downloads" value={counterFormatter(handler.downloadCount)} />
+                <Link className="handler-info-link" to={`/user/${handler.owner}`}>
+                  <InfoItem icon="user" label="Handler by" value={handler.ownerName} />
+                </Link>
               </div>
               <Content>
-                <div style={{ display: 'flex', flexDirection: 'row' }}>
-                  <div style={{ marginLeft:-45, paddingRight:25 }}>
+                <div className="handler-body">
+                  <div className="handler-body-content">
                     <Paragraph>
                       <ReactMarkdown source={handler.description} />
                     </Paragraph>
@@ -312,7 +333,7 @@ function Handler(props) {
                       </a>
                     </Row>
                   </div>
-                  <div style={{marginRight:-126, paddingLeft:26,marginTop:-84}}>
+                  <div className="handler-cover">
                     <img
                       src={
                         handler.gameCover !== 'no_cover'

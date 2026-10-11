@@ -1,12 +1,11 @@
-import React, { useState } from 'react';
-import { List, Avatar, Icon, Tabs, PageHeader, Alert, Typography, Tooltip } from 'antd';
-import { Result, Button } from 'antd';
+import { Button, Icon, List, PageHeader, Result, Tabs, Tooltip, Typography } from 'antd';
 import { withTracker } from 'meteor/react-meteor-data';
-import HandlersCollection from '../../../api/Handlers/Handlers';
-import { Link } from 'react-router-dom';
-import Moment from 'react-moment';
-import counterFormatter from '../../../modules/counterFormatter';
+import React from 'react';
 import { Session } from 'meteor/session';
+import Moment from 'react-moment';
+import { Link } from 'react-router-dom';
+import HandlersCollection from '../../../api/Handlers/Handlers';
+import counterFormatter from '../../../modules/counterFormatter';
 
 const { Text } = Typography;
 const { TabPane } = Tabs;
@@ -23,7 +22,7 @@ function MyHandlers(props) {
       {props.loggedIn ? (
         <PageHeader
           title="Your handlers"
-          subTitle="Manage your handlers or create new one"
+          subTitle="Manage your handlers or publish a new one"
           extra={[
             <Link key="1" to="/create-handler">
               <Button
@@ -35,7 +34,7 @@ function MyHandlers(props) {
                 }
                 type="primary"
               >
-                <Icon type="plus-circle" /> Create new handler
+                <Icon type="plus-circle" /> Publish new handler
               </Button>
             </Link>,
           ]}
@@ -169,7 +168,7 @@ function MyHandlers(props) {
         <Result
           status="500"
           title="Not logged in!"
-          subTitle="To create and manage your handlers, you must have an account and be logged in."
+          subTitle="To publish and manage your handlers, you must have an account and be logged in."
           extra={
             <Link
               onClick={() => {

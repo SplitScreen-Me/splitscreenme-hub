@@ -1,9 +1,9 @@
 /* eslint-disable consistent-return */
 
-import { Meteor } from 'meteor/meteor';
-import { HTTP } from 'meteor/http';
-import { check, Match } from 'meteor/check';
 import axios from 'axios';
+import { check, Match } from 'meteor/check';
+import { HTTP } from 'meteor/http';
+import { Meteor } from 'meteor/meteor';
 import handleMethodException from '../../../modules/handle-method-exception';
 import rateLimit from '../../../modules/rate-limit';
 
@@ -25,7 +25,7 @@ const refreshBearer = () => {
         console.log(err);
       }
       if (res.data && res.data.access_token) {
-        console.log('Acces token correctly refreshed.');
+        console.log('Access token correctly refreshed.');
         bearerToken = res.data.access_token;
       }
     },
@@ -39,6 +39,24 @@ Meteor.startup(() => {
   }, 10 * 24 * 60 * 60 * 1000); // Renew every 10 days.
   refreshBearer();
 });
+
+// Fetches the IGDB genres of a game (https://api-docs.igdb.com/#genre), at most 3 of them.
+export const fetchGameGenres = gameId => {
+  const igdbApi = axios.create({
+    baseURL: 'https://api.igdb.com/v4/',
+    timeout: 2500,
+    headers: {
+      'Client-ID': Meteor.settings.private.IGDB_API_ID,
+      Authorization: `Bearer ${bearerToken}`,
+      'Content-Type': 'text/plain',
+      Accept: 'application/json',
+    },
+  });
+
+  return igdbApi
+    .post('games', `fields genres.name; where id = ${Number(gameId)};`)
+    .then(response => ((response.data[0] && response.data[0].genres) || []).map(genre => genre.name).slice(0, 3));
+};
 
 Meteor.methods({
   'handlers.seekGame': function handlersSeekGame(gameName, searchFilter = true) {

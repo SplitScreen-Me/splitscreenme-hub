@@ -10,6 +10,7 @@ import {
   Typography,
   Radio,
   AutoComplete,
+  Select,
   Tag,
 } from 'antd';
 import { withTracker } from 'meteor/react-meteor-data';
@@ -27,6 +28,7 @@ const { Meta } = Card;
 let avatars = new Avatars(sprites({}));
 
 const currentSearch = new ReactiveVar('');
+const currentTagSearch = new ReactiveVar([]);
 const currentOrder = new ReactiveVar('down');
 const currentSearchOption = new ReactiveVar('trend');
 const currentLimit = new ReactiveVar(18);
@@ -42,6 +44,15 @@ const IconText = ({ type, text, theme = 'outlined', color }) => (
 
 function Handlers(props) {
   const [searched, setSearched] = useState([]);
+  const [genres, setGenres] = useState([]);
+
+  useEffect(() => {
+    Meteor.call('handlers.listGenres', (error, result) => {
+      if (!error) {
+        setGenres(result || []);
+      }
+    });
+  }, []);
   const onSearch = () => {
     setSearched([
       ...new Set(
@@ -77,6 +88,11 @@ function Handlers(props) {
     value === undefined ? currentSearch.set('') : currentSearch.set(value);
   };
 
+  const onGenreChange = value => {
+    currentLimit.set(18);
+    currentTagSearch.set(value || []);
+  };
+
   const onSortTypeChange = value => {
     currentLimit.set(18);
     currentSearchOption.set(value.target.value);
@@ -109,27 +125,60 @@ function Handlers(props) {
   return (
     <div>
       {!isFromWebview.get() && (<Typography>
-        <Title aria-label="aria-expanded">Explore handlers</Title>
+        <div className="handlers-title">
+          <img src="/NucleusCoop.png" alt="Nucleus Co-op" />
+          <Title aria-label="aria-expanded">Explore handlers</Title>
+        </div>
         <Paragraph aria-label="aria-level">Search for games you like and play them with your friends.</Paragraph>
+        <Paragraph aria-label="aria-level">
+          Join the Nucleus Co-op Community:{' '}
+          <a href="https://www.reddit.com/r/nucleuscoop/" target="_blank">Reddit</a>
+          {' '} - {' '}
+          <a href="https://discord.gg/QDUt8HpCvr" target="_blank">Discord</a>
+          {' '} - {' '}
+          <a href="https://www.patreon.com/nucleus_coop" target="_blank">Patreon</a>
+        </Paragraph>
       </Typography>)}
-      <label htmlFor="handlers-search-autocomplete" aria-label="landmark">
-        <AutoComplete
-          id="handlers-search-autocomplete"
-          aria-label="search"
-          value={currentSearch.get()}
+      <div className="handlers-search-toolbar">
+        <label htmlFor="handlers-search-autocomplete" aria-label="landmark">
+          <AutoComplete
+            id="handlers-search-autocomplete"
+            aria-label="search"
+            value={currentSearch.get()}
+            allowClear={true}
+            dataSource={searched}
+            style={{ width: 350 }}
+            onSearch={onSearch}
+            onChange={onChange}
+            placeholder={`Search among ${totalHandlers} games...`}
+          />
+        </label>
+        <Select
+          mode="multiple"
           allowClear={true}
-          dataSource={searched}
+          value={currentTagSearch.get()}
+          placeholder="Filter by tags"
+          onChange={onGenreChange}
           style={{ width: 350 }}
-          onSearch={onSearch}
-          onChange={onChange}
-          placeholder={`Search among ${totalHandlers} games...`}
-        />
-      </label>
-      <Radio.Group
-        style={{ float:'right' }}
-        value={currentSearchOption.get()}
-        onChange={onSortTypeChange}
-      >
+        >
+          <Select.Option value="support:controller">Controller support</Select.Option>
+          <Select.Option value="support:KeyboardMouse">Keyboard/mouse support</Select.Option>
+          <Select.Option value="support:MultiKeyboardMouse">Multiple keyboards/mice support</Select.Option>
+          <Select.Option value="players:3">3+ players</Select.Option>
+          <Select.Option value="players:4">4+ players</Select.Option>
+          <Select.Option value="players:8">8+ players</Select.Option>
+          <Select.Option value="players:16">16+ players</Select.Option>
+          {genres.map(genre => (
+            <Select.Option key={genre} value={genre}>
+              {genre}
+            </Select.Option>
+          ))}
+        </Select>
+        <Radio.Group
+          className="handlers-sort-options"
+          value={currentSearchOption.get()}
+          onChange={onSortTypeChange}
+        >
         <Radio.Button onClick={onSortOrderChange} value="trend">
           {props.currentSearchOption === 'trend' && <Icon type={props.currentOrder} />} Trending
         </Radio.Button>
@@ -155,7 +204,8 @@ function Handlers(props) {
           </Radio.Button>
           </>
         )}
-      </Radio.Group>
+        </Radio.Group>
+      </div>
       <br />
       <Divider style={{opacity:0}} />
       <Spin spinning={props.loading}>
@@ -550,6 +600,7 @@ export default withTracker(() => {
       reactiveCurrentOrder,
       currentLimit.get(),
       Session.get('localHandlerLibraryArray')?.map(handler => handler.id) || [],
+      currentTagSearch.get(),
     );
 
   const subscription = Meteor.subscribe(
@@ -558,6 +609,8 @@ export default withTracker(() => {
     currentSearchOption.get(),
     reactiveCurrentOrder,
     currentLimit.get(),
+    undefined,
+    currentTagSearch.get(),
   );
 
 
