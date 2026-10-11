@@ -6,7 +6,6 @@ import { HTTP } from 'meteor/http';
 import { Meteor } from 'meteor/meteor';
 import handleMethodException from '../../../modules/handle-method-exception';
 import rateLimit from '../../../modules/rate-limit';
-import Handlers from '../Handlers';
 
 export let bearerToken = '';
 
@@ -41,45 +40,25 @@ Meteor.startup(() => {
   refreshBearer();
 });
 
+// Fetches the IGDB genres of a game (https://api-docs.igdb.com/#genre), at most 3 of them.
+export const fetchGameGenres = gameId => {
+  const igdbApi = axios.create({
+    baseURL: 'https://api.igdb.com/v4/',
+    timeout: 2500,
+    headers: {
+      'Client-ID': Meteor.settings.private.IGDB_API_ID,
+      Authorization: `Bearer ${bearerToken}`,
+      'Content-Type': 'text/plain',
+      Accept: 'application/json',
+    },
+  });
+
+  return igdbApi
+    .post('games', `fields genres.name; where id = ${Number(gameId)};`)
+    .then(response => ((response.data[0] && response.data[0].genres) || []).map(genre => genre.name).slice(0, 3));
+};
+
 Meteor.methods({
-  'handlers.getGenres': async function handlersGetGenres(handlerId) {
-    check(handlerId, String);
-
-    const handler = Handlers.findOne(handlerId);
-    if (!handler || !handler.gameId || !bearerToken) {
-      return [];
-    }
-    // if it already has genres, just use the stored ones. Maybe over time they can change? but idc
-    if (Array.isArray(handler.genres) && handler.genres.length > 0) {
-      return handler.genres;
-    }
-
-    const igdbApi = axios.create({
-      baseURL: 'https://api.igdb.com/v4/',
-      timeout: 2500,
-      headers: {
-        'Client-ID': Meteor.settings.private.IGDB_API_ID,
-        Authorization: `Bearer ${bearerToken}`,
-        'Content-Type': 'text/plain',
-        Accept: 'application/json',
-      },
-    });
-    // https://api-docs.igdb.com/#genre. not sure if this whole function should be added to ratelimit below.
-    const gameResponse = await igdbApi.post('games', `fields genres.name; where id = ${handler.gameId};`);
-    // check return > return genre or nothing > turn to list
-    const genres = (gameResponse.data[0]?.genres || []).map(genre => genre.name);
-
-    if (!genres.length) {
-      return [];
-    }
-
-    const limitedGenres = genres.slice(0, 3); // limit just in case fo outliers.
-
-    Handlers.update(handlerId, { $set: { genres: limitedGenres } });
-
-    return limitedGenres;
-  },
-
   'handlers.seekGame': function handlersSeekGame(gameName, searchFilter = true) {
     check(gameName, Match.OneOf(String, undefined));
     check(searchFilter, Match.Maybe(Boolean, null));

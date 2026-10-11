@@ -1,5 +1,5 @@
 import { Meteor } from 'meteor/meteor';
-import { check } from 'meteor/check';
+import { check, Match } from 'meteor/check';
 import Handlers from '../Handlers';
 import Comments from '../../Comments/Comments';
 import escapeRegExp from '../../../modules/regexescaper';
@@ -39,14 +39,13 @@ Meteor.publish(
       sortObject = { gameName: handlerSortOrder === 'up' ? -1 : 1 };
     }
     const searchInArraySelectorCondition = isSearchFromArray > 0 ? {_id: { $in: safeLocalHandlerIds } } : {};
-    
-    // Will either get an array or a string (first one). so if not array > make array ... is array > continue
-    const tagSearches = Array.isArray(handlerTagSearch)
-      ? handlerTagSearch
-      : handlerTagSearch
-        ? [handlerTagSearch]
-        : [];
-        
+
+    // Tags come from the "Filter by tags" select: IGDB genres, "support:*" and "players:<min>".
+    check(handlerTagSearch, Match.Maybe(Match.OneOf(String, [String])));
+    const tagSearches = (handlerTagSearch ? [].concat(handlerTagSearch) : [])
+      .filter(tag => tag.length > 0)
+      .slice(0, 20);
+
     const genreSearches = tagSearches.filter(
       tag => !tag.startsWith('support:') && !tag.startsWith('players:'),
     );
@@ -54,34 +53,24 @@ Meteor.publish(
       ? { genres: { $all: genreSearches.map(genre => new RegExp(`^${escapeRegExp(genre)}$`, 'i')) } } //all = must have all, similar to steam/steamdb
       : {};
 
-    const compatibilitySelectorConditions = [];
+    // Every selected support must be available. Multiple keyboards/mice implies keyboard/mouse support.
+    const compatibilitySelectorCondition = {};
     if (tagSearches.includes('support:controller')) {
-      compatibilitySelectorConditions.push({ playableControllers: true });
+      compatibilitySelectorCondition.playableControllers = true;
     }
-    if (tagSearches.includes('support:KeyboardMouse')) {
-      compatibilitySelectorConditions.push({ playableMouseKeyboard: true, playableMultiMouseKeyboard: false });
+    if (tagSearches.includes('support:KeyboardMouse') || tagSearches.includes('support:MultiKeyboardMouse')) {
+      compatibilitySelectorCondition.playableMouseKeyboard = true;
     }
     if (tagSearches.includes('support:MultiKeyboardMouse')) {
-      compatibilitySelectorConditions.push({ playableMouseKeyboard: true, playableMultiMouseKeyboard: true });
+      compatibilitySelectorCondition.playableMultiMouseKeyboard = true;
     }
 
-    const compatibilitySelectorCondition = compatibilitySelectorConditions.length
-      ? { $and: compatibilitySelectorConditions }
-      : {};
-      
-    const playerCountSelectorConditions = [];
-    if (tagSearches.includes('players:2-4')) {
-      playerCountSelectorConditions.push({ maxPlayers: { $gte: 2, $lte: 4 } });
-    }
-    if (tagSearches.includes('players:5-8')) {
-      playerCountSelectorConditions.push({ maxPlayers: { $gte: 5, $lte: 8 } });
-    }
-    if (tagSearches.includes('players:9-plus')) {
-      playerCountSelectorConditions.push({ maxPlayers: { $gte: 9 } });
-    }
-    const playerCountSelectorCondition = playerCountSelectorConditions.length
-      ? { $or: playerCountSelectorConditions }
-      : {};
+    // "players:<n>" means playable by at least n players. If several are selected, the highest wins.
+    const minPlayers = Math.max(
+      0,
+      ...tagSearches.filter(tag => /^players:\d{1,2}$/.test(tag)).map(tag => Number(tag.slice('players:'.length))),
+    );
+    const playerCountSelectorCondition = minPlayers > 2 ? { maxPlayers: { $gte: minPlayers } } : {};
 
     return Handlers.find(
       {

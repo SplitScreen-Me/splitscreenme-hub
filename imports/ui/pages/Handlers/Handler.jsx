@@ -29,6 +29,7 @@ import CommentSection from './CommentSection';
 import DisplayStats from './DisplayStats';
 import DisplayTimeline from './DisplayTimeline';
 import ManageHandler from './ManageHandler';
+import ReadJs from './ReadJs';
 const { Paragraph } = Typography;
 const IconText = ({ type, text, theme = 'outlined', color }) => (
   <span>
@@ -90,25 +91,11 @@ const onCheckPublic = checked => {
 };
 
 function Handler(props) {
-  const [genres, setGenres] = React.useState([]);
   const star = handlerId => {
     Meteor.call('handlers.starring', handlerId);
   };
   const handler = props.handler[0] ? props.handler[0] : false;
-
-  React.useEffect(() => {
-    if (handler) {
-      setGenres(handler.genres || []);
-      if (handler.genres && handler.genres.length > 0) {
-        return undefined;
-      }
-      Meteor.call('handlers.getGenres', handler._id, (error, result) => {
-        if (!error) {
-          setGenres(result);
-        }
-      });
-    }
-  }, [handler && handler._id]);
+  const genres = (handler && handler.genres) || [];
 
   const isMaintainer = props.user && (handler.owner === props.user._id);
   const isAdmin = props.user && Roles.userIsInRole(props.user._id, ['admin_enabled']);
@@ -372,7 +359,7 @@ function Handler(props) {
               >
                 <CommentSection handlerId={handler._id} />
               </TabPane>
-              {/* <TabPane
+              <TabPane
                 disabled={!handler.currentVersion}
                 tab={
                   <span>
@@ -383,7 +370,7 @@ function Handler(props) {
                 key="2"
               >
                 <ReadJs packageId={handler.currentPackage} />
-              </TabPane> */}
+              </TabPane>
               <TabPane
                 disabled={!handler.currentVersion}
                 tab={

@@ -126,7 +126,7 @@ function Handlers(props) {
     <div>
       {!isFromWebview.get() && (<Typography>
         <div className="handlers-title">
-          <img src="../NucleusCoop.png" alt="Nucleus Co-op" />
+          <img src="/NucleusCoop.png" alt="Nucleus Co-op" />
           <Title aria-label="aria-expanded">Explore handlers</Title>
         </div>
         <Paragraph aria-label="aria-level">Search for games you like and play them with your friends.</Paragraph>
@@ -162,11 +162,12 @@ function Handlers(props) {
           style={{ width: 350 }}
         >
           <Select.Option value="support:controller">Controller support</Select.Option>
-          <Select.Option value="support:KeyboardMouse">Single Keyboard/mouse support</Select.Option>
-          <Select.Option value="support:MultiKeyboardMouse">Multiple Keyboard/mouse support</Select.Option>
-          <Select.Option value="players:2-4">2-4 Players</Select.Option>
-          <Select.Option value="players:5-8">5-8 Players</Select.Option>
-          <Select.Option value="players:9-plus">9+ Players</Select.Option>
+          <Select.Option value="support:KeyboardMouse">Keyboard/mouse support</Select.Option>
+          <Select.Option value="support:MultiKeyboardMouse">Multiple keyboards/mice support</Select.Option>
+          <Select.Option value="players:3">3+ players</Select.Option>
+          <Select.Option value="players:4">4+ players</Select.Option>
+          <Select.Option value="players:8">8+ players</Select.Option>
+          <Select.Option value="players:16">16+ players</Select.Option>
           {genres.map(genre => (
             <Select.Option key={genre} value={genre}>
               {genre}

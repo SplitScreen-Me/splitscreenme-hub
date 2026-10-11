@@ -8,6 +8,7 @@ import Comments from '../../Comments/Comments';
 import Packages from '../../Packages/server/ServerPackages';
 import handleMethodException from '../../../modules/handle-method-exception';
 import rateLimit from '../../../modules/rate-limit';
+import { fetchGameGenres } from './igdb-methods';
 import { discord_admin_log, discord_release_log } from "../../../modules/server/discord-logging";
 
 Meteor.methods({
@@ -27,16 +28,14 @@ Meteor.methods({
     }
   },
   // Get all public handlers genres, no duplicates, sorted for the dropdown.
-  'handlers.listGenres': function handlersListGenres() {
+  'handlers.listGenres': async function handlersListGenres() {
     try {
-      const genres = Handlers.find(
-        { private: false, publicAuthorized: true, genres: { $exists: true, $ne: [] } },
-        { fields: { genres: 1 } },
-      )
-        .fetch()
-        .reduce((allGenres, handler) => allGenres.concat(handler.genres || []), []);
+      const genres = await Handlers.rawCollection().distinct('genres', {
+        private: false,
+        publicAuthorized: true,
+      });
 
-      return [...new Set(genres)].sort();
+      return genres.filter(genre => typeof genre === 'string' && genre.length > 0).sort();
     } catch (exception) {
       handleMethodException(exception);
     }
@@ -81,12 +80,18 @@ Meteor.methods({
       try {
         const user = Meteor.users.findOne({ _id: this.userId });
         if ((user.emails && user.emails[0] && user.emails[0].verified) || !user.services.password) {
-          return Handlers.insert({
+          const handlerId = Handlers.insert({
             owner: this.userId,
             ownerName: user.profile.username,
             description: '## Fill a description\n\nMarkdown is **supported** !',
             ...doc,
           });
+          // Genres are filled in the background so an IGDB outage never blocks the creation.
+          fetchGameGenres(doc.gameId).then(
+            genres => Handlers.update(handlerId, { $set: { genres } }),
+            error => console.log(`Could not fetch IGDB genres for handler ${handlerId}: ${error.message}`),
+          );
+          return handlerId;
         } else {
           handleMethodException('Mail not verified!');
         }
