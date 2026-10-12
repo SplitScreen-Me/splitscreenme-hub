@@ -1,0 +1,131 @@
+export const meta = {
+  title: 'Hub API v3',
+  description:
+    'Read the SplitScreen.Me hub from your own tools: the catalogue, handlers, versions, downloads, comments and stats. Public, read-only, JSON, no key needed.',
+  updated: '2026-10-12',
+};
+
+The hub API is what Nucleus Co-op, the Discord bot and anyone else use to read the hub. It's public and
+read-only: no account, no key, no cookies. Every endpoint answers any origin
+(`Access-Control-Allow-Origin: *`), so a web page can call it directly.
+
+<CardGrid>
+  <Card href="/api/v3/docs" title="Interactive reference" icon="book">
+    Every endpoint, parameter and response, with "Try it out" (Swagger UI).
+  </Card>
+  <Card href="/api/v3/openapi.json" title="OpenAPI 3.1 document" icon="code">
+    Generate a client in your language from the machine-readable description.
+  </Card>
+</CardGrid>
+
+## Basics
+
+- **Base URL**: <SiteUrl path="/api/v3" />. All paths below are relative to it.
+- **Format**: JSON, with camelCase fields and ISO 8601 dates in UTC.
+- **Only listed handlers exist**: private, unapproved or deleted handlers answer `404`, never `403`.
+- **Ids** are the hub's 17-character ids (`^[A-Za-z0-9]{1,64}$`), the same ones the app stores and that appear in
+  `Hub.Handler.Id`. They never change: store them.
+- **Reads only**, plus one write: an anonymous report to the moderators.
+
+## Endpoints
+
+| Method and path | Returns |
+|---|---|
+| `GET /catalog` | Every listed handler, in trending order: the app's whole catalogue in one call |
+| `GET /handlers` | Search with `q`, `genre`, `players` (`2`, `3-4`, `5-8`, `9+`), `input` (repeatable: `controllers`, `keyboardMouse`, `multiKeyboardMouse`), `verified`, `sort` (`trending`, `downloads`, `updated`, `az`, `stars`, `newest`), `page`, `pageSize` (up to 100) |
+| `GET /handlers/{id}` | One handler, with its description, screenshots and current version |
+| `GET /handlers/{id}/versions` | Its versions, newest first, with release notes, size and SHA-256 |
+| `GET /handlers/{id}/versions/{version}/script` | The stamped `handler.js` of a version, as plain text |
+| `GET /handlers/{id}/download` | The `.nc` package (`version` to pick one, `count=false` to not count it) |
+| `GET /handlers/{id}/comments` | Comments, newest first (`limit`, `before` for the next page) |
+| `POST /handlers/{id}/reports` | Report a handler to the moderators |
+| `GET /games/{slug}` | A game with all its listed handlers |
+| `GET /genres` | Genres of the games on the hub, with counts |
+| `GET /authors/{username}` | An author and their listed handlers |
+| `GET /stats` | Hub counters |
+| `GET /health` | `{ "status": "ok" }`, for monitoring |
+
+Lists are paged as `{ items, page, pageSize, total }`. The exact fields of every object are in the
+[interactive reference](/api/v3/docs).
+
+## Examples
+
+With `BASE` set to the base URL above:
+
+```bash
+# Search for a game
+curl "$BASE/handlers?q=valheim&pageSize=5"
+
+# One handler, then its package, without counting a download
+curl "$BASE/handlers/Xq3bTn7RzWk2Mp9cd"
+curl -L -o handler.nc "$BASE/handlers/Xq3bTn7RzWk2Mp9cd/download?count=false"
+```
+
+From a web page on another site (CORS is open to every origin):
+
+```js
+const base = 'https://splitscreen.me/api/v3'; // use the base URL above
+const res = await fetch(`${base}/handlers?input=multiKeyboardMouse&sort=downloads`);
+if (!res.ok) throw new Error((await res.json()).error.message);
+const { items, total } = await res.json();
+console.log(`${total} handlers support several keyboards and mice`, items.map((h) => h.gameName));
+```
+
+## Downloads
+
+`GET /handlers/{id}/download` serves the package as `handler-<id>-v<version>.nc`, with an `ETag` holding its
+SHA-256: check it against the `sha256` of the version after downloading.
+
+A download counts towards the handler's download count and trending score once per address, handler, version
+and day. Bots, link previews, `curl` and `wget` aren't counted. When you test or preview, add `count=false`.
+
+## Caching
+
+Responses carry an `ETag`. Send it back in `If-None-Match` and you get an empty `304` when nothing changed. Most
+reads are cacheable for a minute (`Cache-Control`), the catalogue and the genres for five. Poll `/catalog` at most every few
+minutes; there's no need to fetch handlers one by one to build a list.
+
+To find handler updates, compare the `version` of a handler with the `Hub.Handler.Version` line at the top of the
+`handler.js` you have: the hub writes it into every package it publishes.
+
+## Limits and errors
+
+| Requests | Limit per IP address |
+|---|---|
+| All reads | 300 per 5 minutes |
+| `GET /catalog` | 30 per 5 minutes |
+| Downloads | 60 per 10 minutes |
+| Reports | 5 per hour |
+
+Over a limit, the API answers `429` with a `Retry-After` header (in seconds). Errors always look like this:
+
+```json
+{ "error": { "code": "not_found", "message": "Handler not found" } }
+```
+
+`code` is one of `bad_request` (400, with the validation `issues`), `not_found` (404), `payload_too_large` (413),
+`rate_limited` (429) or `internal` (500).
+
+## Reports
+
+`POST /handlers/{id}/reports` with a JSON body tells the moderators about a problem:
+
+```json
+{ "reason": "broken", "message": "Crashes on launch since the 1.2 update.", "version": 7, "client": "api" }
+```
+
+`reason` is one of `broken`, `outdated`, `malware`, `wrong_game`, `inappropriate`, `spam`, `copyright` or `other`.
+The answer is `202`. Please only send reports that a person asked for.
+
+## Images
+
+Covers and screenshots are hosted by IGDB. Build a cover URL from its image id:
+`https://images.igdb.com/igdb/image/upload/t_cover_big/<coverImageId>.jpg`. Screenshots come with ready-made
+`url` and `thumbUrl`.
+
+## Changes from the old API
+
+The `/api/v1` endpoints of the previous hub are gone. In v3, `_id` is `id`, `owner`/`ownerName` are
+`authorId`/`authorName`, `gameCover` is `coverImageId`, `downloadCount` is `downloads`, `currentVersion` is
+`version`, the `playable*` flags are grouped in `inputs`, and screenshots come with the handler detail. Downloads
+go through `/handlers/{id}/download` instead of the old storage URLs. Handler and user ids didn't change.

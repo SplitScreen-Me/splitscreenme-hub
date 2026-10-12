@@ -1,0 +1,8 @@
+node_modules
+.next
+dist
+storage
+drizzle
+public/api-docs
+package-lock.json
+docs/ARCHITECTURE.md

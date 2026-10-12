@@ -1,0 +1,63 @@
+# Production compose: copy to /root/v3/docker-compose.yml on the server, next to a filled .env
+# (mode 600, from deploy/env.example). docs/ARCHITECTURE.md section 9.3.
+# The server is small and shared (hub, Mongo, Discord bot): hard memory limits, Postgres tuned small.
+# web and importer: no swap (memswap_limit = mem_limit) and one CPU at most, so bcrypt, zip work and OG
+# rendering never take both vCPUs from the hub. The V8 heap stays well under the cgroup limit to leave
+# room for Buffers (30 MiB upload streams, zlib) and the WASM heaps of next/og (resvg, yoga).
+name: ssm-v3
+services:
+  db:
+    image: postgres:16.15-alpine3.24
+    restart: unless-stopped
+    mem_limit: 200m
+    shm_size: 64m
+    environment:
+      POSTGRES_DB: ssm
+      POSTGRES_USER: ssm
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    command: >
+      postgres -c shared_buffers=48MB -c max_connections=20 -c work_mem=2MB
+      -c maintenance_work_mem=16MB -c effective_cache_size=96MB -c max_wal_size=256MB
+      -c min_wal_size=64MB -c checkpoint_completion_target=0.9 -c random_page_cost=1.1
+      -c max_worker_processes=2 -c max_parallel_workers=1 -c max_parallel_workers_per_gather=0
+      -c autovacuum_max_workers=2 -c jit=off -c log_min_duration_statement=500
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck: { test: ['CMD-SHELL', 'pg_isready -U ssm -d ssm'], interval: 10s, timeout: 5s, retries: 5 }
+    logging: { driver: json-file, options: { max-size: 10m, max-file: '3' } }
+
+  web:
+    image: ssm-site:${SITE_TAG}
+    restart: unless-stopped
+    mem_limit: 320m
+    memswap_limit: 320m
+    cpus: 1.0
+    env_file: .env
+    environment:
+      NODE_OPTIONS: --max-old-space-size=192 --max-semi-space-size=8
+      DATABASE_URL: postgres://ssm:${POSTGRES_PASSWORD}@db:5432/ssm
+      STORAGE_DIR: /data/storage
+      STORAGE_ACCEL_PREFIX: /_storage/
+      TRUST_PROXY: '1'
+    ports: ['127.0.0.1:3010:3000']
+    volumes: ['/srv/ssm-v3/storage:/data/storage']
+    depends_on: { db: { condition: service_healthy } }
+    logging: { driver: json-file, options: { max-size: 10m, max-file: '3' } }
+
+  importer:
+    image: ssm-site:${SITE_TAG}
+    profiles: [tools]
+    mem_limit: 256m
+    memswap_limit: 256m
+    cpus: 1.0
+    env_file: [.env, .env.import]
+    environment:
+      NODE_OPTIONS: --max-old-space-size=192
+      DATABASE_URL: postgres://ssm:${POSTGRES_PASSWORD}@db:5432/ssm
+      STORAGE_DIR: /data/storage
+    entrypoint: ['node', 'dist/import.mjs']
+    volumes: ['/srv/ssm-v3/storage:/data/storage']
+    networks: [default, hub]
+    depends_on: { db: { condition: service_healthy } }
+
+volumes: { pgdata: {} }
+networks: { hub: { external: true, name: hub_default } }

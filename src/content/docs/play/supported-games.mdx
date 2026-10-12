@@ -1,0 +1,57 @@
+export const meta = {
+  title: 'Supported games',
+  description:
+    'Which games work with Nucleus Co-op, which version of a game you need, whether you need the internet, and what to do when your game is missing.',
+  updated: '2026-10-12',
+};
+
+A game works with Nucleus Co-op when someone has written a **handler** for it. The [hub](/hub) lists every public
+handler: more than 600 games, from <GameLink slug="left-4-dead-2">Left 4 Dead 2</GameLink> and
+<GameLink slug="terraria">Terraria</GameLink> to <GameLink slug="valheim">Valheim</GameLink>,
+<GameLink slug="stardew-valley">Stardew Valley</GameLink> and <GameLink slug="elden-ring">Elden Ring</GameLink>.
+Inside the app, the same catalogue is under **Get games**.
+
+Each game page tells you how many players the handler supports, which inputs work (controllers, one keyboard and
+mouse, several keyboards and mice), who made it, when it was last updated, and the author's notes.
+
+## What makes a game splittable
+
+Nucleus Co-op runs several copies of a game and connects them together, so the game needs a way to connect copies:
+
+- **LAN multiplayer**: the easiest case.
+- **Online multiplayer through Steam, Epic or GOG**: Nucleus replaces the store's network layer with an emulator
+  (such as the [Goldberg emulator](https://gitlab.com/Mr_Goldberg/goldberg_emulator) for Steam), so the copies
+  find each other on your PC.
+- **A multiplayer mod**: some single-player games have a community mod that adds co-op.
+
+Single-player games without any of these can't be split. Neither can most games that need their publisher's
+servers to connect players, unless each player has their own account.
+
+## Which version of the game
+
+- **The Steam version** is what most handlers are made and tested with. Use it unless the handler notes say GOG,
+  Epic or another version works too.
+- **Keep it up to date and unmodded.** A handler is written for a version of the game; mods that change the game
+  files can break it. If a game update breaks a handler, [report it](/doc/troubleshooting/report-a-bug).
+- **Xbox app and Game Pass versions don't work**: their protection stops Nucleus from running several copies.
+- Free, fan-made and open-source games work too when a handler exists.
+
+## Do I need the internet?
+
+Only to download Nucleus Co-op, handlers, covers and screenshots. Most handlers then work fully offline: the copies
+connect through a real or emulated local network. A few connect to the game's own servers or need one account per
+player, and their notes say so.
+
+## Verified handlers
+
+A **verified** badge means a hub moderator checked that version of the handler. Unverified handlers can be fine
+(new versions start unverified), but prefer verified ones when you have the choice, and read the notes.
+
+## Your game isn't there?
+
+- **Search the catalogue under another name**: the hub uses the official game names from IGDB.
+- **Ask for it.** Handler authors take requests on [Discord](https://discord.com/invite/QDUt8HpCvr) and on
+  [r/nucleuscoop](https://www.reddit.com/r/nucleuscoop/): give the game's name, the store you have it on, and how it
+  does multiplayer (LAN, online, dedicated servers). Authors can only work on games they own.
+- **Write the handler yourself.** It's a small script, and games on the same engine often share most of it. Start
+  with [Write a handler](/doc/handlers/create).

@@ -1,0 +1,110 @@
+export const meta = {
+  title: 'Publish on the hub',
+  description:
+    'Share your handler with every Nucleus Co-op player: create it on the hub, package it, upload versions, and how approval, verification and reports work.',
+  updated: '2026-10-12',
+};
+
+The [hub](/hub) is where players find handlers, in the browser and inside Nucleus Co-op. Publishing there gives
+your handler a game page, version history, comments and automatic updates in the app.
+
+## What you need
+
+- **An account** on SplitScreen.Me, with a verified email address or a linked Discord, GitHub or Google account.
+- **A working handler**, tested with the game version players will have
+  ([Write a handler](/doc/handlers/create)).
+- **Notes for players**: what the handler supports, how to connect the copies, what doesn't work.
+
+## 1. Create the handler
+
+In your [dashboard](/dashboard), choose **New handler**:
+
+- **Game**: search for it by name. The game's name, cover, screenshots and genres come from
+  [IGDB](https://www.igdb.com/), so players find it under its official name.
+- **Title**: usually the game's name, plus what makes your handler different if the game already has one
+  ("Seamless Co-op mod", "LAN only").
+- **Players and inputs**: the most players the handler supports, and whether it works with controllers, one
+  keyboard and mouse, or several keyboards and mice. These drive the filters of the catalogue and the facts on the
+  game page, so keep them honest.
+- **Description**: markdown, up to 10 000 characters, with a preview. This is what players read on the game page:
+  requirements, steps, known issues.
+
+A new handler starts as a **draft**: nobody else sees it until it has a version and you make it public.
+
+## 2. Package it
+
+A package is a `.nc` or `.zip` archive:
+
+```text
+handler.js            the script, at the root of the archive
+SomeFolder\           optional folders of extra files (configs, patches, mods)
+  settings.xml
+```
+
+When a player installs it, the script becomes `handlers\<Game name>.js` and the folders go to
+`handlers\<Game name>\`, which the script reaches through `Game.Folder`.
+
+The hub checks every upload and refuses packages that break these rules:
+
+| Rule | Limit |
+|---|---|
+| Archive size | 30 MiB |
+| `handler.js` | At the root, at most 2 MiB, UTF-8, and it must set `Game.GameName` or `Game.ExecutableName` |
+| Entries | At most 5 000; no absolute paths, no `..`, no links, no encrypted entries |
+| Unpacked size | At most 250 MiB, without absurd compression ratios |
+
+Don't include game files you're not allowed to share, and keep executables to what the handler really needs:
+moderators look closely at packages that ship `.exe`, `.dll`, `.bat` or `.ps1` files.
+
+## 3. Upload a version
+
+In the handler's page of your dashboard, open **Versions**, choose the package and write the **release notes** (what
+changed, in a line or two). The hub then:
+
+1. numbers the version (1 for the first, then 2, 3…),
+2. stamps the top of `handler.js` with the `Hub.*` lines that identify it:
+
+   ```js
+   Hub.Handler.Version = 3; // Released at https://splitscreen.me on 2026-10-12T09:30:00.000Z.
+   Hub.Handler.Id = "<handler id>";
+   Hub.Maintainer.Name = "<your username>";
+   Hub.Maintainer.Id = "<your user id>";
+   ```
+
+   Any `Hub.*` lines already in your script are replaced. That's how Nucleus Co-op recognises the handler and
+   offers updates, so don't edit them by hand in published scripts.
+3. makes it the current version. Players with an older version see **Update to v3** in their library.
+
+Every version stays downloadable from the handler's version history, with its notes, size, SHA-256 and file list.
+
+## 4. Make it public
+
+Switch the handler to **public**. The first time, a moderator checks it before it appears in the catalogue: the
+dashboard shows **awaiting approval** meanwhile. Once approved, it's **listed**, and stays listed when you upload
+new versions. Authors with a track record are marked as trusted and skip the wait.
+
+You can switch it back to private at any time. A moderator can also hide a handler (by revoking its approval) if it
+breaks the [content rules](/legal/terms).
+
+## Verified versions
+
+Moderators **verify** versions: they read the script and the package and confirm they do what the handler says,
+and nothing else. The hub shows a verified badge on those, and the app shows it too. A new version starts
+unverified, with the previous verified version still visible in the history, until a moderator gets to it.
+
+## Several handlers for one game
+
+A game can have several handlers (different authors, mods, approaches). The game page shows the main one in full,
+chosen from the featured handler set by moderators, then verified versions, then the most popular, and lists the
+others below it with their own pages.
+
+## After publishing
+
+- **Comments**: players ask questions and report problems on the game page; you get an email when someone replies
+  to you (unless you turn it off in your account).
+- **Reports**: players can report a handler as broken, outdated or harmful. Moderators review reports and may
+  contact you.
+- **Your author page** lists everything you published, with download counts, and links from every game page you
+  maintain.
+- **Keep it alive**: when a game update breaks your handler, upload a fixed version with clear release notes, or
+  say in the description that it's broken so players know.

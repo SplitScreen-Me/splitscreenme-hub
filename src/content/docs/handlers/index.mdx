@@ -1,0 +1,81 @@
+export const meta = {
+  title: 'What handlers are',
+  description:
+    'A handler is the small script that teaches Nucleus Co-op how to split one game: what it contains, where it lives, how it is packaged, updated and verified.',
+  updated: '2026-10-12',
+};
+
+Nucleus Co-op knows nothing about any particular game. For each game, a **handler** tells it what to do: which
+executable to start, which files each player's copy needs, how to make each copy answer to one controller, how to
+connect the copies, and how to size the windows. There is one handler per game (sometimes a few competing ones),
+written by people from the community.
+
+## What's in a handler
+
+A handler is a JavaScript file. Most of it is settings:
+
+```js
+Game.GameName = "Portal 2";
+Game.ExecutableName = "portal2.exe";
+Game.GUID = "Portal 2";
+Game.SteamID = "620";
+Game.MaxPlayers = 2;
+Game.KillMutex = ["hl2_singleton_mutex"];
+Game.UseGoldberg = true;
+```
+
+The rest is a `Game.Play` function that Nucleus runs once for each player, just before starting that player's copy.
+It edits config files, sets launch arguments, copies files: whatever this game needs to run windowed, at the right
+size, as the right player.
+
+```js
+Game.Play = function () {
+  Context.StartArguments = " -windowed -noborder -w " + Context.Width + " -h " + Context.Height;
+};
+```
+
+The [Handler API reference](/doc/handlers/api) lists every option and function.
+
+## Packages
+
+On the hub, a handler is shared as a **package**: a `.nc` file, which is a zip archive with the script at its root
+as `handler.js`, plus folders of extra files when the handler needs them (configuration files, patches, mods). When
+you install it, Nucleus Co-op puts the script in its `handlers` folder as `<Game name>.js`, and the folders in
+`handlers\<Game name>\`.
+
+The hub adds four lines at the top of every `handler.js` it publishes:
+
+```js
+Hub.Handler.Version = 12; // Released at https://splitscreen.me on 2026-10-12T09:30:00.000Z.
+Hub.Handler.Id = "Xq3bTn7RzWk2Mp9cd";
+Hub.Maintainer.Name = "your-username";
+Hub.Maintainer.Id = "Hf8sLq2Nb4Vy7Tzwe";
+```
+
+That's how Nucleus Co-op knows which hub handler a script comes from, and whether a newer version exists.
+
+## Installing and updating
+
+- **From the app**: **Get games** installs a handler from the hub catalogue; **Found on this PC** does it for the
+  games it finds in your Steam and Epic libraries.
+- **From a file**: drop a `.nc`, `.zip` or `.js` file onto the Nucleus Co-op window.
+- **Updates**: when the hub has a newer version, the library offers **Update to vN**. Updating keeps your profiles
+  and settings.
+
+Handlers you installed from a file have no hub identity, so they don't get updates.
+
+## Can I trust a handler?
+
+A handler runs inside Nucleus Co-op with the same rights as the app: it can read, write and delete files, and start
+programs. So:
+
+- Prefer handlers from the hub, and **verified** ones when you can: a hub moderator checked that version.
+- New versions start unverified until a moderator looks at them. The hub always shows which version is verified.
+- Be careful with handlers shared elsewhere, and read them first: they're plain text.
+- If a handler looks harmful, use **Report** on its hub page.
+
+## Make your own
+
+Writing a handler is how most games got onto the hub, and most authors started by adapting an existing one.
+[Write a handler](/doc/handlers/create) walks you through it, and [Publish on the hub](/doc/handlers/publish)
+explains how to share it.

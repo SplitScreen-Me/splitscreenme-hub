@@ -1,0 +1,56 @@
+export const meta = {
+  title: 'Performance',
+  description:
+    'Fix stretched or blurry split-screen windows, low or uneven frame rates, and slow launches with Nucleus Co-op.',
+  updated: '2026-10-12',
+};
+
+Every player runs a full copy of the game, so a split-screen session asks a lot more of your PC than playing alone.
+Most of what follows is about sharing that load fairly.
+
+## Stretched or blurry windows
+
+1. **Set display scaling to 100 %** (**Windows Settings › System › Display › Scale**), or let Nucleus do it for
+   each session with **Settings › General › Set desktop scale to 100% during sessions**.
+2. **Add custom resolutions** that match the player windows. Games often only offer the resolutions your monitor
+   advertises, so a 1920 × 540 window gets a 1920 × 1080 image squeezed into it. In the NVIDIA, AMD or Intel
+   control panel, or with [Custom Resolution Utility](https://www.monitortests.com/forum/Thread-Custom-Resolution-Utility-CRU),
+   add the sizes your layout uses. For a 1920 × 1080 screen:
+
+   | Layout | Window size to add |
+   |---|---|
+   | Top and bottom | 1920 × 540 |
+   | Side by side | 960 × 1080 |
+   | 2 × 2 | 960 × 540 |
+
+   Not every game accepts custom or ultra-wide resolutions.
+3. **Put the windows back** with <Kbd>Ctrl</Kbd>+<Kbd>R</Kbd> if a game moved or resized its window during the
+   session.
+
+## Low or uneven frame rate
+
+- **Lower the settings in game**: textures, shadows and view distance cost the most. Every copy runs them.
+- **Cap the frame rate** in game or in your graphics driver, for example to 60 or 30 per copy. Forcing V-Sync in
+  the driver can help too.
+- **Even out the windows.** The window with the focus often gets more resources. Press <Kbd>Ctrl</Kbd>+<Kbd>H</Kbd>
+  (Guide + Y on a controller) to unfocus all the game windows, or <Kbd>Win</Kbd>+<Kbd>B</Kbd>, or Alt+Tab to the
+  Nucleus window: the game windows stay on top.
+- **Close the rest**: browsers, overlays, recording tools, launchers you don't need.
+- **Laptops**: plug in the charger, use the best performance power mode, and make sure the games run on the
+  dedicated graphics card (**Windows Settings › System › Display › Graphics**).
+- **Processor priority and affinity** can be set per player in the settings of a [profile](/doc/play/saves-and-profiles#profiles),
+  for games where one copy starves the others.
+
+## Slow launches
+
+Nucleus starts the copies one after the other and waits for each window, so a four-player launch takes a while.
+**Settings › General › Fast launch** (experimental) waits for each copy to be ready instead of fixed delays, and
+can cut launch times a lot. If a game misbehaves with it, turn it off again.
+
+Some handlers deliberately pause between copies because the game needs it: don't shorten those pauses in a
+profile unless you know the game copes.
+
+## Audio
+
+Each copy plays sound on the default output. To send each player's sound to their own headset, choose an audio
+output per player in the lobby's side panel (or in **Settings › Audio**). This doesn't work with every game.

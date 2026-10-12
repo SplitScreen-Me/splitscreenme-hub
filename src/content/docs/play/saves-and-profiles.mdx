@@ -1,0 +1,71 @@
+export const meta = {
+  title: 'Saves and profiles',
+  description:
+    "Where each player's progress is saved, how to find and back it up, how to use your own save as player 1, and how profiles bring back a whole setup in one press.",
+  updated: '2026-10-12',
+};
+
+## Where the saves go
+
+It depends on the handler, because every game saves differently. There are three common cases:
+
+| Case | Where | What it means |
+|---|---|---|
+| **Per player, in the Nucleus environment** | `C:\Users\<you>\NucleusCoop\...` | Each player has their own folder, separate from your normal saves |
+| **Per player, in their own Documents** | A Documents folder per player, under the Nucleus environment | The same, for games that save in Documents |
+| **The game's usual place** | Wherever the game normally saves | All copies share it: progress mixes with your solo game, so back it up first |
+
+Games that use a Steam or Epic emulator (most handlers) also keep emulator saves per player, tied to that player's
+Steam ID or nickname.
+
+### Open or back up a player's save
+
+In the library, open **Game options** on the game. When the handler declares its save and config folders, the
+menu has entries such as **Open UserProfile Save Path**, **Open Document Save Path** or **Open Backup Folder**,
+with one entry per player. Copy those folders somewhere safe before deleting anything.
+
+**Delete UserProfile Config Path** (and its siblings) resets a player's settings for that game, which fixes many
+"file not found" and wrong-resolution problems. It doesn't touch the other players.
+
+<Callout type="warning" title="Before you clean up">
+
+**Delete Game Content Folder** removes the prepared copies of the game, not the saves in your user folder. But
+deleting `C:\Users\<you>\NucleusCoop` does remove the players' saves for the games that keep them there. Back it
+up first.
+
+</Callout>
+
+[PCGamingWiki](https://www.pcgamingwiki.com/) lists where most games keep their saves, which helps when a handler
+uses the game's usual place.
+
+### Play with your own save
+
+Some games tie a save to the Steam ID of the player. Nucleus gives each player slot a default Steam ID, so player 1
+doesn't load your own progress. To use it, set player 1's Steam ID to yours in **Settings › Players** (nicknames
+and Steam IDs are edited per slot: player 1 always gets the first slot). Your Steam ID is the 17-digit number
+in your Steam profile URL, or in **Account details** in Steam.
+
+The same setting matters when you [connect two PCs](/doc/faq#29--can-you-play-splitscreenlan-in-different-pcs):
+copies on different PCs need different Steam IDs to see each other.
+
+### Documents in OneDrive
+
+For games that save in Documents, Nucleus points the Documents folder of each player elsewhere during the session,
+and puts it back when you close Nucleus Co-op (or the next time you start it, after a crash). If your Documents
+folder is synced by OneDrive, this can fail. See
+[A handler does not work](/doc/troubleshooting/handler-does-not-work#documents-in-onedrive).
+
+## Profiles
+
+A profile keeps a whole setup for one game: the layouts, the handler options, who plays where and with which
+controller, and per-player settings such as nicknames, Steam IDs and audio outputs.
+
+- **Save one.** In the lobby, turn on **Save a profile when the session starts**, then launch.
+- **Use one.** Pick it from the profiles menu in the lobby header. Players drop into their places as they press a
+  button. With **Start by itself** on, the session launches as soon as everyone has joined.
+- **Change one.** **Manage profiles** shows the saved profiles of a game, with their players and settings, and lets
+  you delete them. Profile settings also cover processor priority and affinity per player, and the delays between
+  copies, for the few games that need them.
+
+Profiles are saved in the `game profiles` folder of Nucleus Co-op. To turn them off and always use the global
+settings, use **Settings › General › Disable game profiles**.

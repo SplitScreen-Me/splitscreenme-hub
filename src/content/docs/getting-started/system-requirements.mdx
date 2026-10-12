@@ -1,0 +1,57 @@
+export const meta = {
+  title: 'System requirements',
+  description:
+    'What Nucleus Co-op needs: Windows 10 or 11, the .NET Framework, Visual C++ runtimes, WebView2, an NTFS drive, and enough PC for one copy of the game per player.',
+  updated: '2026-10-12',
+};
+
+## Software
+
+| You need | Why | Where to get it |
+|---|---|---|
+| Windows 10 or 11, 64-bit | Nucleus Co-op relies on Windows APIs to start, hook and place the game windows | - |
+| .NET Framework 4.7.2 or later | The app runs on it | Included in Windows 10 (since version 1803) and Windows 11, otherwise [Microsoft](https://dotnet.microsoft.com/en-us/download/dotnet-framework/net472) |
+| Visual C++ 2015-2022 Redistributable, **x86 and x64** | The hooks and helper tools, in 32 and 64 bits | Nucleus offers to install them on first start, or [x86](https://aka.ms/vs/17/release/vc_redist.x86.exe) and [x64](https://aka.ms/vs/17/release/vc_redist.x64.exe) |
+| Microsoft Edge WebView2 Runtime | The interface of Nucleus Co-op 3 | Already on Windows 11 and on up-to-date Windows 10; Nucleus offers to install it otherwise |
+| An NTFS drive for Nucleus Co-op and your games | Most handlers use symbolic links, which exFAT and FAT32 can't store | - |
+
+Some older games also need the
+[DirectX End-User Runtime](https://www.microsoft.com/en-us/download/details.aspx?id=35) (the June 2010 libraries,
+which Windows doesn't include). Install it if a handler's notes ask for it or a game complains about a missing
+`d3dx9_*.dll` or `xinput1_3.dll`.
+
+<Callout type="note" title="Linux, macOS, Steam Deck">
+
+Nucleus Co-op only runs on Windows. It depends on Windows features (input hooks, window management, user
+accounts) that Wine and Proton don't provide in a way it can use.
+
+</Callout>
+
+## Your games
+
+- **Installed once, from any store.** Every player's copy runs from the same installation. Most handlers are made
+  and tested with the **Steam** version of a game; the notes say when other versions (GOG, Epic) work too.
+- **Not from the Xbox app or Game Pass.** Their protection stops Nucleus from running several copies.
+- **Run it once on its own first.** Start the game normally, change a graphics setting, apply, and quit. That
+  creates the config files many handlers edit.
+
+## Hardware
+
+There is no fixed minimum: it depends on the game and on how many players you are. Each player runs a full copy
+of the game, so:
+
+- **Processor and memory** grow with every player. As a rule of thumb, plan for the game's recommended specs plus
+  about half again for every extra player, and close everything else.
+- **Graphics.** All copies share one graphics card, but each draws a smaller window. Lowering texture quality
+  and shadows, and capping the frame rate, usually makes room for more players. See
+  [Performance](/doc/troubleshooting/performance).
+- **Disk space.** Copies are mostly links to the original files, so they take little space. A few handlers copy
+  the whole game: their notes say so.
+
+## Inputs and screens
+
+- **One controller, or one keyboard and mouse, per player.** Xbox controllers work as they are; PlayStation,
+  Switch and generic controllers may need a helper. See [Controllers](/doc/play/controllers).
+- **Any screen.** One TV split between everyone, or one player per monitor. Display scaling at 100 % gives the
+  most predictable windows: Nucleus can set it for the session (**Settings › General › Set desktop scale to 100%
+  during sessions**).

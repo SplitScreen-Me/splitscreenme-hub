@@ -1,0 +1,121 @@
+export const meta = {
+  title: 'Controllers',
+  description:
+    'Which controllers work with Nucleus Co-op, how to make PlayStation, Switch and generic pads look like Xbox controllers, how to stop double input, and the controller shortcuts.',
+  updated: '2026-10-12',
+};
+
+## The short version
+
+- **Xbox 360, Xbox One and Xbox Series controllers** work as they are, wired, with the Xbox wireless adapter or
+  over Bluetooth. They're the easiest choice.
+- **PlayStation, Switch and generic controllers** usually work once a helper makes them look like an Xbox
+  controller, and once the original device is hidden from games.
+- Each game page on the [hub](/hub) says whether its handler supports controllers, one keyboard and mouse, or
+  several keyboards and mice.
+
+## Why Xbox controllers are easier
+
+Windows games read controllers through two systems: **XInput**, used by Xbox controllers and most modern games,
+and the older **DirectInput**, used by most other pads. To give each player their own controller, Nucleus Co-op
+has to make each copy of the game see one controller only. That works best, and in far more games, with XInput:
+most handlers only restrict XInput controllers. A few handlers support DirectInput controllers too, and their
+notes say so.
+
+So with a non-Xbox controller, the plan is: emulate an Xbox (XInput) controller, then hide the real device so
+games don't see it twice.
+
+## PlayStation controllers
+
+Use [DS4Windows](https://ds4-windows.com/), which supports DualShock 4 and DualSense controllers and presents
+each one as an Xbox 360 controller.
+
+1. Install DS4Windows and the ViGEmBus driver it asks for.
+2. Connect your controllers: each one should appear in DS4Windows.
+3. Hide the real controllers with [HidHide](https://github.com/nefarius/HidHide/releases) (below), or use the
+   **Hide DS4 Controller** option of DS4Windows (less reliable).
+
+## Switch and generic controllers
+
+[XOutput](https://github.com/csutorasa/XOutput/releases) and
+[x360ce 4](https://github.com/x360ce/x360ce/releases) turn DirectInput controllers into virtual Xbox 360
+controllers for the whole system. Map each controller once, keep the tool running while you play, and hide the
+originals with HidHide.
+
+Don't copy x360ce's own `xinput*.dll` files into the Nucleus Co-op folder or into a game folder: they conflict
+with the libraries Nucleus uses to restrict each controller.
+
+## Stop double input with HidHide
+
+Many games read both XInput and DirectInput. If they see both the virtual Xbox controller and the real one, a
+controller can drive two windows at once, the camera spins, or buttons act twice.
+[HidHide](https://github.com/nefarius/HidHide/releases) fixes this by hiding the real devices from every program
+except the ones you allow:
+
+1. Install HidHide and open **HidHide Configuration Client**.
+2. In **Applications**, add the emulator (DS4Windows, XOutput or x360ce), so it can still see the real devices.
+3. In **Devices**, tick your physical controllers and turn on **Enable device hiding**.
+
+Games, and Nucleus Co-op, now only see the virtual Xbox controllers. Untick a device to use it normally again.
+The [HidHide guide](https://docs.nefarius.at/projects/HidHide/Simple-Setup-Guide/) has pictures.
+
+## Steam Input
+
+Steam can turn any controller into a virtual Xbox controller for the games it starts. With Nucleus Co-op this
+often backfires: the virtual pad comes on top of the real one (double input), or Steam keeps one controller for
+the window that has the focus. If you see double input, turn off Steam Input for that game (in its Steam
+**Properties › Controller**), or close Steam when the handler notes allow it. Some handlers need Steam running,
+and their notes say so.
+
+Steam Input can also block the [controller shortcuts](#controller-shortcuts) below.
+
+## Xbox One and Series controllers in DirectInput games
+
+Xbox One and Series controllers don't send input to background windows in some games that only support
+DirectInput, and in older Unity games. If a handler's notes mention it, you can make Windows see these
+controllers as DirectInput devices, then emulate Xbox 360 controllers on top:
+
+1. In **Control Panel › Devices and Printers**, right-click your controller, open **Properties › Hardware**,
+   select the XInput device, then **Properties › Change settings › Driver › Update driver**.
+2. Choose **Browse my computer**, then **Let me pick from a list**, and select **HID-compliant game controller**.
+3. Map the controller in XOutput or x360ce 4 to get a virtual Xbox 360 controller, and hide the real one with
+   HidHide.
+
+To undo it, repeat the steps and pick the original XInput driver. This works over USB and with the Xbox wireless
+adapter. Over Bluetooth the triggers are lost with this driver. The paid app reWASD can do the same conversion
+without changing drivers.
+
+## In the lobby
+
+- **Joining.** A free controller joins when you press **Start** or another button on it. If a controller doesn't
+  show up, hold a button for a second, then use **Rescan**.
+- **Which one is which?** Use **Vibrate** on a device to find it.
+- **By slot.** **Identify gamepads by slot** places controllers by their controller number (1 to 4) instead of a
+  button press. Some handlers ignore it. **Settings › Players** sets the default.
+- **Guests.** **Add a guest gamepad** gives a player's copy of the game a second controller, for games that
+  already support two players on one copy.
+
+## Navigating the app with a controller
+
+The Nucleus Co-op window works with any controller: D-pad or left stick to move, **A** to select, **B** to go
+back, right stick to scroll. The hint bar at the bottom of the window shows what each button does on the current
+screen.
+
+## Controller shortcuts
+
+During a session, hold the **Guide** button (the Xbox button) and press a second button. These work with XInput
+controllers, and you can change them in **Settings › Gamepad shortcuts**.
+
+| Guide + | What it does |
+|---|---|
+| Back (View) | Stop the session |
+| Start (Menu) | Close Nucleus Co-op |
+| Right stick click | Lock or unlock keyboards and mice |
+| D-pad right | Put the windows back in place |
+| Y | Unfocus the game windows |
+| X | Toggle "always on top" for the game windows |
+| B | Cutscenes mode |
+| RB | Switch layout |
+| LB | Alt+Tab out of the game |
+
+Still stuck? [Controller problems](/doc/troubleshooting/controllers) goes symptom by symptom.

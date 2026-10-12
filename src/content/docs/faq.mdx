@@ -1,0 +1,279 @@
+export const meta = {
+  title: 'FAQ',
+  description:
+    'Short answers to the questions people ask first about Nucleus Co-op: what it is, what it costs, which games and controllers work, and what to do when something breaks.',
+  updated: '2026-10-12',
+};
+
+{/* The empty spans keep the anchor ids of the old Docusaurus FAQ: the app and old posts link to them. */}
+
+## The basics
+
+<span id="1--what-is-nucleus-co-op" />
+
+### What is Nucleus Co-op?
+
+A free, open-source Windows app that adds split-screen to PC games that don't have it. It runs one copy of a game
+per player, gives each copy its own controller, keyboard or mouse, connects the copies, and tiles the windows on
+your screen: one PC, one copy of the game, a screen for everyone.
+
+<YouTube id="jbituCgu3Bc" title="Nucleus Co-op in action" />
+
+<span id="2--how-does-nucleus-co-op-work" />
+
+### How does it work?
+
+Nucleus starts several copies of the same game from one installation, using linked copies of its files and closing
+the mutexes that would stop a second copy. Each copy answers to one player only, through Nucleus' XInput
+libraries, XInput Plus or [Proto Input](/doc/handlers/proto-input) hooks. The copies connect through the game's
+own LAN or online mode, with emulators (Goldberg for Steam, Nemirtingas' for Epic and GOG) when the game expects a
+store. Nucleus keeps every window active so everyone can play at once, then removes the borders and places each
+window on its part of the screen.
+
+Each game needs a [handler](/doc/handlers): a small script, written by the community, that tells Nucleus how to do
+all that for that game.
+
+### Does it add co-op to single-player games?
+
+No. The game needs some form of LAN or online multiplayer already, or a mod that adds one (Skyrim Together, for
+example). Nucleus Co-op splits the screen; the game provides the multiplayer.
+
+### Is it free?
+
+Yes. Nucleus Co-op and every handler on the hub are free. The app is open source under the GPL-3.0, has no account,
+no ads and no catch, and is run by volunteers. You can [support it on Patreon](#30--this-project-is-amazing-where-can-i-donate)
+if you want to.
+
+<span id="8--does-nucleus-co-op-have-any-malware" />
+
+### Is it safe? My antivirus flags it.
+
+Yes. Some files Nucleus Co-op needs (the input hooks and the Goldberg emulator) look suspicious to antivirus
+programs because they inject into games. These detections are false positives, and the app is fully open source.
+Download it only from the official [GitHub releases](https://github.com/SplitScreen-Me/splitscreenme-nucleus/releases),
+and add its folder to your antivirus exclusions before extracting
+([details](/doc/getting-started/install#unzip)).
+
+<span id="12--does-nucleus-co-op-work-on-linuxmac" />
+
+### Does it work on Linux or Mac?
+
+No. Nucleus Co-op depends on Windows features that Wine and Proton don't provide in a way it can use. It needs
+Windows 10 or 11 ([System requirements](/doc/getting-started/system-requirements)).
+
+## Getting it running
+
+<span id="4--where-do-i-download-nucleus-co-op" />
+
+### Where do I download it?
+
+From the [download page](/download), which links to the official
+[GitHub releases](https://github.com/SplitScreen-Me/splitscreenme-nucleus/releases). Take the release archive,
+not the "Source code" zip, and always use the latest version: new handlers are made for it.
+
+<span id="5--how-do-i-use-nucleus-co-op" />
+
+### How do I use it?
+
+[Install it](/doc/getting-started/install), then follow [Your first session](/doc/getting-started/first-session).
+The [Getting started](/doc/getting-started) page sums it up in five steps.
+
+<span id="6--where-should-i-place-the-nucleus-co-op-folder" />
+
+### Where should I put the Nucleus Co-op folder?
+
+At the root of a drive, for example `C:\NucleusCo-op`. Not in `Program Files`, not in OneDrive or your user
+folder, and never inside a game's folder. Some handlers need it on the same drive as the game, and that drive must
+be NTFS. [Why](/doc/getting-started/install#pick-the-right-folder).
+
+<span id="7--nucleus-co-op-doesnt-launchcrashes-how-do-i-fix-it" />
+
+### Nucleus Co-op doesn't launch or crashes. How do I fix it?
+
+Install the Visual C++ 2015-2022 runtimes (x86 and x64) and WebView2, make sure your antivirus didn't delete any of
+its files, extract it again with 7-Zip into a clean folder at the root of a drive, and restart your PC. The full
+checklist is in [The app does not start](/doc/troubleshooting/app-does-not-start).
+
+<span id="28--can-you-use-nucleus-co-op-and-its-handlers-offline" />
+
+### Can I use it offline?
+
+Yes. You only need the internet to download Nucleus Co-op, handlers, covers and screenshots. Most handlers then
+work fully offline; a few need the game's own servers or one account per player, and their notes say so.
+
+## Games and handlers
+
+<span id="3--which-games-can-be-split-screened-using-nucleus-co-op" />
+
+### Which games work?
+
+More than 600 games have a handler on the [hub](/hub). Most handlers are made for the Steam version of a game.
+Xbox app and Game Pass versions don't work. See [Supported games](/doc/play/supported-games).
+
+<span id="14--what-are-game-handlers" />
+
+### What are handlers?
+
+Small JavaScript files that tell Nucleus Co-op how to run one game several times: which files to copy, how to
+restrict each controller, how to connect the copies, how to size the windows. One handler per game, written by the
+community. See [What handlers are](/doc/handlers).
+
+<span id="15--when-support-for-x-game" />
+
+### When will my game be supported?
+
+When someone writes a handler for it. Ask on [Discord](https://discord.com/invite/QDUt8HpCvr) or post a
+`[Request] Name of the game` on [r/nucleuscoop](https://www.reddit.com/r/nucleuscoop/), with the store you have it
+on and how its multiplayer works (LAN, online, dedicated servers). Handler authors can only work on games they own.
+Or [write it yourself](/doc/handlers/create).
+
+<span id="16--how-do-i-know-when-a-handler-gets-updated" />
+
+### How do I know when a handler is updated?
+
+The library shows **Update to vN** on the game, and **Settings › About › Handler updates** checks all your games at
+once. Updates are also announced in the #handlers-updates channel on Discord.
+
+<span id="17--how-do-i-create-my-own-split-screen-handler-for-nucleus-co-op" />
+
+### How do I create my own handler?
+
+Start from a handler for a game on the same engine, and follow [Write a handler](/doc/handlers/create). The
+[Handler API reference](/doc/handlers/api) lists every option, and `handlers\MasterHandler.js` in the Nucleus
+folder is a commented template. When it works, [publish it on the hub](/doc/handlers/publish).
+
+## Playing
+
+<span id="9--what-controllersinput-devices-does-nucleus-co-op-support" />
+
+### Which controllers work?
+
+Xbox 360, One and Series controllers work as they are. PlayStation, Switch and generic controllers usually need a
+helper that makes them look like Xbox controllers. Some handlers also support one or several keyboards and mice.
+See [Controllers](/doc/play/controllers).
+
+<span id="20--my-playstationgeneric-pc-controller-isnt-being-detectedhas-double-input-how-do-i-fix-this" />
+
+### My PlayStation or generic controller isn't detected, or has double input
+
+Use DS4Windows (PlayStation) or XOutput / x360ce 4 (others) to emulate an Xbox controller, then hide the real
+device with HidHide. Turn off Steam Input if you still get double input.
+[Step by step](/doc/play/controllers#playstation-controllers).
+
+<span id="21--why-is-my-keyboardgamepad-not-showing-in-the-nucleus-co-op-ui" />
+
+### Why isn't my keyboard or controller showing in the lobby?
+
+Devices appear once they receive input: press a key, move a mouse, or hold a controller button for a second. If
+the game page says the handler supports controllers only, keyboards won't appear, and the other way round.
+[More fixes](/doc/troubleshooting/controllers#a-controller-doesnt-show-up).
+
+<span id="10--how-do-i-play-with-an-uneven-amount-of-players-such-as-3-players-without-having-an-empty-space" />
+
+### How do I play with three players without an empty quarter?
+
+Use the grow button next to a player in the lobby to stretch their window over the free place.
+[Layouts and screens](/doc/play/layouts-and-screens#three-players-or-five-or-seven) shows how.
+
+<span id="11--how-do-you-use-nucleus-co-op-custom-layout" />
+
+### How do I use a custom layout?
+
+Set the rows and columns in **Settings › Layout**, then pick **More › Custom grid** under a screen in the lobby.
+Or use **More › Manual** to drop players anywhere. See [Layouts and screens](/doc/play/layouts-and-screens).
+
+<span id="27--why-cant-i-exit-nucleus-co-op-or-move-my-cursor-to-close-it" />
+
+### I can't move my cursor or close the game
+
+Inputs are locked to the game windows. Press <Kbd>End</Kbd> to unlock them, or <Kbd>Ctrl</Kbd>+<Kbd>Q</Kbd> to close
+Nucleus Co-op and every copy. [Keyboards and mice](/doc/play/keyboard-and-mouse#locking-inputs-with-end).
+
+<span id="24--where-are-my-nucleus-co-op-save-files-located" />
+
+### Where are my saves?
+
+It depends on the handler: per player in `C:\Users\<you>\NucleusCoop`, or where the game normally saves.
+**Game options** in the library opens each player's save folder when the handler declares it.
+[Saves and profiles](/doc/play/saves-and-profiles).
+
+<span id="29--can-you-play-splitscreenlan-in-different-pcs" />
+
+### Can we mix split-screen and LAN between several PCs?
+
+Yes. Run Nucleus Co-op on each PC and connect all the copies over the LAN, for example two players split on one PC
+and two on another. If the handler emulates Steam, give the players on the second PC different Steam IDs in
+**Settings › Players**, or the copies will clash. Some games tie saves to the Steam ID: set player 1's to your own
+to keep your progress ([how](/doc/play/saves-and-profiles#play-with-your-own-save)).
+
+## When something goes wrong
+
+<span id="19--a-nucleus-co-op-handler-doesnt-launchis-not-working-why" />
+
+### A handler doesn't launch or doesn't work
+
+Update Nucleus Co-op and the handler, read the handler notes, run the game once on its own, close overlays, and
+check that the game is the Steam version on an NTFS drive.
+[The full list](/doc/troubleshooting/handler-does-not-work).
+
+<span id="25--why-is-nucleus-co-op-showing-an-error-message-that-it-can-not-find-a-file-when-launching-a-handler" />
+
+### Nucleus says it can't find a file when launching
+
+Run the game once on its own and apply a graphics setting, so its config files exist. Then use **Game options ›
+Delete UserProfile Config Path** for every player.
+[More](/doc/troubleshooting/handler-does-not-work#file-not-found-or-config-errors).
+
+<span id="26--nucleus-co-op-shows-an-onedrive-error-messagechanged-the-location-of-my-documents-folder-why" />
+
+### Nucleus shows a OneDrive error, or my Documents folder moved
+
+Your Documents folder is synced by OneDrive, which conflicts with the per-player Documents folders some handlers
+use. Put Documents back in its default place:
+[here's how](/doc/troubleshooting/handler-does-not-work#documents-in-onedrive).
+
+<span id="22--why-is-nucleus-co-op-resizing-the-game-instances-incorrectlythe-instances-look-stretched" />
+
+### The game windows look stretched
+
+Set display scaling to 100 %, and add custom resolutions matching the player windows in your graphics driver.
+[Performance](/doc/troubleshooting/performance#stretched-or-blurry-windows).
+
+<span id="23--why-are-my-in-game-frames-per-second-lowbetter-in-one-instance-than-in-the-others-when-using-nucleus-co-op" />
+
+### The frame rate is low, or better in one window than the others
+
+Lower the graphics settings, cap the frame rate, and press <Kbd>Ctrl</Kbd>+<Kbd>H</Kbd> to unfocus the windows so they
+share the PC evenly. [Performance](/doc/troubleshooting/performance#low-or-uneven-frame-rate).
+
+<span id="18--where-can-i-report-a-bugissue" />
+
+### Where do I report a bug?
+
+On the game's page on the hub for a handler, on GitHub for the app, or on Discord when you're not sure. Turn on the
+debug log first. [Report a bug](/doc/troubleshooting/report-a-bug).
+
+## The project
+
+<span id="13--i-wish-to-help-out-with-the-project-how-can-i-get-in-touch" />
+
+### How can I help?
+
+Join the [Discord](https://discord.com/invite/QDUt8HpCvr), help other players, test handlers, write your own, or
+contribute code on [GitHub](https://github.com/SplitScreen-Me). Reporting bugs well helps a lot too.
+
+<span id="30--this-project-is-amazing-where-can-i-donate" />
+
+### Where can I donate?
+
+On [Patreon](https://patreon.com/nucleus_coop). Nucleus Co-op is free and will stay free; supporters keep it going
+and get behind-the-scenes posts and early access to new versions and handlers.
+
+### Who makes it?
+
+Nucleus Co-op was created by [Lucas Assis](https://github.com/lucasassislar), extended by
+[ZeroFox](https://github.com/ZeroFox5866), with multiple keyboards and mice and Proto Input by
+[Ilyaki](https://github.com/Ilyaki) and the 2.x versions by [Mikou27](https://github.com/Mikou27).
+[r-mach](https://github.com/r-mach) makes the website, the hub and the new interface. Handlers come from the
+community: Talos91, PoundlandBacon, Pizzo, maxine64 and many more. The [history](/doc/about/history) tells the
+whole story.

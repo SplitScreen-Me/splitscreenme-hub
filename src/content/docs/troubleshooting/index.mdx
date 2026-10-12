@@ -1,0 +1,40 @@
+export const meta = {
+  title: 'Troubleshooting',
+  description:
+    'Find the fix from what you see: Nucleus Co-op does not open, a game does not launch or connect, a controller drives two windows, windows look stretched, or the game runs slowly.',
+  updated: '2026-10-12',
+};
+
+Start from what you see. Most problems have a fix that takes a minute, and the handler notes often mention the
+ones that are specific to a game.
+
+## Before anything else
+
+1. **Use the latest Nucleus Co-op and the latest handler.** The library shows **Update to vN** when a handler has
+   a newer version.
+2. **Read the handler notes** (**Game options › Handler Author's Notes**). They list the game version, the
+   options, and how to connect the copies.
+3. **Run the game once without Nucleus**, change a graphics setting, apply, and quit.
+4. **Check where Nucleus Co-op lives**: its own folder at the root of an NTFS drive, not in `Program Files`,
+   OneDrive or your user folder ([Install](/doc/getting-started/install#pick-the-right-folder)).
+
+## Find your symptom
+
+| What you see | Where to look |
+|---|---|
+| Nucleus Co-op doesn't open, closes at once, or shows a blank window | [The app does not start](/doc/troubleshooting/app-does-not-start) |
+| A file is missing, often `ProtoInputHooks64.dll` | [The app does not start](/doc/troubleshooting/app-does-not-start#files-go-missing) |
+| Only one copy of the game starts, or the copies crash | [A handler does not work](/doc/troubleshooting/handler-does-not-work#only-one-copy-starts-or-copies-crash) |
+| The copies start but can't see each other | [A handler does not work](/doc/troubleshooting/handler-does-not-work#the-copies-cant-see-each-other) |
+| "File not found" or config errors at launch | [A handler does not work](/doc/troubleshooting/handler-does-not-work#file-not-found-or-config-errors) |
+| A OneDrive warning, or your Documents folder moved | [A handler does not work](/doc/troubleshooting/handler-does-not-work#documents-in-onedrive) |
+| A controller doesn't show up in the lobby | [Controller problems](/doc/troubleshooting/controllers#a-controller-doesnt-show-up) |
+| One controller moves two players, or the camera spins | [Controller problems](/doc/troubleshooting/controllers#one-controller-drives-two-windows) |
+| The mouse cursor is stuck, or you can't close the game | [Keyboards and mice](/doc/play/keyboard-and-mouse#locking-inputs-with-end) |
+| Windows look stretched or blurry | [Performance](/doc/troubleshooting/performance#stretched-or-blurry-windows) |
+| Low or uneven frame rate | [Performance](/doc/troubleshooting/performance#low-or-uneven-frame-rate) |
+
+## Still stuck?
+
+Ask on [Discord](https://discord.com/invite/QDUt8HpCvr): it's the fastest way to get help, and handler authors
+are there. To report a bug, follow [Report a bug](/doc/troubleshooting/report-a-bug) so people can reproduce it.

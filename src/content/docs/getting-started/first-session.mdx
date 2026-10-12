@@ -1,0 +1,118 @@
+export const meta = {
+  title: 'Your first session',
+  description:
+    'Add a game to your library, let every player join with their own controller, pick a layout and launch a split-screen session with Nucleus Co-op 3.',
+  updated: '2026-10-12',
+};
+
+This page walks through one session from start to finish, screen by screen. You can drive the whole app with a
+mouse, a keyboard or a controller: the hint bar at the bottom of the window always shows what each button does.
+
+<Figure
+  src="/doc/img/v3-library.jpg"
+  alt="The Nucleus Co-op library: the featured game with Set up session and Game options, Found on this PC on the right, and Your games below"
+  caption="The library: your last game on top, games found on this PC on the right, your games below."
+  width={1600}
+  height={900}
+/>
+
+## 1. Add a game
+
+There are three ways in, and you can mix them.
+
+**Found on this PC.** Nucleus reads your Steam and Epic libraries and lists the installed games that have a
+handler on the hub. Tick the ones you want, choose **Add**, and Nucleus installs each handler and adds the game.
+If it can't find a game's executable, it asks you to pick it. Use the refresh button to scan again after
+installing a game.
+
+**Get games.** The hub catalogue, inside the app. Search by game or author, filter by number of players or by
+input (controllers, keyboard and mouse, several keyboards), then **Install handler**. Nucleus downloads the
+handler and asks once where the game is installed: pick its executable (the handler tells you which file).
+
+**From a file.** Drop a handler file (`.nc`, `.zip` or `.js`) onto the window, or use **Add a game** in Your
+games. Use this for handlers someone sent you or that you wrote yourself.
+
+<Callout type="tip" title="Which executable?">
+
+Most Steam games are in `C:\Program Files (x86)\Steam\steamapps\common\<game>`. Some keep the real executable in a
+`bin`, `Binaries` or `x64` subfolder: the file name Nucleus asks for is the one to pick, not a launcher.
+
+</Callout>
+
+## 2. Read the handler notes
+
+Every handler comes with notes from its author: which version of the game it was made for, how to connect the
+copies, which options matter, what doesn't work yet. Open them from **Game options › Handler Author's Notes**
+or from the lobby header. Two minutes of reading here saves a lot of guessing later.
+
+## 3. Set up the session
+
+Choose **Set up session**. The lobby shows your screens and the players placed on them.
+
+<Figure
+  src="/doc/img/v3-lobby.jpg"
+  alt="The lobby: one screen with player 1 placed on it, the layout buttons under the screen, and the Waiting to join tray"
+  caption="The lobby: drag players between places, pick a layout under each screen, and wait for everyone to join."
+  width={1234}
+  height={900}
+/>
+
+- **Joining.** Each player presses **Start** (or any button) on a free controller, or any key on a keyboard, and
+  takes the next free place. Devices that haven't joined wait in the tray at the bottom.
+- **Moving players.** Drag a player onto another place to swap, or onto the tray to take them out. With a
+  keyboard or a controller, select a player, move to another place and select again.
+- **Layouts.** Under each screen, choose full screen, two players side by side or one above the other, four
+  quarters, or more under **More**. Each monitor has its own layout. See
+  [Layouts and screens](/doc/play/layouts-and-screens).
+- **Nicknames and options.** The side panel lists each player with their nickname and devices. If the handler
+  has options (a game mode, a mod, a version), an extra step asks for them before you can launch.
+
+## 4. Launch
+
+Press **Launch** (it says how many players). Nucleus then, for each player in turn:
+
+1. prepares that player's copy of the game (linked or copied files in the `content` folder),
+2. starts it with the right controls, network identity and settings,
+3. waits for its window, removes the border and moves it into place.
+
+Keep your hands off the mouse while the windows are being placed. The session screen shows each copy as it
+starts, the handler notes, and the controls of the session.
+
+## 5. Play together
+
+The copies are separate games: connect them the way the game does it on a network. Usually one player hosts a
+LAN or online game and the others join it from their own window. The handler notes say exactly how.
+
+If players use **keyboards and mice**, press <Kbd>End</Kbd> once every window is in place. That locks each keyboard
+and mouse to its player's window. Press <Kbd>End</Kbd> again to get your mouse back. More in
+[Keyboards and mice](/doc/play/keyboard-and-mouse).
+
+## 6. Stop
+
+Hold **Stop session** on the session screen, or press <Kbd>Ctrl</Kbd>+<Kbd>E</Kbd>. Nucleus closes every copy of the
+game and puts your desktop back as it was. <Kbd>Ctrl</Kbd>+<Kbd>Q</Kbd> closes Nucleus Co-op itself, with every copy.
+
+If inputs are locked, unlock them first with <Kbd>End</Kbd>.
+
+## Shortcuts during a session
+
+| Keys | What they do |
+|---|---|
+| <Kbd>End</Kbd> | Lock or unlock keyboards and mice |
+| <Kbd>Ctrl</Kbd>+<Kbd>E</Kbd> | Stop the session |
+| <Kbd>Ctrl</Kbd>+<Kbd>Q</Kbd> | Close Nucleus Co-op and every copy |
+| <Kbd>Ctrl</Kbd>+<Kbd>R</Kbd> | Put the windows back in place |
+| <Kbd>Ctrl</Kbd>+<Kbd>H</Kbd> | Unfocus the game windows (evens out performance) |
+| <Kbd>Ctrl</Kbd>+<Kbd>T</Kbd> | Toggle "always on top" for the game windows |
+| <Kbd>Ctrl</Kbd>+<Kbd>N</Kbd> | Switch layout |
+| <Kbd>Ctrl</Kbd>+<Kbd>M</Kbd> | Cutscenes mode |
+| <Kbd>Alt</Kbd>+<Kbd>R</Kbd> | Show the shortcuts reminder |
+
+All of them can be changed in **Settings › Keyboard shortcuts**, and most have a controller combination too (see
+[Controllers](/doc/play/controllers#controller-shortcuts)).
+
+## Next time
+
+Your setup can be saved as a **profile**: turn on **Save a profile when the session starts** in the lobby. Next
+time, load the profile and players drop straight into their places as they press a button. See
+[Saves and profiles](/doc/play/saves-and-profiles).

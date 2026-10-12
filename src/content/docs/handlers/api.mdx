@@ -1,0 +1,1759 @@
+export const meta = {
+  title: 'Handler API reference',
+  description:
+    'Every option and function a Nucleus Co-op handler can use: game info, instances, focus, input, Proto Input, emulators, windows and the Game.Play context.',
+  updated: '2026-10-12',
+};
+
+A handler is a JavaScript file, run by the Jint engine inside Nucleus Co-op, that sets `Game.*` options and,
+optionally, a `Game.Play` function that runs once per player before that player's copy of the game starts. This
+page lists what a handler can use, grouped by topic. New to handlers? Start with
+[Write a handler](/doc/handlers/create).
+
+<Callout type="tip" title="Two more references ship with the app">
+
+`handlers\MasterHandler.js` is a commented template of the most common options, and `docs\readme.txt` in the
+Nucleus Co-op folder lists the options of the version you have. When this page and your version disagree, trust
+the files of your version.
+
+</Callout>
+
+## Game Info
+
+The name of the game executable with the extension. This will be used by Nucleus to add games, to run the game and as process to follow for positioning and resizing.
+
+```js
+  Game.ExecutableName = "Game.exe";
+```
+
+If the game is to launch a different executable, other than what Game.ExecutableName is.
+
+```js
+  Game.ExecutableToLaunch = "Game.exe";
+```
+
+If the game needs to go through a launcher before opening Nucleus will use this exe to start the game and it will still use the Game.ExecutableName process for positioning and resizing.
+
+```js
+  Game.LauncherExe = "Launcher.exe";
+```
+
+The name of the folder that will be created inside the Nucleus content folder (just use letters not symbols). In this folder Nucleus will store the symlinked or copied game files for each instance of the game.
+
+```js
+  Game.GUID = "Game Name";
+```
+
+Title of the game that will be shown in Nucleus.
+
+```js
+  Game.GameName = "Game Name";
+```
+
+The name of the launcher's window title. Some games need to go through a launcher to open. This is needed or else the application will lose the game's window.
+
+```js
+  Game.LauncherTitle = "Launcher Window Title";
+```
+
+This is just info. It will not limit the players number.
+
+```js
+  Game.MaxPlayersOneMonitor = 4;
+```
+
+This is just the max players info that shows under the handler name in Nucleus UI. Usually we write the max number of players the game supports. (PC, should support 16 max connected input devices).
+
+```js
+  Game.MaxPlayers = 16;
+```
+
+## Mutex
+
+Specify the type of mutex/handle to kill, for example "Mutant", "Event" or "Semaphore" | default: "Mutant".
+
+```js
+  Game.KillMutexType = "Mutant";
+```
+
+\# of seconds to wait before killing the mutex | Only works with killing not renaming | default: 0.
+
+```js
+  Game.KillMutexDelay = 10;
+```
+
+Instead of killing the mutex or handle, rename it on startup to something else | Requires Game.KillMutex to contain the EXACT name of the handles for this to work (no partial).
+
+```js
+  Game.RenameNotKillMutex = true;
+```
+
+When killing handles, should a partial search be done with the handle name? | Renaming handles requires an exact match | default: false.
+
+```js
+  Game.PartialMutexSearch = false;
+```
+
+Kill the handles, specified in Game.KillMutex, in the last instance (normally last is ignored).
+
+```js
+  Game.KillLastInstanceMutex = false;
+```
+
+When using ProcessChangesAtEnd, should handles also be killed at the end?.
+
+```js
+  Game.KillMutexAtEnd = false;
+```
+
+When using Game.MutexProcessExe, here you can specify the handles that need to be killed.
+
+```js
+Game.KillMutexProcess = ["Mutexes","To","Close"];
+```
+
+When using Game.MutexProcessExe, here you can specify if you want to do a partial search for handles.
+
+```js
+  Game.PartialMutexSearchProcess = false;
+```
+
+When using Game.MutexProcessExe, here you can specify the type of handles to kill.
+
+```js
+  Game.KillMutexTypeProcess = "Mutant";
+```
+
+Specify another executable to kill handles for.
+
+```js
+  Game.MutexProcessExe = "Process.exe";
+```
+
+Wait for X number of seconds before proceeding with mutex killing.
+
+```js
+  Game.PauseBeforeMutexKilling = 1000;
+```
+
+When using Game.MutexProcessExe, wait for X number of seconds before beginning its mutex killing.
+
+```js
+  Game.KillMutexDelayProcess = 1000;
+```
+
+## File System
+
+If we should symbolic link the game's files to a temporary directory (Nucleus instances folders in its content folder). If not will launch straight from the installation directory.
+
+```js
+  Game.SymlinkGame = true;
+```
+
+If SymlinkGame is enabled, if we should copy or symlink the game executable.
+
+```js
+  Game.SymlinkExe = false;
+```
+
+Folders by default are hardcopied, with this enabled, folders will be symlinked instead | warning files placed in symlink folders will appear in the original game files too.
+
+```js
+  Game.SymlinkFolders = false;
+```
+
+Enable or disable symlink files from being deleted when Nucleus is closed | default: false.
+
+```js
+  Game.KeepSymLinkOnExit = true;
+```
+
+Symlink individual files from the game directory to the instanced folder.
+
+```js
+Game.SymlinkFiles = ["game.exe","settings.cfg"];
+```
+
+Copy files from the game directory to the instanced folder.
+
+```js
+  Game.CopyFiles = ["game.exe","settings.cfg"]; 
+```
+
+Instead of Symlinking, create hard copies of the games files (copy/paste) | Be careful of storage, takes a LONG time to start a game when copying.
+
+```js
+  Game.HardcopyGame = true;
+```
+
+Hardlink files instead of Symlink (or hard copy) | Directories will still be symlinked but files will be hardlinked.
+
+```js
+  Game.HardlinkGame = false;
+```
+
+Force game to be symlinked each time it is ran.
+
+```js
+  Game.ForceSymlink = false;
+```
+
+Array with the name of the folders you don't want Nucleus Co-op to symlink, only the folders placed here get hardcopied not the files.
+
+```js
+  Game.DirSymlinkExclusions = ["folder1", "folder2"];
+```
+
+Array with the name of the files you don't want Nucleus Co-op to symlink, useful if you want to replace files or add external files.
+
+```js
+Game.FileSymlinkExclusions = ["file1.txt", "file2.txt"];
+```
+
+Array with the name of the files you want Nucleus Co-op to make full copies of, in some cases games need certain files to be full copies or they won't run.
+
+```js
+Game.FileSymlinkCopyInstead = ["file1.txt", "file2.txt"];
+```
+
+Copy (not symlink) all files within a given folder | Folder name is relative from root game folder.
+
+```js
+Game.DirSymlinkCopyInstead = [ "folder1", "folder2" ];
+```
+
+When specifying folder(s) to copy all its contents instead of linking, should subfolders and files be included as well?
+
+```js
+Game.DirSymlinkCopyInsteadIncludeSubFolders = false;
+```
+
+Symlink folders in game root folder to another spot in game folder | Relative paths from root of game folder.
+
+```js
+Game.SymlinkFoldersTo = ["folderToMove|whereToMoveIt"];
+```
+
+Hardlink folders in game root folder to another spot in game folder | Relative paths from root of game folder.
+
+```js
+Game.HardlinkFoldersTo = ["folderToMove|whereToMoveIt"];
+```
+
+Will rename the game's executable to "\<exe name\> - Player X", x being the instance/player #.
+
+```js
+  Game.ChangeExe = true;
+```
+
+Copy a file or folder you specify between the quotes to each instance folder, if the file/folder is located in Nucleus folder\utils\User. This function also accepts two additional parameters, a relative path from the game root folder if the file needs to be placed somewhere else within instance folder and one parameter to indicate which instances to copy the file to if it only needs to be in some. Use of parameters is separated by a | character. So it would look something like this [ "filename.ini|\\bin|1,2" ]. This example would copy filename.ini from Nucleus\utils\User to Instance0\bin and Instance1\bin. If you don't specify which instances, it will do them all by default. If you don't specify a path then root instance folder is used. If you want instances but root folder you would just do [ "filename.ini||1,2" ] | If copying multiple files, use comma seperated strings
+
+```js
+  Game.CopyCustomUtils = [ "d3d9.dll" ]; 
+```
+
+Will do a text value replacement in a file for every instance, accepts two parameters, one on what to look for, and what it should be replaced with (seperated with a "|") | Works with multiple values | Works in conjunction with HexEditExe (this will trigger first).
+
+```js
+  Game.HexEditAllExes = [ "before|afters" ]; 
+```
+
+Will do a text value replacement in a file for a specific instance, accepts two parameters, one on what to look for, and what it should be replaced with (seperated with a "|") | Works with multiple values, each comma seperated string is the order of the instances | Works in conjunction with HexEditAllExe (this will trigger second).
+
+```js
+  Game.HexEditExe = [ "before|afters" ]; 
+```
+
+Works same as HexEditExe function but with a file you specify as an extra parameter (first one) | filePath is relative path from the game root folder.
+
+```js
+  Game.HexEditFile = [ "filePath|before|afters" ]; 
+```
+
+Works same as HexEditAllExes function but with a file you specify as an extra parameter (first one) | filePath is relative path from the game root folder.
+
+```js
+  Game.HexEditAllFiles = [ "filePath|before|afters" ]; 
+```
+
+Folders (+ all its contents) listed here will not be linked or copied over to Nucleus game content folder, the instance folders.
+
+```js
+  Game.DirExclusions = ["dir1"]; 
+```
+
+Create a steam_appid.txt file where the game executable is.
+
+```js
+  Game.CreateSteamAppIdByExe = false; 
+```
+
+Do not check if Launcher Exe exists in game folder | you will need to provide a relative filepath from game root folder.
+
+```js
+  Game.LauncherExeIgnoreFileCheck = false; 
+```
+
+Game.CopyEnvFoldersToNucleusAccounts = ["Documents", "AppData"]; //Copy subfolders of current user profile to Nucleus user accounts.
+Copy folders in game root folder to another spot in game folder | Relative paths from root of game folder.
+
+```js
+  Game.CopyFoldersTo = ["folderToMove|whereToMoveIt"]; 
+```
+
+Use this to replace bytes in a file at a specified address, can be for specific instances with optional 3rd argument | 1st arg: instance # (optional), 2nd arg: hex address offset, 3rd arg: new bytes.
+
+```js
+  Game.HexEditExeAddress = [ "1|address|bytes" ]; 
+```
+
+Game.HexEditFileAddress = [ "1|relativePath|address|bytes" ]; //Same as HexEditExeAddress but for a file other than exe | Need to provide relative path (from game root folder) + filename as 1st or 2nd arg if not specifying an instance.
+Do not display the warning message about a file being deleted .
+
+```js
+  Game.IgnoreDeleteFilesPrompt = false; 
+```
+
+Game.RenameAndOrMoveFiles = [ "1|before.dat|after.dat" ];//Specify files to either rename or move | can accept relative path from root | optional first parameter to specify a specific instance to apply to, omit to do them all.
+Specify files to be deleted from instanced folder | can accept relative path from root | optional first parameter to specify a specific instance to apply to, omit to do them all.
+
+```js
+  Game.DeleteFiles = [ "1|delete.dis" ]; 
+```
+
+When using Game.LauncherExe, should ExecutableName also be launched?
+Forces LauncherExeIgnoreFileCheck when game isn't symlinked.
+
+```js
+  Game.RunLauncherAndExe = false; 
+```
+
+Forces LauncherExeIgnoreFileCheck when game isn't symlinked.
+
+```js
+  Game.ForceLauncherExeIgnoreFileCheck = false; 
+```
+
+## Nucleus Co-op Environment
+
+Use custom environment variables for games that use them, replaces some common paths (e.g. AppData) with C:\Users\\&lt;your username\>\NucleusCoop.
+
+```js
+  Game.UseNucleusEnvironment = false; 
+```
+
+Relative path from user profile (e.g. C:\Users\ZeroFox) to game's config path | Used to provide some extra functionality (open/delete/copy over to Nucleus Environment).
+
+```js
+Game.UserProfileConfigPath = "AppData\\Local\\Game\\Config";
+```
+
+Relative path from user profile (e.g. C:\Users\ZeroFox) to game's save path | Used to provide some extra functionality (open/delete/copy over to Nucleus Environment).
+
+```js
+Game.UserProfileSavePath = "AppData\\Local\\Game\\Saves"; 
+```
+
+Force the games config files in UserProfileConfigPath to copy over from system user profile to Nucleus environment.
+
+```js
+  Game.ForceUserProfileConfigCopy = false; 
+```
+
+Force the games save files in UserProfileSavePath to copy over from system user profile to Nucleus environment.
+
+```js
+  Game.ForceUserProfileSaveCopy = false; 
+```
+
+Specify files to delete in Nucleus environment config path (UserProfileConfigPath).
+
+```js
+Game.DeleteFilesInConfigPath = [ "file.del", "me.too" ];
+```
+
+Specify files to delete in Nucleus environment save path (UserProfileSavePath).
+
+```js
+Game.DeleteFilesInSavePath = [ "file.del", "me.too" ]; 
+```
+
+Do not copy files from original UserProfileConfigPath if using Nucleus Environment.
+
+```js
+  Game.UserProfileConfigPathNoCopy = false; 
+```
+
+Do not copy files from original UserProfileSavePath if using Nucleus Environment.
+
+```js
+  Game.UserProfileSavePathNoCopy = false; 
+```
+
+Force the game to use the current user's environment (useful for some games that may require different Window user accounts).
+
+```js
+  Game.UseCurrentUserEnvironment = false; 
+```
+
+Similar to UserProfileConfigPath, use this when the game uses Documents to store game files.
+
+```js
+  Game.DocumentsConfigPath = "Path\\Here"; 
+```
+
+Similar to UserProfileSavePath, use this when the game uses Documents to store game files.
+
+```js
+  Game.DocumentsSavePath = "Path\\Here"; 
+```
+
+When using DocumentsConfigPath, forces a file copy from original location to Nucleus Documents.
+
+```js
+  Game.ForceDocumentsConfigCopy = false; 
+```
+
+When using DocumentsSavePath, forces a file copy from original location to Nucleus Documents.
+
+```js
+  Game.ForceDocumentsSaveCopy = false; 
+```
+
+When using DocumentsConfigPath, do not let Nucleus copy from original location to Nucleus Documents.
+
+```js
+  Game.DocumentsConfigPathNoCopy = false; 
+```
+
+When using DocumentsSavePath, do not let Nucleus copy from original location to Nucleus Documents.
+
+```js
+  Game.DocumentsSavePathNoCopy = false; 
+```
+
+Forces use of custom environment variable when Game.ThirdPartyLaunch = true;
+
+```js
+  Game.ForceEnvironmentUse = true; 
+```
+
+## Focus
+
+Enable or disable the sending of focus messages to each game window at a regular interval | default: false.
+
+```js
+  Game.FakeFocus = true; 
+```
+
+Enable or disable hooks to trick the game into thinking it has focus | default: false.
+
+```js
+  Game.HookFocus = true; 
+```
+
+Enable or disable hooks of functions some games may try and use to prevent multiple instances from running | default: false.
+
+```js
+  Game.HookInit = true; 
+```
+
+Blocks the processing of all the windows messages that get sent when the window loses focus.
+
+```js
+  Game.PreventWindowDeactivation = false; 
+```
+
+Work-around for ForceFocusWindowName having to match 1:1 with game window title for resizing, positioning and focus | default: false.
+
+```js
+  Game.HasDynamicWindowTitle = false; 
+```
+
+Forces the game window title to be whatever is specified in Game.Hook.ForceFocusWindowName (triggers once, after all instances have started) | default: false.
+
+```js
+  Game.ForceWindowTitle = false; 
+```
+
+Adds the process ID to the end of the window title.
+
+```js
+  Game.IdInWindowTitle = true; 
+```
+
+Set the foreground window to be something other than game windows.
+
+```js
+  Game.SetForegroundWindowElsewhere = false; 
+```
+
+If you only want specific instances to have starting hooks, specify them in a comma seperated string.
+
+```js
+  Game.StartHookInstances = "1,2,3,4"; 
+```
+
+If you only want specific instances to have post launch hooks, specify them in a comma seperated string.
+
+```js
+  Game.PostHookInstances = "1,2,3,4"; 
+```
+
+If you only want specific instances to have fake focus messages sent to, specify them in a comma seperated string.
+
+```js
+  Game.FakeFocusInstances = "1,2,3,4"; 
+```
+
+Should the keyboard player instance be skipped when fake focus messages are being sent to.
+
+```js
+  Game.KeyboardPlayerSkipFakeFocus = false; 
+```
+
+Ignore PreventWindowDeactivation if player is using keyboard.
+
+```js
+Game.KeyboardPlayerSkipPreventWindowDeactivate = false;
+```
+
+Should WM_ACTIVATE message be sent to each instance? | default: true.
+
+```js
+  Game.FakeFocusSendActivate = true; 
+```
+
+Makes sure all the game windows are unfocused so nothing received double input from Windows.
+
+```js
+  Game.PreventGameFocus = false; 
+```
+
+The milliseconds between sending fake focus messages. Default at 1000, some rare games need this to be very low.
+
+```js
+  Game.FakeFocusInterval = 1000; 
+```
+
+Enable each game window at the end (useful if became disabled, or for some games that require this Window function to be called to display properly, after Nucleus setup).
+
+```js
+  Game.EnableWindows = false; 
+```
+
+Do the resizing, repositioning and post-launch hooking of all game instances at the very end | will not work with every option ran normally.
+
+```js
+  Game.ProcessChangesAtEnd = false; 
+```
+
+If ProcessChangesAtEnd = true, pause and show a prompt, before making changes to processes.
+
+```js
+  Game.PromptProcessChangesAtEnd = false; 
+```
+
+If ProcessChangesAtEnd = true, show a prompt between each instance being changed.
+
+```js
+  Game.PromptBetweenInstancesEnd = false; 
+```
+
+## Window manipulation
+
+Prevent games from resizing their windows on their own | Hooks after all instances have been opened (see Game.SetWindowHookStart for an alternative).
+
+```js
+  Game.SetWindowHook = true; 
+```
+
+Prevent games from resizing window their windows on their own | Hooks upon game starting up (see Game.SetWindowHook for an alternative).
+
+```js
+  Game.SetWindowHookStart = false; 
+```
+
+Should the custom dll do the resizing? | Only works with Alpha 10 custom dll | default: false.
+
+```js
+  Game.Hook.FixResolution = false; 
+```
+
+Should the custom dll do the repositioning? | Only works with Alpha 10 custom dll | default: false.
+
+```js
+  Game.Hook.FixPosition = false; 
+```
+
+If manual positioning, what is the window's X coordinate | If both X and Y value > 0, window will be positioned manually.
+
+```js
+  Game.Hook.WindowX = 0; 
+```
+
+If manual positioning, what is the window's Y coordinate | If both X and Y value > 0, window will be positioned manually.
+
+```js
+  Game.Hook.WindowY = 0; 
+```
+
+If manual resizing, what is the window's width | If both ResWidth and ResHeight value > 0, window will be positioned manually.
+
+```js
+  Game.Hook.ResWidth = 1280; 
+```
+
+If manual resizing, what is the window's height | If both ResWidth and ResHeight value > 0, window will be positioned manually.
+
+```js
+  Game.Hook.ResHeight = 720; 
+```
+
+Should the game window try and keep it's aspect ratio when being resized? | default: false.
+
+```js
+  Game.KeepAspectRatio = false; 
+```
+
+After each new instance opens, resize, reposition and remove borders of the previous instance.
+
+```js
+  Game.ResetWindows = false; 
+```
+
+Try and resize game window within player bounds to the aspect ratio of the monitor.
+
+```js
+  Game.KeepMonitorAspectRatio = false; 
+```
+
+Should Nucleus not resize the game windows?.
+
+```js
+  Game.DontResize = false; 
+```
+
+Should Nucleus not reposition the game windows?.
+
+```js
+  Game.DontReposition = false; 
+```
+
+Should Nucleus not make the game windows top most (appear above everything else).
+
+```js
+  Game.NotTopMost = false; 
+```
+
+docs.microsoft.com/en-us/windows/win32/winmsg/window-styles for values that can be used.
+
+```js
+  Game.WindowStyleValues = [ "~0xC00000", "0x8000000" ]; 
+```
+
+docs.microsoft.com/en-us/windows/win32/winmsg/window-styles for values that can be used.
+
+```js
+  Game.ExtWindowStyleValues = [ "~0x200", "0x200000" ]; 
+```
+
+Should each game window be minimized and restored once all instances are opened?.
+
+```js
+  Game.RefreshWindowAfterStart = false; 
+```
+
+docs.microsoft.com/en-us/windows/win32/winmsg/window-styles for values that can be used.
+
+```js
+  Game.WindowStyleEndChanges = [ "~0xC00000", "0x8000000" ]; 
+```
+
+docs.microsoft.com/en-us/windows/win32/winmsg/window-styles for values that can be used.
+
+```js
+  Game.ExtWindowStyleEndChanges = [ "~0xC00000", "0x8000000" ]; 
+```
+
+Ignore logic at end to check if any game window still has a border.
+
+```js
+  Game.IgnoreWindowBordercheck = false; 
+```
+
+Prevents Nucleus from removing game window borders.
+
+```js
+  Game.DontRemoveBorders = false; 
+```
+
+Set the game windows to top most at the very end.
+
+```js
+  Game.SetTopMostAtEnd = true; 
+```
+
+## Input
+
+Enable/disable use of one keyboard/mouse player.
+
+```js
+  Game.SupportsKeyboard = true; 
+```
+
+Set up XInputPlus | If multiple dlls required, use comma seperated strings.
+
+```js
+  Game.XInputPlusDll = ["xinput1_3.dll"]; 
+```
+
+If the keyboard player should be processed first.
+
+```js
+  Game.KeyboardPlayerFirst = true; 
+```
+
+Before launching any games, Nucleus Co-op will open x360ce and let the user set up their controllers before continuing | close x360ce to continue | Don't use with custom dlls.
+
+```js
+  Game.UseX360ce = true; 
+```
+
+Use the xinput custom dll from Alpha 8 instead of Alpha 10 | Will still force alpha 10 custom dll if game is x64.
+
+```js
+  Game.Hook.UseAlpha8CustomDll = false; 
+```
+
+If using XInputPlus or X360ce and there are multiple players playing the same instance, set the # per instance here.
+
+```js
+  Game.PlayersPerInstance = 2; 
+```
+
+Set up Devreorder.
+
+```js
+  Game.UseDevReorder = true; 
+```
+
+When using x360ce, this will set certain hooktype that may work for xbox one controllers if the normal method does not work.
+
+```js
+  Game.XboxOneControllerFix = false; 
+```
+
+Disable raw input devices in game | default: false.
+
+```js
+  Game.BlockRawInput = false; 
+```
+
+If x360ce dll should be named something OTHER than xinput1_3.dll | requires Game.Usex360ce to be set to true.
+
+```js
+  Game.X360ceDll = [ "xinput1_3.dll" ]; 
+```
+
+Create only one file for HID devices per instance (the assigned HID device).
+
+```js
+  Game.CreateSingleDeviceFile = false; 
+```
+
+Enable Mouse/Keyboard input for instances when using Alpha 10 custom xinput dll (normally MKB is restricted).
+
+```js
+  Game.Hook.EnableMKBInput = false; 
+```
+
+Setup wizark952's dinput blocker (block dinput for the game).
+
+```js
+  Game.UseDInputBlocker = false; 
+```
+
+Do not copy XInputPlus' ini when using Game.XInputPlusDll.
+
+```js
+  Game.XInputPlusNoIni = false; 
+```
+
+When using Game.XInputPlusDll, you can specify to use the previous version instead of latest (needed for some games).
+
+```js
+  Game.XInputPlusOldDll = false; 
+```
+
+## Goldberg Emulator
+
+Use the built-in Goldberg features in Nucleus | default: false.
+
+```js
+  Game.UseGoldberg = false; 
+```
+
+Use the experimental branch of Goldberg | Requires `Game.UseGoldberg = true` | default: false.
+
+```js
+  Game.GoldbergExperimental = false; 
+```
+
+Automatically setup Goldberg's Experimental Steam Client | Requires Game.UseGoldberg and the original steam_api.dll.
+
+```js
+  Game.GoldbergExperimentalSteamClient = false; 
+```
+
+Should Goldberg Lobby Connect be used to connect the instances.
+
+```js
+  Game.GoldbergLobbyConnect = false; 
+```
+
+Do not create a local_save.txt file for Goldberg, saves are to use default game save location.
+
+```js
+  Game.GoldbergNoLocalSave = false; 
+```
+
+Some older games require a steam_interfaces.txt file for Goldberg to work | Will first search orig game path and nucleus games path, if not found then tries to create one with the GoldbergNeedSteamInterface command.
+
+```js
+  Game.GoldbergNeedSteamInterface = false; 
+```
+
+Manually specify what language you want Goldberg to use for the game | by default, Goldberg will use the language you chose in Steam.
+
+```js
+  Game.GoldbergLanguage = "english"; 
+```
+
+If steam_interface.txt is required, provide full path here to the original steam_api(64).dll and Nucleus will create one if it can't find an existing copy.
+
+```js
+Game.OrigSteamDllPath = "C:\full path\steam_api.dll"; 
+```
+
+When set to true, Goldberg will not create a steam_appid.txt file.
+
+```js
+  Game.GoldbergIgnoreSteamAppId = false; 
+```
+
+A list of steam IDs to be used instead of the pre-defined ones Nucleuses uses | IDs will be used in order they are placed, i.e. instance 1 will be first non-empty string in array.
+
+```js
+Game.PlayerSteamIDs = ["76561198134585131","76561198134585132"]; 
+```
+
+Set to true to have Goldberg Experimental rename instanced steam_api(64).dll to cracksteam_api(64).dll.
+
+```js
+  Game.GoldbergExperimentalRename = false; 
+```
+
+Force Goldberg to write account_name.txt and user_steam_id.txt | Requires Game.UseGoldberg;
+
+```js
+  Game.GoldbergWriteSteamIDAndAccount = false; 
+```
+
+## Smart Steam Emulator
+
+If the game needs a fake Steam wrapper (SSE) to run multiple instances (this is not needed if you are using the new use Goldberg emulator line).
+
+```js
+  Game.NeedsSteamEmulation = false; 
+```
+
+When using Game.NeedsSteamEmulation, here you can provide additional lines to write to the SSE ini file.
+
+```js
+Game.SSEAdditionalLines = ["Section|Key=Value"];
+```
+
+## Nemirtingas Epic Emulator
+
+Automatically set up Nemirtinga's Epic Emulator in Nucleus
+
+```js
+Game.UseNemirtingasEpicEmu = false;
+```
+
+When using Nemirtinga's Epic Emulator, use pre-defined parameters -AUTH_LOGIN=unused -AUTH_PASSWORD=bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb -AUTH_TYPE=exchangecode -epicapp=CrabTest -epicenv=Prod -EpicPortal -epicusername=\"" + \<Player Nickname here\> + "\" -epicuserid=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA -epiclocale=en"
+
+```js
+Game.EpicEmuArgs = false;
+```
+
+Optional. When using Nemirtinga's Epic Emulator, use pre-defined parameters + Set NickName as epic id, only to use with games that do not use epic id to start or connect(Set clever save names if the game use the epic id to name saves ex: Tiny Tina's Assault On Dragon Keep)" -AUTH_LOGIN=unused -AUTH_PASSWORD=bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb -AUTH_TYPE=exchangecode -epicapp=CrabTest -epicenv=Prod -EpicPortal -epicusername=" + \<Player Nickname here\> + " -epicuserid="+ \<Player Nickname here\> + "-epiclocale=" + EpicLang".
+
+```js
+  Game.AltEpicEmuArgs = false; 
+```
+
+NemirtingasEpicEmu.json edition from a handler example:
+```js
+    //If you don't need to edit a line do not add it here, the emu will automatically write it with default parameters. More info here: https://gitlab.com/Nemirtingas/nemirtingas_epic_emu/-/blob/master/README.md
+    // Available debug parameters,  should be "off" by default. Only required to debug the nermintingas eos emulator.
+    // TRACE: Very verbose, will log DEBUG + All functions enter
+    // DEBUG: Very verbose, will log INFO  + Debug infos like function parameters
+    // INFO : verbose     , will log WARN  + some informations about code execution and TODOs
+    // WARN : not verbose , will log ERR   + some warnings about code execution
+    // ERR  : not verbose , will log FATAL + errors about code execution
+    // FATAL: not verbose , will log only Fatal errors like unimplemented steam_api versions
+    // OFF  : no logs     , saves cpu usage when running the debug versions 
+    // In case of using custom start arguments => -epicusername == same username as in the.json => -epicuserid == same epicid as in the.json >
+ 
+    var jsonPath = Context.GetFolder(Nucleus.Folder.InstancedGameFolder) + "\\nepice_settings\\NemirtingasEpicEmu.json";// + "\\NemirtingasEpicEmus.json" for stable older epic emu version.
+    var params = [
+    '{',
+    '  "appid": "InvalidAppid",',
+    '  "disable_online_networking": false,',
+    '  "enable_lan": true,',
+    '  "enable_overlay": true,',
+    //'  "epicid": "3808a45790894253344fec21026bbf80",', //better to let the emu automaticaly add this line.
+    '  "language":' + '"' + Context.EpicLang + '"' + ',',
+    '  "log_level": "off",',
+    //'  "productuserid": "ab65359ffde1b5cc41e81afee8e32c33",', //better to let the emu automaticaly add this line.
+    '  "savepath": "appdata",',
+    '  "signaling_servers": [],',
+    '  "unlock_dlcs": true,',
+    '  "username": ' + '"' + Context.Nickname + '"', //must always be added if you edit the json and must be the last line else the emulator will reset all parameters(there is no coma at the end of this line in the json).
+    '}'
+    ] ;
+    Context.WriteTextFile(jsonPath,params); 
+```
+
+## Nemirtingas Galaxy GoG Emulator
+
+Nemirtinga's Galaxy Emulator works by substituting the game's Galaxy64.dll file with its own custom dll.
+
+First, set up Nemirtinga's Galaxy Emulator in Nucleus.
+
+```js
+Game.UseNemirtingasGalaxyEmu = true;   //Set to true to emulate GOG Galaxy
+```
+
+It is recommended that the emulator is used on the game without Nucleus once before scripting. This can be done by the following steps:
+
+1. Head to `NucleusCo-op\utils\NemirtingasGalaxyEmu`
+2. Copy the `Galaxy64.dll` file.
+3. Head to the installation folder of the game you wish to emulate.
+4. Find where Galaxy64.dll is stored. This shall be called **the Galaxy folder**.
+5. Rename Galaxy64.dll or move it from the Galaxy folder and paste the Galaxy64.dll from the NemirtingasGalaxyEmu folder.
+6. Locate and load the game's executable.
+
+This should generate a folder called ngalaxye_settings. This folder contains a .json file that keeps track of vital information. Keep track of where this folder is located as you will need it for the Nucleus script.
+
+7. If the game loads fine and the game does not crash when trying to use multiplayer, then the emulator is working. Feel free to remove the ngalaxye_settings folder and Galaxy64.dll, and restore the original Galaxy64.dll file to the Galaxy folder.
+
+With the steps above done, write inside the Game.Play() function:
+
+```js
+var idg = Context.PlayerID + 6;
+var jsonPath = Context.GetFolder(Nucleus.Folder.InstancedGameFolder) + "\\ngalaxye_settings\\NemirtingasGalaxyEmu.json"; //The string should be changed so that ngalaxye_settings is in the same folder as it was in Step 6.
+var params = [
+'{',
+'  "api_version": "1.139.2.0",', //Must be changed or the game cannot connect to LAN. API version can be found by right-clicking the original Galaxy64.dll, clicking the 'Details' tab and reading the File Version tag.
+'  "enable_overlay": false,',
+'  "galaxyid": 14549624462898294' + idg + ',',
+'  "language": ' + '"' + Context.GogLang + '",',
+'  "productid": 2143654691,', //Must be changed or the game will crash. Product ID can be found by visitng https://www.gogdb.org/
+'  "username": ' + '"' + Context.Nickname + '"', //Must always be added and must be the last line or else the emulator will reset all parameters (there is no comma at the end of this line in the json).
+'}'
+];
+
+Context.WriteTextFile(jsonPath,params);
+```
+### Common Errors
+
+**Q. The game's multiplayer only works when GOG Galaxy is open and even then, I can only play with my friends on GOG Galaxy.**
+A. Make sure you set Game.UseNemirtingasGalaxyEmu = true
+
+**Q. The game crashes upon entering the multiplayer gamemode or main menu.**
+A. The game is either not loading the custom Galaxy64.dll file or not loading the .json file correctly. Make sure you set Game.UseNemirtingasGalaxyEmu = true, make sure that the ngalaxye_settings folder is in the correct place and make sure the .json file has the correct parameters (i.e. make sure productid and api_version is correct).
+
+**Q. The game loads fine but I cannot connect to other players in Nucleus.**
+A. The api_version has been set incorrectly. Go to the game's installation folder, locate the Galaxy64.dll, click the 'Details' tab and read the File Version. That is what your api_version should be.
+
+## Additional tools
+
+Use atom0s' Steamless app to remove Steam Stub DRM from a protected executable.
+
+```js
+Game.UseSteamless = true;                               
+```
+
+Use this when using Game.UseSteamless = true; always, the command line version of Steamless allows for different launch arguments to be used.
+
+```js
+Game.SteamlessArgs = "--quiet --keepbind";              
+```
+
+The time in milliseconds to give Steamless to patch the game .exe. 2500 is the default value and will be applied even if the timing line has not been added in a handler.
+
+```js
+Game.SteamlessTiming = 2500;                            
+```
+
+Use UberPsyX's Steam Stub DRM Patcher to remove Steam Stub DRM from a protected executable.
+
+```js
+Game.UseSteamStubDRMPatcher = false;			
+```
+
+Force Steam Stub DRM Patcher to use either the x64 or x86 dll | Values: "64" or "86".
+
+```js
+Game.SteamStubDRMPatcherArch = "64";			
+```
+
+Replace any EasyAntiCheat_(x86)(x64).dll with a bypass dll.
+
+```js
+Game.UseEACBypass = false;				
+```
+
+Use Flawless Widescreen application | value must be the name of the game plugin folder in PluginCache\FWS_Plugins\Modules.
+
+```js
+Game.FlawlessWidescreen = "FWGameName";			
+```
+
+(undocumented)
+
+```js
+Game.FlawlessWidescreenOverrideDisplay = false; 	
+```
+
+Game.FlawlessWidescreenPluginPath 			//(undocumented)
+
+## Network
+
+Set up game instances with ForceBindIP; each instance having their own IP.
+
+```js
+Game.UseForceBindIP = false;				
+```
+
+Highly experimental feature, will change your existing network to a static IP for each instance | option in settings to choose your network.
+
+```js
+Game.ChangeIPPerInstance = false;			
+```
+
+Game.ChangeIPPerInstanceAlt;				//An alternative method to changing IP per instance | this method will create loopback adapters for each player and assign them a static ip on the same subnet mask as your main network interface.
+
+## Extra
+
+How many seconds to wait after launching game (or launcher) but before grabbing game process.
+
+```js
+Game.PauseBetweenProcessGrab = 30;			
+```
+
+Number of seconds to wait after running additional files but before continuing with player setup.
+
+```js
+Game.PauseBetweenContextAndLaunch = 0;			
+```
+
+Use if the game is launched outside of Nucleus | NOTE: You will not be able to use start up hooks or CMDLaunch with this option.
+
+```js
+Game.ThirdPartyLaunch = false;				
+```
+
+Ignore the prompt that appears when using Game.ThirdPartyLaunch;
+
+```js
+Game.IgnoreThirdPartyPrompt = false;			
+```
+
+Manually select the process that will be used for process manipulation, such as resizing, repositioning and used for post-launch hooks.
+
+```js
+Game.ForceProcessPick = false;				
+```
+
+Prompt the user with a messagebox to let the user decide when to open the next instance | default: false, PauseBetweenStarts STILL required.
+
+```js
+Game.PromptBetweenInstances = true;			
+```
+
+Show a prompt that user must click on ok to continue, after the first instance is setup.
+
+```js
+Game.PromptAfterFirstInstance = false;			
+```
+
+Game.GamePlayAfterLaunch;				//Call the Game.Play function after the call has launched.
+Execute Game.Play function (context) before the majority of the game is setup.
+
+```js
+Game.GamePlayBeforeGameSetup = false;			
+```
+
+Launch each instance from a different user account | must run Nucleus as admin | will temporary create user accounts "nucleusplayerx" and delete them when closing Nucleus.
+
+```js
+Game.LaunchAsDifferentUsers = false;			
+```
+
+An alternative method to launch each instance from a different user account | must run Nucleus as admin | will temporary create user accounts "nucleusplayerx" and delete them when closing Nucleus.
+
+```js
+Game.LaunchAsDifferentUsersAlt = false;			
+```
+
+Will backup and restore Nucleus user account user profile's on windows between sessions (when user accounts are not kept).
+
+```js
+Game.TransferNucleusUserAccountProfiles = false;	
+```
+
+Force Nucleus to search for the game process.
+
+```js
+Game.ForceProcessSearch = false;			
+```
+
+Game requires Nucleus to be run as administrator (this option will check and advise if detected not running Nucleus as admin).
+
+```js
+Game.RequiresAdmin = false;				
+```
+
+Game.WriteToProcessMemory 				//(undocumented)
+Sets the overall priority category for the associated process. Can be "AboveNormal", "High" or "RealTime" | default: "Normal".
+
+```js
+Game.ProcessorPriorityClass = "Normal";			
+```
+
+Sets the processors on which the game's threads can run on (provide the # of the cores in a comma-seperated list in quotations) | default: system delegation.
+
+```js
+Game.UseProcessor = "1,2,3,4";				
+```
+
+Sets the processors on which an instances game's threads can run on (provide the # of the cores in a comma-seperated list in quotations) | default: system delegation.
+
+```js
+Game.UseProcessorsPerInstance = [ "1,2","3,4" ];	
+```
+
+Sets the preferred processor for the game's threads, used when the system schedules threads, to determine which processor to run the thread on | default: system delegation.
+
+```js
+Game.IdealProcessor = 2;				
+```
+
+Hide the mouse cursor in game instances.
+
+```js
+Game.HideCursor = true;					
+```
+
+Hide the desktop background with a solid black background.
+
+```js
+Game.HideDesktop = false;				
+```
+
+Most games hide the taskbar when placed on-top but for games that don't you can use this.
+
+```js
+Game.HideTaskbar = true;				
+```
+
+Display a message to the end-user, that will appear when user selects the game of a handler| useful if there is anything the end-user needs to know before-hand | Only first two or three sentences will appear in UI, but full message can be viewed if user right clicks on the game in the list.
+
+```js
+Game.Description = "Hello World";			
+```
+
+List of additional processes that need to be killed (other than executable and launcher).
+
+```js
+Game.KillProcessesOnClose = [ "kill", "me" ];		
+```
+
+Delete a file upon ending game session | Relative paths from root of game folder.
+
+```js
+Game.DeleteOnClose = ["DeleteThis.exe"]; 		
+```
+
+Use a Direct X wrapper to try and force DirectX 9 games to run windowed.
+
+```js
+Game.UseDirectX9Wrapper = false;			
+```
+
+Launch a game using command prompt.
+
+```js
+Game.CMDLaunch = false;					
+```
+
+Specify command line options if game is launched using command prompt | requires CMDLaunch to be true, each element is for a different instance.
+
+```js
+Game.CMDOptions = ["ops1","ops2"];			
+```
+
+When using CMDLaunch (or UseForceBindIP), specify command lines to run BEFORE the game launches in same cmd session, syntax is instance and | symbol as a delimiter and the line you want that instance to run. If you want same line to run all instances, leave out the # and | (only write the line in quotes).
+
+```js
+Game.CMDBatchBefore = [ "0|ops1", "1|ops2" ];		
+```
+
+When using CMDLaunch (or UseForceBindIP), specify command lines to run AFTER the game launches in same cmd session, syntax is instance and | symbol as a delimiter and the line you want that instance to run. If you want same line to run all instances, leave out the # and | (only write the line in quotes).
+
+```js
+Game.CMDBatchAfter = [ "0|ops1", "1|ops2" ]; 		
+```
+
+Wait for X number of seconds before proceeding with CMDBatchBefore.
+
+```js
+Game.PauseCMDBatchBefore = 10;				
+```
+
+Wait for X number of seconds before proceeding with CMDBatchAfter.
+
+```js
+Game.PauseCMDBatchAfter = 10;				
+```
+
+Game.CMDBatchClose ["cmd1", "cmd2"];			//Run command lines upon exiting Nucleus.
+When using CMDLaunch, should the game's starting arguments be inside the same quotations as the game path?
+
+```js
+Game.CMDStartArgsInside = false;			
+```
+
+Force Nucleus to treat the game as 32 or 64-bit architecture.
+
+```js
+Game.ForceGameArch = "x86" (or "x64");			
+```
+
+Explicitly disable splitscreen divisons if the game is known to be imcompatible with it.(Does not require to be true for compatible game)Default = true.
+
+```js
+Game.SplitDivCompatibility = false;                     
+```
+
+## Custom prompts
+Prompt user for input, which can be then used in handlers logic
+
+This prompts user one time and applies to ALL players, unless a value text file already exists and saving is on.
+
+```js
+Game.CustomUserGeneralPrompts = ["Enter ROM name", "Enter filename"];	
+```
+
+No documentation yet
+
+```js
+Game.SaveCustomUserGeneralValues = false; 
+```
+
+No documentation yet
+
+```js
+Game.SaveAndEditCustomUserGeneralValues = false; 
+```
+
+This will prompt each player, unless a value text file already exists for that player and saving for players is on.
+
+```js
+Game.CustomUserPlayerPrompts = ["Enter network Adapter name", "Enter character name"];	
+```
+
+No documentation yet
+
+```js
+Game.SaveCustomUserPlayerValues = false; 
+```
+
+No documentation yet
+
+```js
+Game.SaveAndEditCustomUserPlayerValues = false; 
+```
+
+This will prompt each instance, unless a value text file already exists for that instance and save is on. In case it is not player specific but different values are needed for instances.
+
+```js
+Game.CustomUserInstancePrompts = ["Enter network Adapter name"];	
+```
+
+No documentation yet
+
+```js
+Game.SaveCustomUserInstanceValues = false; 
+```
+
+No documentation yet
+
+```js
+Game.SaveAndEditCustomUserInstanceValues = false; 
+```
+
+Access the user input values via `Context.CustomUser(General/Player/Instance)Values[index]`
+
+## Support for multiple mice and keyboards
+
+These options are deprecated, see the new [Proto Input guide](../docs/protoinput.md)
+
+```js
+Game.SupportsMultipleKeyboardsAndMice = true;
+Game.SendNormalMouseInput = true;
+Game.SendNormalKeyboardInput = true;
+Game.ForwardRawKeyboardInput = false;
+Game.ForwardRawMouseInput = false;
+Game.SendScrollWheel = false;
+Game.DrawFakeMouseCursor = true;
+Game.DrawFakeMouseForControllers = false;
+Game.HookFilterRawInput = false;
+Game.HookFilterMouseMessages = false;
+Game.HookGetCursorPos = true;
+Game.HookSetCursorPos = true;
+Game.HookUseLegacyInput = false;
+Game.HookDontUpdateLegacyInMouseMsg = false;
+Game.HookGetKeyState = false;
+Game.HookGetAsyncKeyState = true;
+Game.HookGetKeyboardState = false;
+Game.HookMouseVisibility = false;
+Game.LockInputAtStart = true;
+Game.LockInputToggleKey = 0x23;				//See https://docs.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes
+Game.HookReRegisterRawInput = false;			//Re-register raw input from directly within game process | Recommended to disable forwarding input while using this
+Game.HookReRegisterRawInputMouse = true;		
+Game.HookReRegisterRawInputKeyboard = true;
+Game.UpdateFakeMouseWithInternalInput = false;
+```
+
+## Path variables
+
+Path to the source game root folder.
+
+```js
+Context.RootInstallFolder                                   
+```
+
+Path to the Nucleus Co-op root folder (Nucleus-Coop\).
+
+```js
+Context.NucleusFolder                                       
+```
+
+Path to the Nucleus Co-op handlers root folder (Nucleus-Coop\handlers).
+
+```js
+Context.ScriptFolder					    
+```
+
+Path to the game handler folder (Nucleus-Coop\handlers\handler_folder).
+
+```js
+Game.Folder
+``` 
+
+Path to the Nucleus Co-op current instance root folder (Nucleus-Coop\content\GUID\Instance#).
+
+```js
+Context.GetFolder(Nucleus.Folder.InstancedGameFolder)
+```
+
+Path to current players Nucleus environment.
+
+```js
+Context.EnvironmentPlayer				    
+```
+
+Path to Nucleus environment root folder.
+
+```js
+Context.EnvironmentRoot					    
+```
+
+Relative path from user profile to game's config path | requires Game.UserProfileConfigPath be set.
+
+```js
+Context.UserProfileConfigPath				    
+```
+
+Relative path from user profile to game's save path | requires Game.UserProfileSavePath be set.
+
+```js
+Context.UserProfileSavePath				    
+```
+
+Path to current players Nucleus documents environment.
+
+```js
+Context.DocumentsPlayer                                     
+```
+
+Path to Nucleus documents environment root folder.
+
+```js
+Context.DocumentsRoot                                       
+```
+
+Relative path from user profile to game's config path | requires Game.DocumentsConfigPath be set.
+
+```js
+Context.DocumentsConfigPath                                 
+```
+
+Relative path from user profile to game's save path | requires Game.DocumentsSavePath be set.
+
+```js
+Context.DocumentsSavePath                                   
+```
+
+Path to current players Nucleus environment Windows User root folder.
+
+```js
+Context.NucleusUserRoot                                     
+```
+
+return "NucleusCo-op\handlers" path.
+
+```js
+Context.HandlersFolder                                      
+```
+
+Edit an XML element (previously only nodes and attributes).
+
+```js
+Context.ChangeXmlNodeInnerTextValue(string path, string nodeName, string newValue)
+```
+
+Replace an entire line; for string array use the format: "lineNum|newValue", the | is required.
+
+```js
+Context.ReplaceLinesInTextFile(string path, string[] lineNumAndnewValues)
+```
+
+Partially replace a line; for string array use the format: "lineNum|Regex pattern|newValue", the | is required.
+
+```js
+Context.ReplacePartialLinesInTextFile(string path, string[] lineNumRegPtrnAndNewValues)
+```
+
+Removes a given line number completely.
+
+```js
+Context.RemoveLineInTextFile(string path, int lineNum)
+```
+
+Removes a given line number completely.
+
+```js
+Context.RemoveLineInTextFile(string path, string txtInLine, SearchType type)
+```
+
+Returns a line number (int), utilizes a newly created enum SearchType.
+
+```js
+Context.FindLineNumberInTextFile(string path, string searchValue, SearchType type)
+```
+
+<Callout type="note">
+
+```js
+Context.ChangeXmlNodeInnerTextValue(string path, string nodeName, string newValue)
+Context.ReplaceLinesInTextFile(string path, string[] lineNumAndnewValues)
+Context.ReplacePartialLinesInTextFile(string path, string[] lineNumRegPtrnAndNewValues)	
+Context.RemoveLineInTextFile(string path, int lineNum)
+Context.RemoveLineInTextFile(string path, string txtInLine, SearchType type)
+Context.FindLineNumberInTextFile(string path, string searchValue, SearchType type)
+```
+Each of the above methods, also have an overload method so you can specify a kind of encoding to use (enter string of encoding as last parameter, e.g. "utf-8", "utf-16", "us-ascii").
+  - SearchTypes include: "Contains", "Full" and "StartsWith", use like so: Nucleus.SearchType.StartsWith.
+
+</Callout>
+
+Create a registry key for current user, baseKey can either be "HKEY_LOCAL_MACHINE" or "HKEY_CURRENT_USER".
+
+```js
+Context.CreateRegKey(string baseKey, string sKey, string subKey)
+```
+
+Delete a registry key for current user, baseKey can either be "HKEY_LOCAL_MACHINE" or "HKEY_CURRENT_USER".
+
+```js
+Context.DeleteRegKey(string baseKey, string sKey, string subKey)
+```
+
+Edit a registry key for current user, baseKey can either be "HKEY_LOCAL_MACHINE" or "HKEY_CURRENT_USER".
+EditRegKey uses a custom registry data type to use, by using `Nucleus.RegType.DWord` for example. The last word can be of the same name of RegistryValueKind enum.
+
+```js
+Context.EditRegKey(string baseKey, string sKey, string name, object data, RegType type)
+```
+
+Edit a registry key for current user without Nucleus creating a backup of the registry or before it creates one. Must be placed before any "Context.EditRegKey" line in handler for it to work.
+
+```js
+Context.EditRegKeyNoBackup
+```
+
+Use this in a game handler to get the player's nickname
+
+```js
+Context.Nickname										
+```
+
+Can be use to edit NemirtingasEpicEmu.json
+Can be use in start argument to setup user Epic language parameter
+ex: Context.StartArguments = ' -AlwaysFocus -nosplash -nomoviestartup -nomouse' + Context.EpicLang; (if Epic Language is set to "en" return => "-epiclocale=en", Should not be necessary in most cases)
+
+```js
+Context.EpicLang                                                                                
+```
+
+Get the raw gamepad guid
+
+```js
+Context.GamepadGuid                                                                             
+```
+
+Can be use to edit NemirtingasGalaxyEmu.json from handlers
+
+```js
+Context.GogLang                                                                                 
+```
+
+Useful to make sure that controllers are correctly assigned to the player they are meant to be assigned.
+
+```js
+Context.GamepadId										
+```
+
+Get the x360ce formatted gamepad guid.
+
+```js
+Context.x360ceGamepadGuid									
+```
+
+Local IP address of the computer.
+
+```js
+Context.LocalIP											
+```
+
+Kill processes matching a given process name during preperation.
+
+```js
+Context.KillProcessesMatchingProcessName(string name)
+```
+
+Kill processes matching a given window name during preperation.
+
+```js
+Context.KillProcessesMatchingWindowName(string name)
+```
+
+True if current player is using keyboard, useful for logic that is needed for keyboard only player.
+
+```js
+Context.IsKeyboardPlayer									
+```
+
+Player monitor's height.
+
+```js
+Context.OrigHeight										
+```
+
+Player monitor's width.
+
+```js
+Context.OrigWidth										
+```
+
+Player monitor's aspect ratio (e.g. 16:9).
+
+```js
+Context.OrigAspectRatio										
+```
+
+Player monitor's aspect ratio in decimal (e.g. 1.777777).
+
+```js
+Context.OrigAspectRatioDecimal									
+```
+
+Player's aspect ratio (e.g. 16:9).
+
+```js
+Context.AspectRatio										
+```
+
+Player's aspect ratio in decimal (e.g. 1777777).
+
+```js
+Context.AspectRatioDecimal									
+```
+
+Return a string array of filenames (and their paths) found that match a pattern you specify.
+
+```js
+Context.FindFiles(string rootFolder, string fileName)
+```
+
+Change the creation date of a file.
+
+```js
+Context.CreatedDate(string file, int year, int month, int day)
+```
+
+Change the last modified date of a file.
+
+```js
+Context.ModifiedDate(string file, int year, int month, int day)
+```
+
+Specify additional files to run before launching game. By default will run each additional file once but can specify to run during specific player's instances by prefixing the filepath with #|. Replace # with player number. Can also specify to run files for each player by prefixing filepath with "all|". "bool confirm" will only run the file after clicking "Ok" in the prompt.
+
+```js
+Context.RunAdditionalFiles(string[] filePaths, bool changeWorkingDir, string customText, int secondsToPauseInbetween, bool showFilePath, bool runAsAdmin, bool promptBetween,bool confirm)
+```
+
+Return the value of a provided key as a string.
+```js
+Context.ReadRegKey(string baseKey, string sKey, string subKey)
+```
+
+```js
+Context.HandlerGUID
+```
+
+Set launch(start) arguments for the exe from within the Game.Play() function
+
+```js
+Context.StartArguments = "";
+```
+
+```js
+Context.NumberOfPlayers
+```
+
+```js
+Context.CopyScriptFolder 
+```
+
+```js
+Context.HexEdit
+```
+
+```js
+Context.PatchFileFindAll 
+```
+
+```js
+Context.MoveFolder 
+```
+
+```js
+Context.CopyScriptFolder(string DestinationPath)
+```
+
+```js
+Context.RandomInt(int min, int max)
+```
+
+```js
+Context.RandomString(int size, bool lowerCase = false)
+```
+
+```js
+Context.ConvertToInt()
+```
+
+```js
+Context.ConvertToString()
+```
+
+```js
+Context.ConvertToBytes()
+```
+
+```js
+Context.GCD(int a, int b)
+```
+
+```js
+Context.Arch
+```
+
+```js
+Context.PosX
+```
+
+```js
+Context.PosY
+```
+
+```js
+Context.MonitorWidth
+```
+
+```js
+Context.MonitorHeight
+```
+
+```js
+Context.Log()
+```
+
+```js
+Context.ProcessID
+```
+
+```js
+Context.HasKeyboardPlayer
+```
+
+## Other useful lines
+```js
+System.IO.File.Delete("FileToDelete");                      //Delete the specified file.
+System.IO.File.Copy("SourceFile", "DestinationFile", true); //Copy the specified "SourceFile" to the "DestinationFile" path. You can uses a different name on the DestinationFile to rename the file. The true in the end specify to overwrite, if found, the existing file with the same name.
+System.IO.File.Move("SourceFile", "DestinationFile", true); //Move the specified "SourceFile" to the "DestinationFile" path. You can uses a different name on the DestinationFile to rename the file. The true in the end specify to overwrite, if found, the existing file with the same name.
+var OneFolderUP = System.IO.Path.Combine(Path goes here, ".."); // The variable OneFolderUP will return a folder UP of the specified path. Example: var OneFolderUP = System.IO.Path.Combine(Game.Folder, "..");
+var TwoFolderUP = System.IO.Path.Combine(Path goes here, "..", ".."); // The variable TwoFolderUP will return a folder UP of the specified path. Example: var OneFolderUP = System.IO.Path.Combine(Game.Folder, "..", "..");
+var OneFolderUP = System.IO.Directory.GetParent("SourceDirectory"); // The variable OneFolderUP will return a folder UP of the specified path ("SourceDirectory").
+
+4. CMD Launch Environment Variables (used with CMDBatchBefore and CMDBatchAfter)
+%NUCLEUS_EXE% 			= Exe filename (e.g. Halo.exe).
+%NUCLEUS_INST_EXE_FOLDER% 	= Path the instance exe resides in (e.g. C:\Nucleus\content\Halo\Instance0\Binaries).
+%NUCLEUS_INST_FOLDER% 		= Path of the instance folder (e.g. C:\Nucleus\content\Halo\Instance0\).
+%NUCLEUS_FOLDER%		= Path where Nucleus Coop is being ran from (e.g. C:\Nucleus).
+%NUCLEUS_ORIG_EXE_FOLDER%	= Path the original exe resides in (e.g. C:\Program Files\Halo\Binaries).
+%NUCLEUS_ORIG_FOLDER%		= Path of the "root" original folder (e.g. C:\Proggram Files\Halo).
+
+5. New Player variables
+Player.Nickname
+Player.HIDDeviceID
+Player.RawHID
+Player.SID
+Player.Adapter
+Player.UserProfile
+```
+
+## Known Issues
+- Force feedback does not work with Nucleus custom dlls.
+- PreventWindowDeactivation will prevent mouse and keyboard input on instances using this hook (and may have other adverse effects).
+- Status Window may cause Nucleus to crash every now and then.
+
+\- Originally written by [Talos91](https://github.com/Talos910). Reformatted by [Snailedlt](https://github.com/Snailedlt).

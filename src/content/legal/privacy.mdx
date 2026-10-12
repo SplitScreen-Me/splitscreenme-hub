@@ -1,0 +1,105 @@
+export const meta = {
+  title: 'Privacy policy',
+  description:
+    'What SplitScreen.Me keeps about you, why, for how long, and how to see it, take it with you or delete it. Short version: as little as we can, no ads, no trackers.',
+  updated: '2026-10-12',
+};
+
+## The short version
+
+- **No ads, no analytics, no trackers.** We don't sell or share data for marketing, and we don't use third-party
+  cookies.
+- **Browsing, downloading and using the API need no account.** We only keep what we need to run the site, count
+  downloads fairly and stop abuse, and IP addresses are never stored as they are.
+- **With an account**, we keep your username, your email address, a hash of your password (or the id of the
+  Discord, GitHub or Google account you sign in with), your sessions, and what you publish.
+- **You can export your data and delete your account** at any time from your [account page](/account).
+
+## Who is responsible
+
+SplitScreen.Me, a community project run by volunteers, is the controller of the personal data described here. The
+publisher and the contact address are on the [legal notice](/legal/notice). For anything about your data, write to
+<Placeholder>privacy contact address</Placeholder>.
+
+## When you browse
+
+| What | Why | How long |
+|---|---|---|
+| Technical logs: page, status, response time, a request id | Run and debug the site | <Placeholder>log retention, e.g. 14 days</Placeholder> |
+| Your IP address, in memory only | Rate limits against abuse (logins, comments, downloads) | Minutes, never written to disk |
+| A keyed hash of your IP address, the handler and the day | Count a download once per person and per day | 48 hours |
+
+The logs never contain IP addresses, cookies, passwords or email addresses. A keyed hash (HMAC) can't be turned back
+into an address, and the key never leaves the server.
+
+### Images and videos from other sites
+
+Game covers and screenshots load from IGDB (`images.igdb.com`) and Steam (`steamstatic.com`): your browser asks
+them for the images, so they see your IP address, like for any image on the web. Videos in the docs only load from
+YouTube (`youtube-nocookie.com`) when you click on them.
+
+## When you have an account
+
+| What | Why | How long |
+|---|---|---|
+| Username, email address, sign-up date, whether your email is verified | Your account, sign-in, password resets, reply notifications | Until you delete the account |
+| A hash of your password (bcrypt) | Sign-in. We never see or keep the password itself | Until you change it or delete the account |
+| For Discord, GitHub or Google sign-in: the provider's account id, and your username there (Discord, GitHub) | Sign-in, linking accounts | Until you unlink it or delete the account |
+| Sessions: a hash of the session token, dates, your browser's user agent (shortened) | Keep you signed in, show you your sessions | 30 days after your last visit, or until you sign out |
+| Verification and reset links (hashed) | Confirm your email, reset your password | 1 to 48 hours, deleted a week later |
+| Your role, and a ban reason if a moderator banned you | Moderation | Until you delete the account |
+| Moderation log: actions on accounts and content, with a keyed hash of the IP address | Security and accountability | 2 years |
+
+Sign-in providers only tell us what's listed above. We never receive your password there, and we don't keep their
+access tokens.
+
+## What you publish
+
+Handlers, versions, descriptions, comments and stars are what the hub is made of. Your username, your handlers,
+your comments and your sign-up date are **public**. Reports you send to the moderators are not public; when you
+report without being signed in, we keep a keyed hash of your IP address to stop duplicate reports, and clear it 30
+days after the report is closed.
+
+## Emails
+
+We send emails only for your account: address verification, password resets, a change of email address, and
+replies to your comments (you can turn those off in your account). <Placeholder>email provider</Placeholder> sends
+them for us.
+
+## Cookies
+
+Only the ones the site needs to work, so there is no cookie banner:
+
+| Cookie | What for | Lifetime |
+|---|---|---|
+| `__Host-ssm_session` | Keeps you signed in | 30 days, renewed while you use the site |
+| `__Host-ssm_oauth` | Protects a Discord, GitHub or Google sign-in while it happens | 10 minutes |
+
+No cookie is set while you're not signed in or signing in.
+
+## Deleting your account
+
+From your [account page](/account). We then delete your sessions, linked sign-in accounts, pending links and
+stars, remove your email address and password, replace your username with `deleted-` and a few characters, and
+erase the text of your comments. Handlers you published stay on the hub, shown as made by "Deleted user", because
+players rely on them; ask us if you want them removed too. Moderation log entries are kept for their 2 years.
+
+## Your rights
+
+You can access your data, correct it, take a copy of it,
+delete it, object to or restrict how we use it. The export on your account page gives you a copy, and most of the rest you can do there too; for
+anything else, write to the address above. We answer within a month. You can also complain to your data protection
+authority.
+
+**Legal bases**: running your account and the hub is the service you ask for (contract); security logs, abuse
+prevention and download counting are our legitimate interest in keeping the hub reliable and fair.
+
+**Where**: the site and its data are hosted by <Placeholder>hosting provider and country</Placeholder>.
+
+**Age**: to create an account you must be old enough to agree to this processing in your country (between 13 and 16
+depending on the country), or have a parent's permission.
+
+## Changes
+
+When this policy changes in a way that matters, we say so on the site and, for account holders, by email before it
+applies. The date at the bottom of this page is the date of the last change.

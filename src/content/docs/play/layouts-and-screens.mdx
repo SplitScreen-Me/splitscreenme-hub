@@ -1,0 +1,74 @@
+export const meta = {
+  title: 'Layouts and screens',
+  description:
+    'Split one TV two, four, six, eight or sixteen ways, give three players a fair share, build a custom grid, or give every player their own monitor.',
+  updated: '2026-10-12',
+};
+
+In the lobby, every monitor connected to your PC appears as a screen, with its resolution. Each screen has its own
+layout, and players can be spread over several screens.
+
+## Layouts
+
+Pick a layout with the buttons under a screen:
+
+| Layout | Players on that screen |
+|---|---|
+| Full screen | 1 |
+| Top and bottom | 2, one above the other |
+| Side by side | 2, left and right |
+| 2 × 2 | 4 |
+| **More ›** Six players | 6, in 2 rows and 3 columns |
+| **More ›** Eight players | 8, in 2 rows and 4 columns |
+| **More ›** Sixteen players | 16, in 4 rows and 4 columns |
+| **More ›** Custom grid | The rows and columns set in **Settings › Layout** |
+| **More ›** Manual | Players dropped anywhere on the screen |
+
+Side by side gives each player a tall window, top and bottom a wide one. Wide windows suit most games better,
+since games are made for wide screens.
+
+## Three players (or five, or seven)
+
+With three players on a 2 × 2 layout, one place stays empty. Give that space to a player with the grow button next
+to their name in the side panel ("Grow over the free neighbouring places"): their window stretches over the free
+place, so one player gets half of the screen and the others a quarter each. The same button shrinks it back.
+
+For finer control, select a player's place and press <Kbd>R</Kbd> (**X** on a controller) to resize it: the arrows
+move a corner, <Kbd>X</Kbd> switches to the other corner, and <Kbd>Enter</Kbd> (**A**) is done.
+
+## Custom grid
+
+**Settings › Layout** sets the custom grid: the number of horizontal and vertical divisions. For example two
+vertical divisions and one horizontal give a grid of 3 columns and 2 rows, so 6 places. Then choose
+**More › Custom grid** under a screen. Profiles keep their own copy of these settings.
+
+## Manual
+
+**More › Manual** lets you drop each player anywhere on the screen and resize their window freely. Use it for
+unusual screens or for a big main view with smaller side windows.
+
+## Several monitors
+
+Drag players onto the screen you want them on. Some setups that work well:
+
+- **One player per monitor**: full screen on each.
+- **A TV and a monitor**: two players top and bottom on the TV, one on the monitor.
+- **Two monitors, four players**: side by side on each monitor.
+
+Keep the same display scaling on all monitors, ideally 100 %.
+
+## Behind the windows
+
+Some games can't fill their place exactly (fixed aspect ratios, minimum sizes). In **Settings › Layout**:
+
+- **Split-screen division** fills the screen behind the game windows with a colour (black by default), so the
+  desktop never shows through. **Hide desktop only** shows that background without resizing or moving the windows.
+- **Cutscenes mode** (<Kbd>Ctrl</Kbd>+<Kbd>M</Kbd>) is for the moments a game plays a cutscene in every window:
+  it can mute the other windows, keep their size, or unfocus them.
+- **Windows merger** shows every copy in one window, which lets an upscaler such as Lossless Scaling work on the
+  whole split screen. It doesn't support several monitors yet.
+
+<Kbd>Ctrl</Kbd>+<Kbd>R</Kbd> puts the windows back in place if a game moves or resizes its window during the
+session, and <Kbd>Ctrl</Kbd>+<Kbd>N</Kbd> switches the layout while you play.
+
+Windows look stretched or blurry? See [Performance](/doc/troubleshooting/performance#stretched-or-blurry-windows).

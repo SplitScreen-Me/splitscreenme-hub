@@ -1,0 +1,728 @@
+/* Docs: the sidebar pane, the article pane, the "On this page" rail, and the MDX components.
+ * Bezel rules: chrome is monochrome; player colours never appear here; status tints only on callout edges.
+ * In the utilities layer on purpose: @tailwindcss/typography puts .prose there, and these rules refine it. */
+@layer utilities {
+  /* ---------- Frame ---------- */
+  .docs {
+    display: grid;
+    grid-template-columns: 276px minmax(0, 1fr);
+    gap: var(--gutter);
+    align-items: start;
+  }
+  .docs.has-rail {
+    grid-template-columns: 276px minmax(0, 1fr) 236px;
+  }
+  .docs-side,
+  .docs-rail {
+    position: sticky;
+    top: var(--gutter);
+    max-height: calc(100dvh - 2 * var(--gutter));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  .docs-side {
+    display: grid;
+    gap: var(--space-5);
+    align-content: start;
+    padding: var(--space-5) var(--space-4) var(--space-5);
+  }
+  .docs-rail {
+    padding: var(--space-6) var(--space-5);
+  }
+  .docs-main {
+    min-width: 0;
+    display: grid;
+    gap: var(--gutter);
+  }
+  .docs-mobile-nav {
+    display: none;
+  }
+
+  .doc-side-title {
+    margin: 0 0 var(--space-2);
+    padding: 0 10px;
+    font-size: var(--t-micro);
+    font-weight: 650;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+
+  /* ---------- Nav ---------- */
+  .doc-nav {
+    display: grid;
+    gap: var(--space-5);
+  }
+  .doc-nav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 1px;
+  }
+  .doc-nav a {
+    position: relative;
+    display: block;
+    padding: 6px 10px;
+    border-radius: var(--r-ctl);
+    color: var(--ink-2);
+    font-size: 0.90625rem;
+    line-height: 1.35;
+    text-decoration: none;
+  }
+  .doc-nav a:hover {
+    color: var(--ink);
+    background: var(--pane-2);
+  }
+  .doc-nav a[aria-current='page'] {
+    color: var(--ink);
+    background: var(--pane-3);
+    font-weight: 600;
+  }
+  .doc-side-help {
+    padding: var(--space-4);
+    border-radius: var(--r-ctl);
+    background: var(--pane-2);
+    font-size: var(--t-small);
+    color: var(--ink-2);
+  }
+  .doc-side-help p {
+    margin: 0 0 var(--space-2);
+  }
+  .doc-side-help a {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--ink);
+    font-weight: 650;
+    text-decoration: none;
+  }
+  .doc-side-help a:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .doc-side-help .i {
+    width: 18px;
+    height: 18px;
+  }
+
+  /* ---------- Search ---------- */
+  .docs-search {
+    position: relative;
+    min-width: 0;
+  }
+  .docs-search input {
+    width: 100%;
+  }
+  .docs-search .field {
+    height: 40px;
+  }
+  .docs-search input::-webkit-search-cancel-button {
+    filter: invert(1);
+    opacity: 0.5;
+  }
+  .docs-search-key {
+    font-size: 0.6875rem;
+    min-width: 0;
+    white-space: nowrap;
+  }
+  /* In the flow of the sidebar (which scrolls and clips): results push the nav down while searching. */
+  .docs-search-panel {
+    margin-top: var(--space-2);
+    max-height: min(65vh, 560px);
+    overflow-y: auto;
+    padding: var(--space-1);
+    border-radius: var(--r-ctl);
+    background: var(--pane-2);
+    box-shadow: 0 0 0 1px var(--line-strong);
+  }
+  .docs-search-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .docs-search-hit a,
+  .doc-results a {
+    display: grid;
+    gap: 2px;
+    padding: 10px 12px;
+    border-radius: 6px;
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .docs-search-hit[aria-selected='true'] a,
+  .docs-search-hit a:hover,
+  .doc-results a:hover {
+    background: var(--pane-3);
+  }
+  .docs-search-where {
+    font-size: var(--t-micro);
+    color: var(--ink-3);
+    font-weight: 600;
+  }
+  .docs-search-title {
+    font-weight: 650;
+    font-size: 0.9375rem;
+  }
+  .docs-search-excerpt {
+    font-size: var(--t-small);
+    color: var(--ink-2);
+    line-height: 1.45;
+  }
+  .docs-search-note {
+    margin: 0;
+    padding: 8px 12px;
+    font-size: var(--t-micro);
+    color: var(--ink-3);
+  }
+  .docs-search mark,
+  .doc-results mark {
+    background: none;
+    color: var(--ink);
+    font-weight: 750;
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 3px;
+  }
+  .doc-results {
+    list-style: none;
+    margin: var(--space-6) 0 0;
+    padding: 0;
+    display: grid;
+    gap: var(--space-1);
+    max-width: 78ch;
+  }
+  .doc-results-title {
+    font-weight: 680;
+    font-size: 1.0625rem;
+  }
+
+  /* ---------- Article ---------- */
+  .doc-article {
+    padding: var(--space-7) clamp(var(--space-4), 4.5vw, 72px) var(--space-6);
+    min-width: 0;
+  }
+  .doc-head {
+    max-width: 76ch;
+    margin-bottom: var(--space-6);
+  }
+  .doc-head .breadcrumbs {
+    margin-bottom: var(--space-4);
+  }
+  .doc-title {
+    max-width: 22ch;
+  }
+  .doc-lede {
+    margin: var(--space-4) 0 0;
+  }
+
+  .doc-prose {
+    max-width: 76ch;
+    font-size: 1.0rem;
+    line-height: 1.7;
+  }
+  .doc-prose > :first-child {
+    margin-top: 0;
+  }
+  .doc-prose :is(h2, h3, h4) {
+    scroll-margin-top: var(--space-4);
+    letter-spacing: -0.01em;
+  }
+  .doc-prose h2 {
+    font-size: 1.625rem;
+    font-stretch: 112%;
+    font-weight: 740;
+    margin-top: 2.1em;
+    padding-top: 0.2em;
+  }
+  .doc-prose h3 {
+    font-size: 1.1875rem;
+    font-weight: 680;
+    margin-top: 1.8em;
+  }
+  .doc-prose h4 {
+    font-size: 1rem;
+    font-weight: 680;
+  }
+  .doc-prose :is(h2, h3, h4) > a {
+    color: inherit;
+    text-decoration: none;
+    font-weight: inherit;
+  }
+  .doc-prose :is(h2, h3, h4) > a:hover {
+    text-decoration: underline;
+    text-decoration-color: var(--ink-3);
+    text-underline-offset: 5px;
+  }
+  .doc-prose a:not(:where(.not-prose *)) {
+    color: var(--ink);
+    font-weight: 560;
+    text-decoration: underline;
+    text-decoration-color: color-mix(in oklab, var(--ink), transparent 55%);
+    text-underline-offset: 3px;
+  }
+  .doc-prose a:not(:where(.not-prose *)):hover {
+    text-decoration-color: var(--ink);
+  }
+  .doc-prose :is(h2, h3, h4) > a:not(:where(.not-prose *)) {
+    color: inherit;
+    text-decoration: none;
+    font-weight: inherit;
+  }
+  .doc-prose :where(code):not(:where(pre code)) {
+    padding: 0.12em 0.4em;
+    border-radius: 5px;
+    background: var(--pane-3);
+    color: var(--ink);
+    font-weight: 500;
+    font-size: 0.875em;
+    overflow-wrap: anywhere;
+  }
+  .doc-prose :where(code):not(:where(pre code))::before,
+  .doc-prose :where(code):not(:where(pre code))::after {
+    content: none;
+  }
+  /* Code wells: the black of the bezel, like a screen that is off. Shiki colours the tokens. */
+  .doc-prose pre {
+    background-color: var(--bezel) !important;
+    box-shadow: inset 0 0 0 1px var(--line);
+    border-radius: var(--r-ctl);
+    padding: var(--space-4) var(--space-5);
+    font-size: 0.8125rem;
+    line-height: 1.65;
+    overflow-x: auto;
+  }
+  .doc-prose pre code {
+    font-size: inherit;
+  }
+  .doc-prose kbd {
+    font-size: 0.75rem;
+    vertical-align: 0.1em;
+  }
+  .doc-prose hr {
+    border-color: var(--line);
+    margin: 2.5em 0;
+  }
+  .doc-prose blockquote {
+    border-left-color: var(--line-strong);
+    font-style: normal;
+    color: var(--ink-2);
+  }
+  .doc-prose blockquote p::before,
+  .doc-prose blockquote p::after {
+    content: none;
+  }
+  .doc-prose img {
+    border-radius: var(--r-ctl);
+    height: auto;
+  }
+  .doc-prose li::marker {
+    color: var(--ink-3);
+  }
+  .doc-table {
+    overflow-x: auto;
+    margin: 1.6em 0;
+    border-radius: var(--r-ctl);
+    box-shadow: inset 0 0 0 1px var(--line);
+  }
+  .doc-table table {
+    margin: 0;
+    font-size: 0.9rem;
+  }
+  .doc-table :is(th, td) {
+    padding: 10px 14px !important;
+    vertical-align: top;
+  }
+  .doc-table thead th {
+    background: var(--pane-2);
+    color: var(--ink);
+    font-weight: 650;
+  }
+
+  /* ---------- Callouts ---------- */
+  .doc-callout {
+    --tone: var(--ink-3);
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: var(--space-3);
+    margin: 1.6em 0;
+    padding: var(--space-4) var(--space-5) var(--space-4) var(--space-4);
+    border-radius: var(--r-ctl);
+    background: var(--pane-2);
+    box-shadow: inset 3px 0 0 var(--tone);
+  }
+  .doc-callout.is-tip {
+    --tone: var(--ok);
+  }
+  .doc-callout.is-warning {
+    --tone: var(--warn);
+  }
+  .doc-callout.is-danger {
+    --tone: var(--danger);
+  }
+  .doc-callout-icon {
+    width: 20px;
+    height: 20px;
+    margin-top: 3px;
+    color: var(--tone);
+  }
+  .doc-callout-body {
+    min-width: 0;
+    font-size: 0.9375rem;
+  }
+  .doc-callout-body > :last-child {
+    margin-bottom: 0;
+  }
+  .doc-callout-body > p:nth-child(2) {
+    margin-top: 0.25em;
+  }
+  .doc-prose .doc-callout-title,
+  .doc-callout-title {
+    margin: 0;
+    font-weight: 700;
+    color: var(--ink);
+  }
+
+  /* ---------- Steps ---------- */
+  .doc-steps {
+    list-style: none;
+    margin: 2em 0;
+    padding: 0;
+    counter-reset: step;
+    display: grid;
+    gap: var(--space-5);
+  }
+  .doc-step {
+    counter-increment: step;
+    display: grid;
+    grid-template-columns: 48px minmax(0, 1fr);
+    column-gap: var(--space-4);
+    padding-top: var(--space-5);
+    border-top: 1px solid var(--line);
+  }
+  .doc-step:first-child {
+    padding-top: 0;
+    border-top: 0;
+  }
+  .doc-step::before {
+    content: counter(step);
+    grid-row: span 2;
+    font-stretch: var(--wide);
+    font-weight: 820;
+    font-size: 2.25rem;
+    line-height: 1;
+    color: var(--ink-3);
+    font-variant-numeric: tabular-nums;
+  }
+  .doc-step-title {
+    margin: 0.15em 0 0.35em;
+    font-weight: 700;
+    font-size: 1.0625rem;
+    color: var(--ink);
+  }
+  .doc-step-body > :first-child {
+    margin-top: 0;
+  }
+  .doc-step-body > :last-child {
+    margin-bottom: 0;
+  }
+
+  /* ---------- Figures, video ---------- */
+  .doc-figure {
+    margin: 2em 0;
+  }
+  .doc-figure img {
+    width: 100%;
+    height: auto;
+    margin: 0;
+    border-radius: var(--r-ctl);
+    box-shadow: 0 0 0 1px var(--line);
+    background: var(--pane-2);
+  }
+  .doc-figure figcaption {
+    margin-top: var(--space-2);
+    font-size: var(--t-small);
+    color: var(--ink-3);
+  }
+  .doc-video {
+    margin: 2em 0;
+    aspect-ratio: 16 / 9;
+    border-radius: var(--r-ctl);
+    overflow: hidden;
+    background: var(--bezel);
+    box-shadow: inset 0 0 0 1px var(--line);
+  }
+  .doc-video iframe {
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+  .doc-video-play {
+    width: 100%;
+    height: 100%;
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    gap: var(--space-3);
+    border: 0;
+    background: transparent;
+    color: var(--ink);
+    text-align: center;
+  }
+  .doc-video-play > .i {
+    width: 56px;
+    height: 56px;
+    padding: 16px;
+    border-radius: 50%;
+    background: var(--ink);
+    color: var(--on-light);
+    transition: transform var(--dur-1) var(--ease-snap);
+  }
+  .doc-video-play:hover > .i {
+    transform: scale(1.06);
+  }
+  .doc-video-play > span {
+    display: grid;
+    gap: 2px;
+  }
+  .doc-video-note {
+    font-size: var(--t-micro);
+    color: var(--ink-3);
+  }
+
+  /* ---------- Cards ---------- */
+  .doc-cards {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-3);
+    margin: 1.8em 0;
+  }
+  .doc-card {
+    position: relative;
+    display: grid;
+    align-content: start;
+    gap: var(--space-2);
+    padding: var(--space-5) var(--space-5) var(--space-5);
+    border-radius: var(--r-ctl);
+    background: var(--pane-2);
+    color: var(--ink);
+    text-decoration: none;
+    transition:
+      background var(--dur-1),
+      transform var(--dur-2) var(--ease-snap);
+  }
+  .doc-card:hover {
+    background: var(--pane-3);
+    transform: translateY(-2px);
+  }
+  .doc-card-icon {
+    width: 26px;
+    height: 26px;
+    stroke-width: 1.5;
+    margin-bottom: var(--space-2);
+  }
+  .doc-card-title {
+    font-weight: 700;
+    font-size: 1.0625rem;
+    padding-right: 24px;
+  }
+  .doc-card-text {
+    color: var(--ink-2);
+    font-size: 0.9375rem;
+    line-height: 1.5;
+  }
+  .doc-card-arrow {
+    position: absolute;
+    right: var(--space-4);
+    top: var(--space-5);
+    width: 18px;
+    height: 18px;
+    color: var(--ink-3);
+  }
+
+  /* ---------- On this page ---------- */
+  .doc-toc-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 1px;
+    font-size: var(--t-small);
+  }
+  .doc-toc-list a {
+    display: block;
+    padding: 5px 10px;
+    border-radius: 6px;
+    color: var(--ink-2);
+    line-height: 1.35;
+    text-decoration: none;
+  }
+  .doc-toc-list a:hover {
+    color: var(--ink);
+    background: var(--pane-2);
+  }
+  .doc-toc-list a[aria-current='location'] {
+    color: var(--ink);
+    box-shadow: inset 2px 0 0 var(--ink);
+    border-radius: 0 6px 6px 0;
+  }
+  .doc-toc-list .is-sub a {
+    padding-left: 22px;
+    font-size: 0.8125rem;
+  }
+  .doc-toc-inline {
+    display: none;
+    max-width: 76ch;
+    margin: 0 0 var(--space-6);
+    border-radius: var(--r-ctl);
+    background: var(--pane-2);
+  }
+  .doc-toc-inline summary {
+    cursor: pointer;
+    padding: 12px 16px;
+    font-weight: 650;
+    font-size: var(--t-small);
+  }
+  .doc-toc-inline .doc-toc-list {
+    padding: 0 8px 12px;
+  }
+
+  /* ---------- Footer: updated date, prev / next ---------- */
+  .doc-foot {
+    max-width: 76ch;
+    margin-top: var(--space-7);
+    padding-top: var(--space-5);
+    border-top: 1px solid var(--line);
+    display: grid;
+    gap: var(--space-5);
+  }
+  .doc-foot > p {
+    margin: 0;
+  }
+  .doc-pager {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-3);
+  }
+  .doc-pager-link {
+    display: grid;
+    gap: 4px;
+    padding: var(--space-4) var(--space-5);
+    border-radius: var(--r-ctl);
+    background: var(--pane-2);
+    text-decoration: none;
+    color: var(--ink);
+  }
+  .doc-pager-link:hover {
+    background: var(--pane-3);
+  }
+  .doc-pager-link.is-next {
+    text-align: right;
+    justify-items: end;
+  }
+  .doc-pager-dir {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: var(--t-micro);
+    font-weight: 650;
+    color: var(--ink-3);
+  }
+  .doc-pager-dir .i {
+    width: 14px;
+    height: 14px;
+  }
+  .doc-pager-title {
+    font-weight: 680;
+  }
+
+  /* ---------- Legal pages ---------- */
+  .legal-todo {
+    padding: 0.1em 0.35em;
+    border-radius: 4px;
+    background: color-mix(in oklab, var(--warn), transparent 80%);
+    color: var(--warn);
+    font-weight: 600;
+  }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 1260px) {
+    .docs.has-rail {
+      grid-template-columns: 260px minmax(0, 1fr);
+    }
+    .docs-rail {
+      display: none;
+    }
+    .doc-toc-inline {
+      display: block;
+    }
+  }
+  @media (max-width: 900px) {
+    .docs,
+    .docs.has-rail {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .docs-side {
+      display: none;
+    }
+    .docs.legal .docs-side {
+      display: grid;
+      position: static;
+      max-height: none;
+    }
+    .docs-mobile-nav {
+      display: block;
+    }
+    .docs-mobile-nav > summary {
+      list-style: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-4) var(--space-4);
+      font-weight: 650;
+    }
+    .docs-mobile-nav > summary::-webkit-details-marker {
+      display: none;
+    }
+    .docs-mobile-nav > summary .i {
+      width: 18px;
+      height: 18px;
+      color: var(--ink-2);
+    }
+    .docs-mobile-chev {
+      margin-left: auto;
+      transition: transform var(--dur-2) var(--ease-snap);
+    }
+    .docs-mobile-nav[open] .docs-mobile-chev {
+      transform: rotate(180deg);
+    }
+    .docs-mobile-body {
+      display: grid;
+      gap: var(--space-5);
+      padding: 0 var(--space-4) var(--space-5);
+    }
+    .doc-article {
+      padding: var(--space-6) var(--space-4) var(--space-5);
+    }
+    .docs-search-key {
+      display: none;
+    }
+  }
+  @media (max-width: 640px) {
+    .doc-cards {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+  @media (max-width: 560px) {
+    .doc-pager {
+      grid-template-columns: 1fr;
+    }
+    .doc-step {
+      grid-template-columns: 34px minmax(0, 1fr);
+    }
+    .doc-step::before {
+      font-size: 1.75rem;
+    }
+  }
+}

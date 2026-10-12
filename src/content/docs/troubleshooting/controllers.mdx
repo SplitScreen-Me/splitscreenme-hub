@@ -1,0 +1,61 @@
+export const meta = {
+  title: 'Controller problems',
+  description:
+    "A controller doesn't show up, drives two windows at once, or only works in one window: the usual causes and fixes, from XInput emulation to HidHide and Steam Input.",
+  updated: '2026-10-12',
+};
+
+Most controller problems come down to one thing: the game sees a controller twice, or sees it through a system
+the handler doesn't restrict. [Controllers](/doc/play/controllers) explains the background; this page goes by
+symptom.
+
+## A controller doesn't show up
+
+- **Press and hold a button** for a second: the lobby lists a controller once it receives input. Then use
+  **Rescan** if it's still missing.
+- **Check the handler's inputs.** If the game page says the handler supports keyboards and mice only, controllers
+  won't appear. Most handlers only accept XInput (Xbox-type) controllers.
+- **PlayStation, Switch or generic controller?** Make it look like an Xbox controller with DS4Windows, XOutput or
+  x360ce 4, as explained in [Controllers](/doc/play/controllers#playstation-controllers).
+- **Keyboards and mice** only appear once you press a key or move the mouse.
+
+## One controller drives two windows
+
+Also: the camera spins on its own, buttons act twice, or the same player moves in two copies. The game sees the
+controller twice, usually as the real device plus a virtual Xbox controller.
+
+1. **Hide the real controllers with HidHide**, allowing only your emulator to see them
+   ([how](/doc/play/controllers#stop-double-input-with-hidhide)).
+2. **Turn off Steam Input** for the game, or close Steam if the handler notes allow it.
+3. **Unplug what you don't use**: racing wheels, flight sticks, drawing tablets and some headsets also show up as
+   game controllers.
+
+## A controller only works in one window
+
+- **Xbox One and Series controllers in DirectInput or older Unity games** don't send input to background windows.
+  See [the conversion steps](/doc/play/controllers#xbox-one-and-series-controllers-in-directinput-games).
+- **Several players on one controller type?** Check the handler notes: some games only accept one DirectInput
+  controller, or need an option in game.
+- **Unfocus the windows** with <Kbd>Ctrl</Kbd>+<Kbd>H</Kbd> (Guide + Y on a controller) if one window keeps the focus
+  and takes all the input.
+
+## Controllers swap places between sessions
+
+Controller numbers follow the order Windows sees them in. Join in the lobby by pressing a button rather than
+relying on the order, or turn on **Identify gamepads by slot** if you want players matched to controller numbers
+1 to 4 instead.
+
+## Many wireless controllers
+
+Bluetooth struggles with more than a few controllers at once: inputs lag or controllers drop. The Xbox Wireless
+Adapter handles up to eight Xbox controllers more reliably, and a USB cable always works.
+
+## No vibration
+
+Force feedback doesn't work in games that use Nucleus Co-op's own XInput libraries to restrict controllers.
+That's a known limit, not a broken controller.
+
+## Steam Controller
+
+The Steam Controller only works through Steam Input, which presents it as an Xbox controller. Keep Steam running,
+make sure the game doesn't also see another virtual pad for the same controller, and check the handler notes.

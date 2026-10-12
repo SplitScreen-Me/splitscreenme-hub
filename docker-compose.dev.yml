@@ -1,0 +1,40 @@
+# Local development only. `npm run db:up` starts Postgres; the Mongo service is for importer work.
+# Credentials here are local throwaways (ssm/ssm), never used anywhere else.
+name: ssm-v3-dev
+services:
+  db:
+    image: postgres:16.15-alpine3.24
+    container_name: splitscreen-v3-pg
+    restart: unless-stopped
+    shm_size: 64m
+    environment:
+      POSTGRES_DB: v3_dev
+      POSTGRES_USER: ssm
+      POSTGRES_PASSWORD: ssm
+    # Same small tuning as production, so slow queries show up locally too.
+    command: >
+      postgres -c shared_buffers=48MB -c max_connections=60 -c work_mem=2MB
+      -c maintenance_work_mem=16MB -c effective_cache_size=96MB -c jit=off
+      -c log_min_duration_statement=500
+    ports: ['127.0.0.1:5433:5432']
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      # Creates the test database on first start (v3_dev is POSTGRES_DB).
+      - ./scripts/dev-db/init.sql:/docker-entrypoint-initdb.d/10-databases.sql:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ssm -d v3_dev']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  mongo:
+    image: mongo:4.0.28
+    container_name: splitscreen-v3-mongo
+    profiles: [legacy]
+    ports: ['127.0.0.1:27018:27017']
+    volumes:
+      - mongodata:/data/db
+
+volumes:
+  pgdata: {}
+  mongodata: {}

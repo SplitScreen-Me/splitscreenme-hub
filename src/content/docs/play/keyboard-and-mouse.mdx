@@ -1,0 +1,60 @@
+export const meta = {
+  title: 'Keyboards and mice',
+  description:
+    'Play with one keyboard and mouse, or give every player their own: how they join, the End key that locks them to their windows, and how to get your cursor back.',
+  updated: '2026-10-12',
+};
+
+Keyboards and mice come in two flavours with Nucleus Co-op, and each handler says which one it supports. On the
+[hub](/hub), the game page lists it, and the catalogue in the app can filter on **Keyboard and mouse** and
+**Several keyboards**.
+
+| Handler supports | What it means |
+|---|---|
+| **Keyboard and mouse** | One player can use the PC's keyboard and mouse; everyone else uses a controller. That player plays in the window that has the focus |
+| **Several keyboards and mice** | Every player can have their own keyboard and mouse, and they can be mixed with controllers |
+
+## Joining with a keyboard and a mouse
+
+Keyboards and mice appear in the lobby once you use them: press a key, or move a mouse. A keyboard joins the next
+free place with a key press. To give that player a mouse, drag the mouse onto them; the player card then shows
+both devices.
+
+Seeing more keyboards than you plugged in? Gaming keyboards, mice with programmable buttons and laptop touchpads
+often register as several devices. Use the one that lights up when you type, and leave the others in the tray.
+
+## Locking inputs with End
+
+With several keyboards and mice, Windows still has a single cursor and a single focused window. Nucleus Co-op
+works around it once you **lock the inputs**:
+
+1. Launch, and wait until every window is in place. Don't touch the mice while windows are being placed.
+2. Press <Kbd>End</Kbd>. Each keyboard and mouse now talks to its own player's window only. The Windows cursor is
+   parked, and each window shows its own cursor when its player moves their mouse or clicks.
+3. Play.
+4. Press <Kbd>End</Kbd> again to unlock and get your normal cursor back, for example to use another program.
+
+The session screen shows whether inputs are locked, and has a **Lock inputs** button. Some handlers lock the
+inputs by themselves once every window is ready, and some hide the taskbar while inputs are locked.
+
+<Callout type="tip" title="Stuck with a locked cursor?">
+
+Press <Kbd>End</Kbd> to unlock. If that doesn't help, <Kbd>Ctrl</Kbd>+<Kbd>Q</Kbd> closes Nucleus Co-op and every
+copy of the game, and <Kbd>Ctrl</Kbd>+<Kbd>Alt</Kbd>+<Kbd>Del</Kbd> always gives you Windows back. If a game uses the
+End key itself, change the lock key in **Settings › Keyboard shortcuts**.
+
+</Callout>
+
+## Good to know
+
+- **Click once in your window** after locking if a camera keeps turning or a window ignores its mouse.
+- **The first player is often the keyboard player** in handlers that support one keyboard and mouse: check the
+  handler notes.
+- **Reminder at launch.** Nucleus explains the lock key when you launch a session with keyboards and mice. Turn
+  it off with **Settings › General › Don't remind me to lock inputs**.
+- **Not every game can do it.** Many games read the keyboard and mouse in ways that can't be split per window,
+  and some only accept one mouse for the camera. If the hub doesn't list several keyboards and mice for a game,
+  don't expect it to work.
+
+Writing a handler? The handler side is in [Proto Input](/doc/handlers/proto-input) and
+[Keyboard and mouse support](/doc/handlers/keyboard-and-mouse).

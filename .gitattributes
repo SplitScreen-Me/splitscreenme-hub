@@ -1,0 +1,6 @@
+# Keep LF everywhere (scripts run in Linux containers; Prettier expects LF).
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.woff2 binary
+*.ico binary

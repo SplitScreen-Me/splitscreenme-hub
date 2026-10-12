@@ -1,0 +1,596 @@
+/* Bezel base and shared components, ported from the Bezel mockups (base.css) (base + components)
+ * and web/web.css (site chrome). Plain CSS classes in Tailwind layers: React components in
+ * src/components/ui wrap them, pages can mix them with Tailwind utilities.
+ */
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    margin: 0;
+    background: var(--bezel);
+    color: var(--ink);
+    font-family: var(--font);
+    font-size: var(--t-body);
+    line-height: 1.55;
+    font-stretch: var(--normal);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  img,
+  svg,
+  video {
+    display: block;
+    max-width: 100%;
+  }
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+    color: inherit;
+  }
+  button {
+    cursor: pointer;
+  }
+  a {
+    color: inherit;
+  }
+  p {
+    margin: 0 0 1em;
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    margin: 0;
+    line-height: 1.05;
+    font-weight: 750;
+  }
+  ::selection {
+    background: var(--ink);
+    color: var(--on-light);
+  }
+
+  /* Focus is a white frame, like a console highlight. Always visible for keyboard and gamepad. */
+  :focus-visible {
+    outline: 2px solid var(--ink);
+    outline-offset: 3px;
+    border-radius: var(--r-ctl);
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+  }
+}
+
+@layer components {
+  /* ---------- Type ---------- */
+  .display {
+    font-size: var(--t-display);
+    font-stretch: var(--wide);
+    font-weight: 820;
+    line-height: 0.94;
+    letter-spacing: -0.025em;
+    text-wrap: balance;
+  }
+  .h1 {
+    font-size: var(--t-h1);
+    font-stretch: var(--wide);
+    font-weight: 780;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+  .h2 {
+    font-size: var(--t-h2);
+    font-stretch: 112%;
+    font-weight: 740;
+    letter-spacing: -0.015em;
+    text-wrap: balance;
+  }
+  .h3 {
+    font-size: var(--t-h3);
+    font-weight: 680;
+  }
+  .lede {
+    font-size: 1.1875rem;
+    line-height: 1.5;
+    color: var(--ink-2);
+    max-width: 58ch;
+  }
+  .muted {
+    color: var(--ink-2);
+  }
+  .faint {
+    color: var(--ink-3);
+  }
+  .small {
+    font-size: var(--t-small);
+  }
+  .micro {
+    font-size: var(--t-micro);
+  }
+  /* Data voice: condensed, tabular. Used for numbers and compact facts, never for prose. */
+  .data {
+    font-stretch: var(--narrow);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.005em;
+  }
+  .num {
+    font-variant-numeric: tabular-nums;
+  }
+  code,
+  kbd,
+  pre {
+    font-family: var(--font-code);
+    font-size: 0.875em;
+  }
+
+  /* ---------- Logo ---------- */
+  .logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: var(--ink);
+  }
+  .logo svg {
+    width: 28px;
+    height: 28px;
+    flex: none;
+  }
+  .logo .wordmark {
+    font-stretch: var(--wide);
+    font-weight: 800;
+    font-size: 1.0625rem;
+    letter-spacing: -0.02em;
+  }
+  .logo .wordmark span {
+    color: var(--ink-3);
+  }
+
+  /* ---------- Panes: the core surface ---------- */
+  .pane {
+    background: var(--pane);
+    border-radius: var(--r-pane);
+    position: relative;
+    overflow: hidden;
+  }
+  .pane-2 {
+    background: var(--pane-2);
+  }
+  /* A split container: children are panes, black gutter shows between them. */
+  .split {
+    display: grid;
+    gap: var(--gutter);
+  }
+
+  /* ---------- Buttons ---------- */
+  .btn {
+    --btn-bg: var(--pane-3);
+    --btn-fg: var(--ink);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 44px;
+    padding: 0 20px;
+    border: 0;
+    border-radius: var(--r-ctl);
+    background: var(--btn-bg);
+    color: var(--btn-fg);
+    font-weight: 650;
+    font-size: 0.9375rem;
+    text-decoration: none;
+    white-space: nowrap;
+    transition:
+      transform var(--dur-1) var(--ease-snap),
+      background var(--dur-1),
+      box-shadow var(--dur-1);
+  }
+  .btn:hover {
+    background: color-mix(in oklab, var(--btn-bg), white 10%);
+  }
+  .btn:active {
+    transform: translateY(1px) scale(0.99);
+  }
+  .btn svg {
+    width: 18px;
+    height: 18px;
+    flex: none;
+  }
+  /* Primary: the brightest thing on screen is the thing you press. */
+  .btn-primary {
+    --btn-bg: var(--ink);
+    --btn-fg: var(--on-light);
+  }
+  .btn-primary:hover {
+    background: #ffffff;
+    box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.14);
+  }
+  .btn-ghost {
+    --btn-bg: transparent;
+    box-shadow: inset 0 0 0 1px var(--line-strong);
+  }
+  .btn-ghost:hover {
+    background: var(--pane-2);
+  }
+  .btn-lg {
+    min-height: 56px;
+    padding: 0 28px;
+    font-size: 1.0625rem;
+    border-radius: 10px;
+  }
+  .btn-sm {
+    min-height: 34px;
+    padding: 0 14px;
+    font-size: 0.875rem;
+  }
+  .btn-icon {
+    padding: 0;
+    width: 40px;
+    min-height: 40px;
+  }
+  .btn-danger {
+    --btn-bg: transparent;
+    --btn-fg: var(--danger);
+    box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--danger), transparent 55%);
+  }
+
+  /* ---------- Player tag ---------- */
+  .ptag {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 30px;
+    height: 22px;
+    padding: 0 7px;
+    border-radius: 6px;
+    background: var(--pc, var(--ink-3));
+    color: var(--on-light);
+    font-stretch: var(--narrow);
+    font-weight: 800;
+    font-size: 0.8125rem;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .ptag.is-outline {
+    background: transparent;
+    color: var(--pc);
+    box-shadow: inset 0 0 0 1.5px var(--pc);
+  }
+  /* Player LED: the light a device shows when it belongs to someone. */
+  .led {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--pc, var(--ink-3));
+    flex: none;
+  }
+  .led.is-live {
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--pc, var(--ink)), transparent 70%);
+  }
+
+  /* ---------- Chips (filters, toggles) ---------- */
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 34px;
+    padding: 0 14px;
+    border-radius: var(--r-tag);
+    border: 0;
+    background: var(--pane-2);
+    color: var(--ink-2);
+    font-size: 0.875rem;
+    font-weight: 560;
+    text-decoration: none;
+    white-space: nowrap;
+    transition:
+      background var(--dur-1),
+      color var(--dur-1);
+  }
+  .chip:hover {
+    color: var(--ink);
+    background: var(--pane-3);
+  }
+  .chip[aria-pressed='true'],
+  .chip.is-on {
+    background: var(--ink);
+    color: var(--on-light);
+  }
+  .chip svg {
+    width: 16px;
+    height: 16px;
+  }
+  .chip .count {
+    font-stretch: var(--narrow);
+    color: inherit;
+    opacity: 0.6;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ---------- Fields ---------- */
+  .field {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    height: 44px;
+    padding: 0 14px;
+    background: var(--pane-2);
+    border-radius: var(--r-ctl);
+    box-shadow: inset 0 0 0 1px var(--line);
+    color: var(--ink-2);
+  }
+  .field:focus-within {
+    box-shadow: inset 0 0 0 1.5px var(--ink);
+  }
+  .field input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    background: none;
+    outline: none;
+    color: var(--ink);
+  }
+  .field input::placeholder {
+    color: var(--ink-3);
+  }
+  .field svg {
+    width: 18px;
+    height: 18px;
+    flex: none;
+  }
+
+  /* ---------- Gamepad glyphs and keys ---------- */
+  .glyph {
+    display: inline-grid;
+    place-items: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--pane-3);
+    color: var(--ink);
+    font-size: 0.6875rem;
+    font-weight: 800;
+    line-height: 1;
+    font-stretch: var(--normal);
+  }
+  .glyph.is-wide {
+    width: auto;
+    padding: 0 7px;
+    border-radius: 6px;
+  }
+  kbd,
+  .key {
+    display: inline-grid;
+    place-items: center;
+    min-width: 24px;
+    height: 22px;
+    padding: 0 6px;
+    border-radius: 5px;
+    background: var(--pane-3);
+    box-shadow: inset 0 -1px 0 var(--line-strong);
+    color: var(--ink);
+    font-family: var(--font);
+    font-size: 0.75rem;
+    font-weight: 650;
+  }
+
+  /* ---------- Compatibility facts (input icons) ---------- */
+  .inputs {
+    display: inline-flex;
+    gap: 6px;
+    color: var(--ink-2);
+  }
+  .inputs svg {
+    width: 18px;
+    height: 18px;
+  }
+  .inputs .is-off {
+    opacity: 0.25;
+  }
+
+  /* ---------- Game cover ---------- */
+  .cover {
+    position: relative;
+    aspect-ratio: 3 / 4;
+    overflow: hidden;
+    border-radius: 10px;
+    background: var(--pane-2);
+  }
+  .cover img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Verified mark: a small white seal, not a colour. */
+  .verified {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: var(--ink);
+    font-size: var(--t-small);
+    font-weight: 600;
+  }
+  .verified svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  /* ---------- Icons (sprite injected by icons.js) ---------- */
+  .i {
+    width: 20px;
+    height: 20px;
+    flex: none;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.75;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  /* ---------- Scrollbars ---------- */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--line-strong) transparent;
+  }
+
+  /* ---------- Site chrome (web/web.css) ---------- */
+  .frame {
+    max-width: 1680px;
+    margin: 0 auto;
+    padding: 0 var(--gutter) var(--gutter);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--gutter);
+  }
+
+  /* Header sits on the bezel itself, not in a pane: the top edge of the screen. */
+  .site-head {
+    display: flex;
+    align-items: center;
+    gap: var(--space-6);
+    height: 68px;
+    padding: 0 var(--space-4);
+  }
+  .site-nav {
+    display: flex;
+    gap: var(--space-1);
+  }
+  .site-nav a {
+    padding: 8px 12px;
+    border-radius: var(--r-ctl);
+    color: var(--ink-2);
+    text-decoration: none;
+    font-weight: 560;
+    font-size: 0.9375rem;
+  }
+  .site-nav a:hover {
+    color: var(--ink);
+    background: var(--pane);
+  }
+  .site-nav a[aria-current='page'] {
+    color: var(--ink);
+  }
+  .site-actions {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .site-search {
+    width: 260px;
+    height: 38px;
+  }
+  .site-search .key {
+    margin-left: auto;
+  }
+
+  /* Footer: the last pane. */
+  .site-foot {
+    padding: var(--space-7) var(--space-6) var(--space-5);
+  }
+  .site-foot .cols {
+    display: grid;
+    grid-template-columns: 1.4fr repeat(4, 1fr); /* brand + Play, Learn, Community, Legal */
+    gap: var(--space-6);
+  }
+  .site-foot h2 {
+    font-size: var(--t-small);
+    font-weight: 650;
+    color: var(--ink);
+    margin-bottom: var(--space-3);
+  }
+  .site-foot ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 8px;
+  }
+  .site-foot a {
+    color: var(--ink-2);
+    text-decoration: none;
+    font-size: var(--t-small);
+  }
+  .site-foot a:hover,
+  .site-foot .logo {
+    color: var(--ink);
+  }
+  .site-foot .legal {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    justify-content: space-between;
+    margin-top: var(--space-7);
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--line);
+    color: var(--ink-3);
+    font-size: var(--t-micro);
+  }
+  .site-foot .about {
+    color: var(--ink-2);
+    font-size: var(--t-small);
+    max-width: 36ch;
+    margin-top: var(--space-4);
+  }
+
+  /* Section heading row used inside panes: title left, optional action right. */
+  .pane-head {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: var(--space-4);
+    margin-bottom: var(--space-5);
+  }
+  .pane-head a {
+    color: var(--ink-2);
+    font-size: var(--t-small);
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .pane-head a:hover {
+    color: var(--ink);
+  }
+  .pad {
+    padding: var(--space-7) var(--space-6);
+  }
+
+  @media (max-width: 1100px) {
+    .site-search {
+      display: none;
+    }
+  }
+  @media (max-width: 860px) {
+    .site-nav {
+      display: none;
+    }
+    .site-foot .cols {
+      grid-template-columns: 1fr 1fr;
+    }
+    .pad {
+      padding: var(--space-6) var(--space-4);
+    }
+    .site-head {
+      padding: 0 var(--space-2);
+      gap: var(--space-3);
+    }
+  }
+}

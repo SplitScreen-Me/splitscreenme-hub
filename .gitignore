@@ -1,0 +1,44 @@
+# dependencies
+/node_modules
+
+# next.js
+/.next/
+/out/
+next-env.d.ts
+*.tsbuildinfo
+
+# build output
+/dist/
+/coverage/
+
+# environment: secrets never go to git (the template is .env.example)
+.env
+.env.*
+!.env.example
+deploy/.env
+deploy/.env.*
+!deploy/env.example
+
+# local data: package storage, database dumps, Mongo exports (personal data)
+/storage/
+/.data/
+*.dump
+*.sql.gz
+*.archive
+*.archive.gz
+*.bson
+*.bson.gz
+/backups/
+/images/
+
+# Swagger UI assets copied from swagger-ui-dist at predev/prebuild (init.js is ours)
+/public/api-docs/*
+!/public/api-docs/init.js
+
+# misc
+.DS_Store
+Thumbs.db
+*.log
+npm-debug.log*
+.vscode/
+.idea/

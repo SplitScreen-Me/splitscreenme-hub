@@ -1,0 +1,117 @@
+export const meta = {
+  title: 'Install Nucleus Co-op',
+  description:
+    'Download Nucleus Co-op, unzip it in the right place, get past SmartScreen and antivirus false positives, and keep it up to date.',
+  updated: '2026-10-12',
+};
+
+Nucleus Co-op is portable: there is no installer to run. You unzip it into a folder and start `NucleusCoop.exe`.
+Where that folder lives matters more than you'd think.
+
+## Download
+
+Get the latest release from the [download page](/download) or straight from the
+[GitHub releases](https://github.com/SplitScreen-Me/splitscreenme-nucleus/releases/latest). Take the release
+archive, not the "Source code" zip: that one is for developers.
+
+<Callout type="note" title="Only download from official links">
+
+The official builds come from the SplitScreen.Me GitHub releases. Copies on other sites may be outdated or
+modified, and we can't help with them.
+
+</Callout>
+
+## Pick the right folder
+
+Create a folder at the root of a drive, for example `C:\NucleusCo-op`, and keep it out of these places:
+
+- **`Program Files` and `Program Files (x86)`**: Windows protects them, and Nucleus needs to write next to itself.
+- **Your user folder, Desktop, Documents or Downloads**: some handlers create separate Windows users, which can't
+  reach your own folders. OneDrive-synced folders cause trouble too.
+- **Inside a game's folder**: never put Nucleus Co-op among the files of a game you want to play.
+
+Some handlers also need Nucleus Co-op on the **same drive as the game**. If your games are on `D:`, use
+`D:\NucleusCo-op`. That drive must be formatted NTFS: exFAT and FAT32 drives can't hold the symbolic links most
+handlers use.
+
+## Unzip
+
+<Steps>
+  <Step title="Unblock the archive">
+    Right-click the downloaded zip, choose **Properties**, tick **Unblock** if it's there, then **OK**. Files that
+    keep the "downloaded from the internet" mark can be blocked by Windows later.
+  </Step>
+  <Step title="Add an antivirus exclusion">
+    Add your Nucleus Co-op folder to the
+    [Microsoft Defender exclusions](https://support.microsoft.com/en-us/windows/add-an-exclusion-to-windows-security-811816c0-4dfd-af4a-47e4-c301afe13b26)
+    (or your antivirus' equivalent) **before** you extract. See the note below for why.
+  </Step>
+  <Step title="Extract into the folder">
+    Extract everything into `C:\NucleusCo-op`. [7-Zip](https://www.7-zip.org/) is the most reliable tool for it.
+    If the archive asks for a password, it's `nucleus`.
+  </Step>
+  <Step title="Start NucleusCoop.exe">
+    The first start checks the Visual C++ runtimes and Microsoft Edge WebView2, and offers to download what's
+    missing. Accept, let them install, and start Nucleus Co-op again if it asks.
+  </Step>
+</Steps>
+
+<Callout type="warning" title="Antivirus warnings are false positives">
+
+Nucleus Co-op injects small libraries into games (to route input and fake window focus) and ships network
+emulators such as Goldberg. Antivirus programs sometimes flag these files even though they are safe, and may
+quietly delete them, which breaks handlers later: an error about a missing `ProtoInputHooks64.dll` is the classic
+sign. The whole app is [open source](https://github.com/SplitScreen-Me/splitscreenme-nucleus). If you get a
+detection, exclude the folder, extract again, and if you want to help,
+[report the file to Microsoft](https://www.microsoft.com/en-us/wdsi/filesubmission) as a false positive.
+
+</Callout>
+
+### "Windows protected your PC"
+
+If SmartScreen shows this when you start `NucleusCoop.exe`, choose **More info**, then **Run anyway**. Unblocking
+the zip before extracting (step 1) usually prevents it.
+
+### Administrator rights
+
+Nucleus Co-op runs as a normal user. A few handlers need administrator rights: their notes say so. Use
+**Settings › About › Restart as administrator** for those sessions only.
+
+## What's in the folder
+
+| Folder or file | What it holds |
+|---|---|
+| `NucleusCoop.exe` | The app |
+| `handlers\` | Installed handlers: one `.js` file per game, sometimes with a folder of extra files |
+| `content\` | The copies of each game that Nucleus prepares for every player, and your library |
+| `game profiles\` | Saved [profiles](/doc/play/saves-and-profiles): layouts, options, who plays where |
+| `Settings.ini` | Your settings |
+| `debug-log.txt` | The log, when [debug logging](/doc/troubleshooting/report-a-bug#get-a-log) is on |
+| `docs\` | The readme files, with the handler reference of your version |
+| `utils\` | Emulators and tools that handlers use |
+
+Each player's own data (saves and settings of games that use the Nucleus environment) lives outside the app
+folder, in `C:\Users\<you>\NucleusCoop`.
+
+## Update
+
+**Handlers** update from the app: when the hub has a newer version, the library shows **Update to vN** on the
+game. **Settings › About › Handler updates** checks every game at once. Updates keep your profiles and settings.
+
+**Nucleus Co-op itself**: download the new release and extract it into a **new, empty folder**. Don't extract it
+over the old one. To keep everything, copy these from the old folder into the new one before the first start:
+
+- `handlers\`
+- `game profiles\`
+- `Settings.ini`
+- `content\userprofile.json` (your library)
+
+Or skip the copy: **Found on this PC** finds your Steam and Epic games again in a minute. When the new version
+works, delete the old folder.
+
+## Uninstall
+
+Delete the Nucleus Co-op folder. If you also want to remove the players' data, delete
+`C:\Users\<you>\NucleusCoop`, but check first that no save you care about lives there
+([Saves and profiles](/doc/play/saves-and-profiles)). If a handler created Windows users (their names start with
+`nucleusplayer`), remove them in **Settings › Accounts › Other users** on Windows.

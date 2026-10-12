@@ -1,0 +1,52 @@
+export const meta = {
+  title: 'Report a bug',
+  description:
+    'Where to report a problem with Nucleus Co-op or a handler, how to get a debug log, and what to write so someone can reproduce it.',
+  updated: '2026-10-12',
+};
+
+Nucleus Co-op and its handlers are made by volunteers. A good report saves them hours, and gets your problem fixed
+sooner.
+
+## Where to report
+
+| The problem is with | Report it on |
+|---|---|
+| One game (it worked before, crashes, copies don't connect) | The game's page on the [hub](/hub): comment for the author, or **Report** if the handler is broken, outdated or harmful |
+| The app itself (crashes, screens, settings) | [GitHub issues](https://github.com/SplitScreen-Me/splitscreenme-nucleus/issues) |
+| Not sure, or you want help first | [Discord](https://discord.com/invite/QDUt8HpCvr) or [r/nucleuscoop](https://www.reddit.com/r/nucleuscoop/) |
+
+Search first: someone may have the same problem, and a fix.
+
+## Get a log
+
+The debug log records what Nucleus Co-op does during a session, and is the first thing anyone will ask for.
+
+1. Open **Settings › General** and turn on **Enable debug log**.
+2. Reproduce the problem: run the same game with the same players.
+3. Open the Nucleus Co-op folder (**Settings › About** shows where it's installed) and take `debug-log.txt`.
+
+The log turns itself off once it grows past 150 KB, so turn it on right before you test. It contains paths of your
+PC, which include your Windows user name: edit them out if you prefer before posting.
+
+## What to write
+
+Give your report a title that says what happens and in which game, for example "Valheim: second copy crashes when
+the first one hosts". Then include:
+
+```text
+What happens: The second copy closes as soon as the first one opens a world.
+What I expected: Both copies stay open and the second one can join.
+Steps:
+  1. Set up a session with 2 players, side by side, 2 Xbox controllers.
+  2. Launch; player 1 hosts a world.
+  3. Player 2's window closes.
+How often: Every time.
+Versions: Nucleus Co-op 3.0, handler version 12, Valheim from Steam, up to date.
+PC: Windows 11, 16 GB RAM, one 1920x1080 TV.
+Inputs: 2 Xbox Series controllers over USB. DS4Windows not installed.
+Already tried: Deleted the game content folder, closed Discord and Steam overlays.
+```
+
+Attach the `debug-log.txt` and, when it helps, a screenshot of the error. Say whether you read the handler notes
+and which options you picked: many reports turn out to be one setting the notes mention.

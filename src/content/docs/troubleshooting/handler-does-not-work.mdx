@@ -1,0 +1,101 @@
+export const meta = {
+  title: 'A handler does not work',
+  description:
+    "A game won't launch through Nucleus Co-op, only one copy starts, the copies can't see each other, or config files go missing: what to check, from the quickest fix to the clean reinstall.",
+  updated: '2026-10-12',
+};
+
+When a session goes wrong, Nucleus Co-op shows what failed in the session screen, with what to do next. Read that
+message first, then the handler notes: many games have one quirk that the notes explain (Steam must be running or
+closed, a setting to change in game, an option to pick).
+
+## First checks
+
+- **Latest versions.** Use the latest Nucleus Co-op and the latest version of the handler.
+- **Run the game once on its own.** Start it without Nucleus, change a graphics setting, apply, and quit. Many
+  handlers edit config files that only exist after a first run.
+- **The right version of the game.** Most handlers are made with the latest Steam version. GOG, Epic, cracked,
+  modded or very old versions often fail unless the notes say otherwise. Xbox app and Game Pass versions don't
+  work.
+- **Clean game files.** In Steam, **Properties › Installed Files › Verify integrity of game files**. Mods that
+  change game files can break a handler.
+
+## Only one copy starts, or copies crash
+
+- **Close overlays**: Discord, NVIDIA, AMD, MSI Afterburner and RivaTuner overlays, and recording tools. They hook
+  into every copy and often crash the second one.
+- **Steam running or not**: some handlers need Steam open, others need it closed. The notes say which.
+- **Administrator rights**: if the notes ask for them, use **Settings › About › Restart as administrator**.
+- **Same drive**: some handlers need Nucleus Co-op on the same drive as the game. Move the Nucleus folder (never
+  inside the game's folder).
+- **NTFS only**: an exFAT or FAT32 drive can't hold the links Nucleus creates for each copy. Move the game or
+  Nucleus to an NTFS drive.
+- **Start from clean copies**: in the library, **Game options › Delete Game Content Folder** closes leftover game
+  processes and deletes the prepared copies. Nucleus rebuilds them at the next launch.
+
+## The copies can't see each other
+
+The copies connect through a real or emulated local network, so anything that filters local traffic can get in
+the way.
+
+- **Firewall**: when Windows asks whether the game may use the network, allow it on **private networks**. If you
+  dismissed that prompt, allow the game's executable in **Windows Security › Firewall & network protection ›
+  Allow an app through firewall**, or in your antivirus' firewall.
+- **VPN**: turn it off while playing.
+- **Network adapter**: handlers that give each copy its own IP address use the adapter chosen in **Settings ›
+  General › Network adapter**. If you have several (Ethernet, Wi-Fi, virtual adapters), pick the one you use.
+- **Follow the notes**: usually one player hosts and the others join from the LAN or online menu. Some games need a
+  direct IP, which the notes give.
+
+## "File not found" or config errors
+
+A lot of handlers edit a game's `.ini` or `.cfg` files to set windowed mode and the right resolution for each
+player.
+
+1. Run the game once on its own, change a graphics setting, apply, and quit.
+2. In the library, open **Game options** on the game and use **Delete UserProfile Config Path** (and **Delete
+   Document Config Path** if it's there) for every player. That resets each player's settings for this game.
+3. Still failing? **Delete Game Content Folder**, remove the game from the list and add it again.
+
+## Documents in OneDrive
+
+For games that save in Documents, Nucleus gives each player their own Documents folder by changing a Windows
+setting during the session, and restores it when you close Nucleus Co-op (or at the next start, after a crash).
+When your Documents folder is synced by OneDrive, that can fail, and Nucleus shows a OneDrive warning.
+
+The fix is to put Documents back in its default place:
+
+1. Sign out of the OneDrive app, or in OneDrive settings stop backing up the Documents folder and unlink this PC.
+2. In File Explorer, right-click **Documents**, **Properties › Location**, **Restore Default**.
+
+If Windows refuses, the registry value `Personal` in
+`HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders` must be
+`%USERPROFILE%\Documents` (or the path of your own Documents folder). Nucleus keeps a backup of these values in
+`utils\backup\User Shell Folders.reg` in its folder.
+
+## Handlers that create Windows users
+
+A few handlers (State of Decay 2 is one) run each copy as a separate Windows user named `nucleusplayer1`,
+`nucleusplayer2` and so on.
+
+- Nucleus Co-op must be at the root of a drive (for example `C:\NucleusCo-op`), where those users can reach it.
+- Close sessions with **Stop session** or <Kbd>Ctrl</Kbd>+<Kbd>Q</Kbd>, so Nucleus cleans up.
+- After a crash, remove leftover `nucleusplayer` accounts in Windows (**Settings › Accounts › Other users**) and
+  their folders in `C:\Users`, then restart your PC before trying again.
+- **Settings › General › Keep Nucleus user accounts** keeps those accounts between sessions instead of
+  re-creating them every time.
+
+## Clean reinstall
+
+If nothing else works:
+
+1. Download the latest release and extract it with 7-Zip into a new folder at the root of a drive, after adding
+   that folder to your antivirus exclusions.
+2. Start it, add the game again, and try once with no profile loaded.
+
+## A game update broke it
+
+Games change: a patch that adds crossplay or a new launcher can break a handler that worked for years. Check the
+comments on the game's page on the [hub](/hub), and tell the author there or on
+[Discord](https://discord.com/invite/QDUt8HpCvr). [Report a bug](/doc/troubleshooting/report-a-bug) explains what
+to include.

@@ -1,0 +1,113 @@
+/* SplitScreen.Me design tokens, direction "Bezel". Copied from the Bezel mockups (tokens.css)
+ * without the Google Fonts @import: fonts are self-hosted by next/font (--font-archivo, --font-jetbrains).
+ *
+ * One rule drives the palette: colour means a player. Interface chrome is monochrome
+ * (black bezel, graphite panes, white ink); the eight player colours are the only chroma,
+ * and they always identify a player, a slot or a device.
+ */
+
+:root {
+  /* Bezel and panes: the page is the screen's black frame, content sits in lit panes. */
+  --bezel: #000000;
+  --pane: #14171e;
+  --pane-2: #1b1f28;
+  --pane-3: #242935;
+  --line: #2c3240;
+  --line-strong: #3d4454;
+
+  /* Ink */
+  --ink: #f3f4f6;
+  --ink-2: #a3abba;
+  --ink-3: #6b7383;
+  --on-light: #07080a;
+
+  /* Player colours, in join order. Never used for anything but players. */
+  --p1: #ff6b35; /* ember  */
+  --p2: #3b8bff; /* azure  */
+  --p3: #ffcf3a; /* sun    */
+  --p4: #3ddb86; /* mint   */
+  --p5: #ff5db1; /* pink   */
+  --p6: #9b7cff; /* violet */
+  --p7: #23d3d3; /* teal   */
+  --p8: #c4eb45; /* lime   */
+
+  /* Status: icon + words first, these tints second. Distinct from every player hue. */
+  --ok: #8fe3b8;
+  --warn: #f5b971;
+  --danger: #ff4d6a;
+
+  /* Type: one family, the width axis carries the hierarchy. */
+  --font: var(--font-archivo), 'Archivo', system-ui, sans-serif;
+  --font-code: var(--font-jetbrains), 'JetBrains Mono', ui-monospace, monospace;
+  --wide: 125%; /* display: stretched to fill the screen */
+  --normal: 100%; /* reading and UI */
+  --narrow: 72%; /* data: stats, tags, tables */
+
+  --t-display: clamp(2.6rem, 5.2vw, 5.25rem);
+  --t-h1: clamp(2rem, 3.4vw, 3.25rem);
+  --t-h2: clamp(1.5rem, 2.2vw, 2.125rem);
+  --t-h3: 1.25rem;
+  --t-body: 1rem;
+  --t-small: 0.875rem;
+  --t-micro: 0.75rem;
+
+  /* The gutter is the brand: the black line between split panes. */
+  --gutter: 6px;
+  --gutter-app: 4px;
+
+  /* Radii follow hierarchy: panes are screens, controls are smaller, tags are pills. */
+  --r-pane: 14px;
+  --r-ctl: 8px;
+  --r-tag: 999px;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 72px;
+
+  /* Motion: windows snapping into place. Quick out, firm landing. */
+  --ease-snap: cubic-bezier(0.2, 0.9, 0.1, 1);
+  --dur-1: 120ms;
+  --dur-2: 240ms;
+  --dur-3: 520ms;
+
+  color-scheme: dark;
+}
+
+/* Player colour helpers: set --pc on any element, children read it. */
+.p1 {
+  --pc: var(--p1);
+}
+.p2 {
+  --pc: var(--p2);
+}
+.p3 {
+  --pc: var(--p3);
+}
+.p4 {
+  --pc: var(--p4);
+}
+.p5 {
+  --pc: var(--p5);
+}
+.p6 {
+  --pc: var(--p6);
+}
+.p7 {
+  --pc: var(--p7);
+}
+.p8 {
+  --pc: var(--p8);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-1: 0ms;
+    --dur-2: 0ms;
+    --dur-3: 0ms;
+  }
+}
