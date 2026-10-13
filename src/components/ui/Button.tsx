@@ -56,7 +56,10 @@ export function Button({
   );
 }
 
-/** A link that looks like a button (next/link for internal paths, plain <a> for external URLs). */
+/**
+ * A link that looks like a button: next/link for internal pages; a plain <a> for external URLs and for files
+ * (`download` set), which next/link would prefetch and try to route.
+ */
 export function LinkButton({
   variant,
   size,
@@ -76,6 +79,13 @@ export function LinkButton({
   if (/^https?:\/\//.test(href)) {
     return (
       <a href={href} className={cls} rel="noopener noreferrer" {...rest}>
+        {content}
+      </a>
+    );
+  }
+  if (rest.download !== undefined) {
+    return (
+      <a href={href} className={cls} {...rest}>
         {content}
       </a>
     );
