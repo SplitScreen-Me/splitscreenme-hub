@@ -17,6 +17,7 @@ Mongo 4.0 (`hub-mongodb-1`), the Discord bot and the Docusaurus site. **Never ch
 | Postgres 16              | container `ssm-v3-db-1`, volume `ssm-v3_pgdata`, `mem_limit` 200m, no published port                                                                                               |
 | Site                     | container `ssm-v3-web-1`, image `ssm-site:<git short sha>`, `127.0.0.1:3010`, 320m without swap, 1 CPU                                                                             |
 | Package files            | `/srv/ssm-v3/storage` (owner `1001:33`, mode 750): `packages/`, `import/` (importer index and last report)                                                                         |
+| App builds               | `/srv/ssm-v3/releases` (owner root, dir 755, files 644): the Nucleus Co-op zips of `/download`, served by nginx at `/releases/` (see [Publish a new app build](#publish-a-new-app-build)) |
 | nginx                    | `/etc/nginx/sites-available/v3.splitscreen.me` (from `deploy/nginx/`), linked in `sites-enabled`                                                                                   |
 | nginx logs               | `/var/log/nginx/v3.splitscreen.me.access.log`, `.error.log`                                                                                                                        |
 | Certificate              | `/etc/letsencrypt/live/v3.splitscreen.me`, webroot `/var/www/letsencrypt`, the ACME account of the other certificates; `certbot.timer` renews it and the deploy hook reloads nginx |
@@ -65,6 +66,41 @@ booleans.
 
 A change to `deploy/docker-compose.prod.yml` is copied to `/root/v3/docker-compose.yml` by hand, then `docker compose up -d`.
 A change to the vhost: back up nginx (below), copy the file, `nginx -t`, then `systemctl reload nginx`.
+
+## Publish a new app build
+
+The download page offers one Nucleus Co-op build, declared in `src/content/release.ts`. A build hosted here is a static
+file in `/srv/ssm-v3/releases`, served by nginx at `https://v3.splitscreen.me/releases/<file>`; the app never reads it.
+
+1. **Check the zip locally:** it is named `NucleusCoop-<version>.zip` (for example `NucleusCoop-3.0.0-beta-6.zip`). Note
+   its size in bytes and its SHA-256, in lowercase (Git Bash: `stat -c %s <zip>` and `sha256sum <zip>`).
+2. **Put it on the server** under a temporary name, so nginx never serves a half-written file. From Git Bash:
+
+   ```sh
+   /c/Windows/System32/OpenSSH/scp.exe NucleusCoop-<version>.zip root@hub.splitscreen.me:/srv/ssm-v3/releases/.upload.part
+   ```
+
+   If the zip is already somewhere on the server, `cp` it to the same temporary name instead. Then, on the server:
+
+   ```sh
+   cd /srv/ssm-v3/releases
+   sha256sum .upload.part && stat -c %s .upload.part       # must match step 1
+   chmod 644 .upload.part && mv .upload.part NucleusCoop-<version>.zip
+   curl -sI https://v3.splitscreen.me/releases/NucleusCoop-<version>.zip | grep -iE '^(HTTP|content-type|content-length)'
+   ```
+
+   Expected: `200`, `application/zip` and the size of step 1. Never overwrite a published file: a fixed build gets a new
+   version.
+3. **Point the site at it.** In `src/content/release.ts`, change only the `hosted({...})` call of `release`: `version`,
+   `label` (what people read, such as `3.0 beta 6`), `channel` (`beta` or `stable`), `date`, `sizeBytes` and `sha256`.
+   The file name, the URL, the landing, `/download` and the JSON-LD follow. When a stable release replaces the beta,
+   also update `stableRelease` (the secondary link).
+4. **Release the site** as in [Update to a new version](#update-to-a-new-version), then check `/download`: the version,
+   the SHA-256, and a `curl -sI` of the button's link (HEAD only: no need to download it again).
+5. **Clean up** once the new build is live: keep the previous zip a few days for pages still open, then delete it.
+   `df -h /srv` before uploading if the disk is tight.
+
+At the cutover, the vhost of the final host needs the same `/releases/` location.
 
 ## Re-import from the old hub
 
@@ -202,11 +238,12 @@ curl -sI "$B/" | grep -iE '^(x-robots-tag|strict-transport-security):'          
 curl -s -D - -o pkg.nc "$B/api/v3/handlers/$H/download?count=false" | grep -iE '^(content-type|content-length):'
 curl -sI http://v3.splitscreen.me/hub | grep -i '^location'                       # https://v3.splitscreen.me/hub
 echo | openssl s_client -connect v3.splitscreen.me:443 -servername v3.splitscreen.me 2>/dev/null | openssl x509 -noout -enddate
+curl -sI "$B/releases/NucleusCoop-<version>.zip" | grep -iE '^(HTTP|content-type|content-length)'   # the app build of /download
 for u in https://hub.splitscreen.me/ https://www.splitscreen.me/; do curl -s -o /dev/null -w "$u %{http_code}\n" "$u"; done
 ```
 
-Expected: 200 everywhere, the download is `application/zip` and its sha256 equals the one in the handler's JSON, and the
-production hosts still answer 200. The first request after a start can take several seconds while Next loads the route.
+Expected: 200 everywhere, the download is `application/zip` and its sha256 equals the one in the handler's JSON, the app
+build answers 200 with the `sizeBytes` of `src/content/release.ts`, and the production hosts still answer 200. The first request after a start can take several seconds while Next loads the route.
 
 ## From scratch
 
@@ -214,7 +251,9 @@ This is what was done on 2026-10-12, kept for a rebuild of the server:
 
 1. **Directories and compose:**
    `mkdir -p /root/v3/backups /srv/ssm-v3/storage && chmod 700 /root/v3/backups && chown 1001:33 /srv/ssm-v3/storage && chmod 750 /srv/ssm-v3/storage`,
-   then copy `deploy/docker-compose.prod.yml` to `/root/v3/docker-compose.yml`.
+   then copy `deploy/docker-compose.prod.yml` to `/root/v3/docker-compose.yml`. The app builds folder came on
+   2026-10-13: `mkdir -p /srv/ssm-v3/releases && chmod 755 /srv/ssm-v3/releases` (owner root), then the zip of
+   `src/content/release.ts` ([Publish a new app build](#publish-a-new-app-build)).
 2. **`.env`, created with `umask 077`, from `deploy/env.example`:**
    - generated: `POSTGRES_PASSWORD` (`openssl rand -hex 24`) and `APP_SECRET` (`openssl rand -hex 32`);
    - taken from the running hub (`docker inspect hub-hub-1`, `METEOR_SETTINGS.private`, never printed):
@@ -261,4 +300,5 @@ A GitHub OAuth App has a single callback URL, so GitHub needs one of these:
   the hub and v3 work.
 
 **At the cutover:** set the final `SITE_URL` and `NOINDEX=0`, register the redirect URIs of the final host, turn the Discord
-webhooks on, and add the nginx redirects listed in the appendix of `docs/ARCHITECTURE.md`.
+webhooks on, add the nginx redirects listed in the appendix of `docs/ARCHITECTURE.md`, and keep the `/releases/`
+location in the final vhost.

@@ -957,6 +957,7 @@ The file in the repo is the reference:
 - port 80: ACME webroot, otherwise 301 to https;
 - port 443: certificates from certbot, `client_max_body_size 1m` (32m and a 180 s timeout on `/api/me/`, the uploads), gzip for JSON, JS, CSS, XML and SVG, `X-Real-IP`/`X-Forwarded-*` headers to `127.0.0.1:3010`;
 - `/_storage/packages/`: `internal` alias of the storage volume, for `X-Accel-Redirect` downloads (5.5);
+- `/releases/`: the app builds of the download page (8.3), static files from `/srv/ssm-v3/releases` (root-owned, world-readable, outside the app's storage), `try_files $uri =404` (no listing), `application/zip`, `expires 1d`, `X-Robots-Tag: noindex`, at most 4 concurrent downloads per IP (`limit_conn_zone ssmv3_files`, 429);
 - HSTS (`max-age=63072000`, no `includeSubDomains`) is set by nginx, which hides the app's copy, so 429s and `X-Accel-Redirect` files carry it too;
 - per-IP rate limits (6.5): `limit_req_zone` and `map` sit at the top of the file, in the `http` context shared with the other vhosts, so their names are prefixed `ssmv3_`. `ssmv3_pages` (20 r/s, burst 80) covers everything but `/_next/static/`, `ssmv3_search` (2 r/s, burst 20) only requests with a non-empty `q`, `ssmv3_og` (1 r/s, burst 20) the `opengraph-image` routes; `limit_req_status 429`.
 
