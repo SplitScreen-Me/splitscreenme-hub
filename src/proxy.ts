@@ -3,10 +3,10 @@ import { contentSecurityPolicy, generateNonce } from '@/lib/security-headers';
 
 /**
  * Pages only (see matcher): per-request CSP nonce, noindex flag, current path for login redirects, and a
- * sliding session cookie. Node.js runtime so that the environment is read at runtime, not inlined at build.
+ * sliding session cookie. Proxy always runs in the Node.js runtime (Next 16 rejects a `runtime` option here),
+ * so the environment is read at runtime, not inlined at build.
  */
 export const config = {
-  runtime: 'nodejs',
   matcher: [
     {
       source:
@@ -19,7 +19,7 @@ export const config = {
 const SESSION_COOKIES = ['__Host-ssm_session', 'ssm_session'];
 const SESSION_MAX_AGE = 30 * 24 * 60 * 60;
 
-export function middleware(req: NextRequest) {
+export function proxy(req: NextRequest) {
   const nonce = generateNonce();
   const csp = contentSecurityPolicy(nonce, process.env.NODE_ENV === 'development');
 

@@ -1,7 +1,7 @@
 /**
  * Security headers: docs/ARCHITECTURE.md section 6.4. The static set is applied to every route by
  * next.config.ts (frozen at build, so nothing here may depend on the environment); the CSP needs a
- * per-request nonce and is set by the middleware on pages.
+ * per-request nonce and is set by the proxy (src/proxy.ts) on pages.
  */
 
 export const STATIC_SECURITY_HEADERS: ReadonlyArray<{ key: string; value: string }> = [

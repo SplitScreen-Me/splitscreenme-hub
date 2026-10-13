@@ -1,6 +1,6 @@
-import { FlatCompat } from '@eslint/eslintrc';
-
-const compat = new FlatCompat({ baseDirectory: import.meta.dirname });
+import { defineConfig, globalIgnores } from 'eslint/config';
+import nextVitals from 'eslint-config-next/core-web-vitals';
+import nextTs from 'eslint-config-next/typescript';
 
 /** Files that render or serve public data: they may read data only through src/server/public (section 6.1). */
 const PUBLIC_SURFACES = [
@@ -12,20 +12,19 @@ const PUBLIC_SURFACES = [
   'src/app/opengraph-image.tsx',
 ];
 
-const config = [
-  {
-    ignores: [
-      '.next/**',
-      'node_modules/**',
-      'dist/**',
-      'coverage/**',
-      'storage/**',
-      'drizzle/**',
-      'public/api-docs/**',
-      'next-env.d.ts',
-    ],
-  },
-  ...compat.extends('next/core-web-vitals', 'next/typescript'),
+const config = defineConfig([
+  globalIgnores([
+    '.next/**',
+    'node_modules/**',
+    'dist/**',
+    'coverage/**',
+    'storage/**',
+    'drizzle/**',
+    'public/api-docs/**',
+    'next-env.d.ts',
+  ]),
+  ...nextVitals,
+  ...nextTs,
   {
     rules: {
       '@typescript-eslint/no-unused-vars': [
@@ -65,6 +64,6 @@ const config = [
       ],
     },
   },
-];
+]);
 
 export default config;

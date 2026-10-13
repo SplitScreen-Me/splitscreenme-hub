@@ -14,6 +14,8 @@ function useFragmentToken(): string | null | undefined {
   const [token, setToken] = useState<string | null | undefined>(undefined);
   useEffect(() => {
     const m = /(?:^|[#&])token=([A-Za-z0-9_-]+)/.exec(window.location.hash);
+    // Read once after hydration (the server has no fragment), before the fragment is dropped below.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setToken(m?.[1] ?? null);
     if (m) window.history.replaceState(null, '', window.location.pathname + window.location.search);
   }, []);

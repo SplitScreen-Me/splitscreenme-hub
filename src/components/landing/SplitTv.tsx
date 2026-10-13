@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import { useEffect, useRef, useState, useSyncExternalStore, type CSSProperties } from 'react';
 import { Icon } from '@/components/ui/Icon';
 
 export interface TvScene {
@@ -56,16 +56,21 @@ function rectStyle([x, y, w, h]: Rect, on: boolean, i: number): CSSProperties {
   };
 }
 
+const REDUCED_MOTION = '(prefers-reduced-motion: reduce)';
+
+function subscribeReducedMotion(onChange: () => void): () => void {
+  const mq = window.matchMedia(REDUCED_MOTION);
+  mq.addEventListener('change', onChange);
+  return () => mq.removeEventListener('change', onChange);
+}
+
+/** False on the server and during hydration, then the media query (and its changes). */
 function usePrefersReducedMotion(): boolean {
-  const [reduced, setReduced] = useState(false);
-  useEffect(() => {
-    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
-    setReduced(mq.matches);
-    const on = () => setReduced(mq.matches);
-    mq.addEventListener('change', on);
-    return () => mq.removeEventListener('change', on);
-  }, []);
-  return reduced;
+  return useSyncExternalStore(
+    subscribeReducedMotion,
+    () => window.matchMedia(REDUCED_MOTION).matches,
+    () => false,
+  );
 }
 
 /**
@@ -92,8 +97,10 @@ export function SplitTv({ scenes }: { scenes: TvScene[] }) {
     }
   }, [scenes]);
 
-  // Start: one player, then the timeline.
+  // Start: one player, then the timeline. Deliberately after hydration: the server and the first client render
+  // show all four players, so the page reads the same without JavaScript.
   useEffect(() => {
+    /* eslint-disable react-hooks/set-state-in-effect -- starts the animation once hydrated (see above) */
     if (reduced || scenes.length === 0) {
       setPlayers(4);
       setStarted(false);
@@ -102,6 +109,7 @@ export function SplitTv({ scenes }: { scenes: TvScene[] }) {
     setPlayers(1);
     setJoined(0);
     setStarted(true);
+    /* eslint-enable react-hooks/set-state-in-effect */
   }, [reduced, scenes.length]);
 
   useEffect(() => {

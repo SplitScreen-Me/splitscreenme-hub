@@ -19,13 +19,16 @@ function BodyField({
 }) {
   const { state } = useActionForm();
   const [length, setLength] = useState(defaultValue?.length ?? 0);
+  // A posted comment empties the (uncontrolled) textarea: reset the counter with it, once per answer.
+  const [answered, setAnswered] = useState(state);
+  if (answered !== state) {
+    setAnswered(state);
+    if (state.status === 'ok' && !defaultValue) setLength(0);
+  }
   const ref = useRef<HTMLTextAreaElement>(null);
   useEffect(() => {
     if (autoFocus) ref.current?.focus();
   }, [autoFocus]);
-  useEffect(() => {
-    if (state.status === 'ok' && !defaultValue) setLength(0);
-  }, [state, defaultValue]);
   const errors = state.fields?.body;
   return (
     <div className="grid gap-1">

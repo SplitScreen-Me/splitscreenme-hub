@@ -4,7 +4,7 @@ export const dynamic = 'force-dynamic';
 
 /**
  * Swagger UI, self-hosted: assets copied from swagger-ui-dist into public/api-docs at predev/prebuild,
- * plus our committed public/api-docs/init.js. Its own strict CSP (the page middleware skips /api/v3).
+ * plus our committed public/api-docs/init.js. Its own strict CSP (the page proxy skips /api/v3).
  */
 const HTML = `<!doctype html>
 <html lang="en">

@@ -38,8 +38,8 @@ const INPUT_ICONS = {
  * to N players", input icons and player colours. Without a reachable cover it renders text only.
  * Only public games get one (404 otherwise), so random slugs cost a cached lookup, not a render.
  */
-export default async function Image({ params }: { params: { slug: string } }) {
-  const slug = params.slug.toLowerCase();
+export default async function Image({ params }: { params: Promise<{ slug: string }> }) {
+  const slug = (await params).slug.toLowerCase();
   const lookup = isLookupSlug(slug) ? await getGameBySlug(slug) : null;
   if (lookup?.kind !== 'game') {
     return new Response('Not found', { status: 404, headers: { 'cache-control': 'no-store' } });

@@ -6,7 +6,7 @@ import { SAME_ORIGIN_RESOURCE_POLICY, STATIC_SECURITY_HEADERS } from './src/lib/
 
 /**
  * A standalone build freezes this file (headers, redirects) at build time: nothing here may depend on the
- * environment. NOINDEX, SITE_URL and BETA are read at runtime (middleware, withApi, server components).
+ * environment. NOINDEX, SITE_URL and BETA are read at runtime (proxy, withApi, server components).
  */
 const nextConfig: NextConfig = {
   output: 'standalone',
@@ -20,8 +20,6 @@ const nextConfig: NextConfig = {
   // OG images (next/og) read their TTF fonts from src/assets/og at runtime; file tracing cannot see paths
   // built from process.cwd(), so copy them into the standalone build of every opengraph-image route.
   outputFileTracingIncludes: { 'opengraph-image': ['./src/assets/og/*'] },
-  // Lint is its own check (`npm run lint`); the build still type-checks.
-  eslint: { ignoreDuringBuilds: true },
   experimental: {
     serverActions: { bodySizeLimit: '1mb' },
   },
@@ -33,6 +31,6 @@ const nextConfig: NextConfig = {
   },
 };
 
-const withMDX = createMDX({ options: mdxOptions as never });
+const withMDX = createMDX({ options: mdxOptions });
 
 export default withMDX(nextConfig);

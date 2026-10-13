@@ -1,17 +1,18 @@
-import rehypeShiki from '@shikijs/rehype';
-import rehypeAutolinkHeadings from 'rehype-autolink-headings';
-import rehypeSlug from 'rehype-slug';
-import remarkGfm from 'remark-gfm';
-
 /**
- * MDX compile options, used by @next/mdx at build time only (webpack): nothing here runs at request time.
- * Imported by next.config.ts.
+ * MDX compile options, used by @next/mdx at build time only: nothing here runs at request time. Imported by
+ * next.config.ts.
+ *
+ * Plugins are named by package, not imported: Turbopack runs the MDX loader from Rust and can only pass it
+ * serializable options. The loader resolves each name from the project root.
  */
 export const mdxOptions = {
-  remarkPlugins: [remarkGfm],
+  remarkPlugins: ['remark-gfm'],
   rehypePlugins: [
-    rehypeSlug,
-    [rehypeAutolinkHeadings, { behavior: 'wrap' }],
-    [rehypeShiki, { theme: 'github-dark-default' }],
+    'rehype-slug',
+    ['rehype-autolink-headings', { behavior: 'wrap' }],
+    ['@shikijs/rehype', { theme: 'github-dark-default' }],
   ],
+} satisfies {
+  remarkPlugins: (string | [string, Record<string, unknown>])[];
+  rehypePlugins: (string | [string, Record<string, unknown>])[];
 };

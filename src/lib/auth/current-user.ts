@@ -11,7 +11,7 @@ export type CurrentUser = SessionUser & { sessionId: string };
 
 /**
  * The signed-in user of this request, or null. Cached per request with React `cache()`.
- * Rendering cannot write cookies; the middleware re-sends the session cookie with a fresh Max-Age on page
+ * Rendering cannot write cookies; the proxy re-sends the session cookie with a fresh Max-Age on page
  * GETs, and the database expiry (slid here) stays the authority.
  */
 export const getCurrentUser = cache(async (): Promise<CurrentUser | null> => {
@@ -26,7 +26,7 @@ const ROLE_RANK: Record<UserRole, number> = { user: 0, moderator: 1, admin: 2 };
 export const hasRole = (user: Pick<SessionUser, 'role'> | null, role: UserRole) =>
   !!user && ROLE_RANK[user.role] >= ROLE_RANK[role];
 
-/** Current path + query, from the `x-pathname` header set by the middleware. */
+/** Current path + query, from the `x-pathname` header set by the proxy. */
 async function currentPath(): Promise<string> {
   return (await headers()).get('x-pathname') ?? '/';
 }

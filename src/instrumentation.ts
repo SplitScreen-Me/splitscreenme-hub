@@ -5,7 +5,8 @@
  * Edge runtime, and not when DISABLE_JOBS=1 (tests, tooling).
  *
  * The runtime test wraps the import (no early return): Next also compiles this file for the Edge runtime,
- * where NEXT_RUNTIME is inlined, and webpack only drops the Node-only import when its `if` is constant false.
+ * where NEXT_RUNTIME is inlined, and the bundler (Turbopack) only drops the Node-only import when its `if` is
+ * constant false.
  */
 export async function register(): Promise<void> {
   if (process.env.NEXT_RUNTIME === 'nodejs') {
