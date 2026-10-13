@@ -1,6 +1,9 @@
 'use client';
 
-import { Button, EmptyState, LinkButton } from '@/components/ui';
+// Direct imports, not the '@/components/ui' barrel: this client boundary wraps every page, and the barrel
+// would pull server-side modules (lib/env and zod, react-markdown) into every page's JavaScript.
+import { Button, LinkButton } from '@/components/ui/Button';
+import { EmptyState } from '@/components/ui/Misc';
 
 /** Error boundary of every page below the root layout. No error details are shown (digest only). */
 export default function ErrorPage({
