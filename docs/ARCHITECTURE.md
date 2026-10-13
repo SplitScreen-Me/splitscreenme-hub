@@ -10,7 +10,7 @@ Status: **normative**. This document is the single source of truth for the site.
 
 | Topic | Decision |
 |---|---|
-| App | One Next.js 15 App Router app: landing, hub, docs, accounts, backoffice, API |
+| App | One Next.js 16 App Router app (Turbopack build): landing, hub, docs, accounts, backoffice, API |
 | Rendering | Every HTML page is dynamic (nonce CSP). Hot data is cached in an in-process LRU and invalidated on write |
 | DB | PostgreSQL 16, Drizzle ORM 0.45 with the postgres-js driver, `casing: 'snake_case'` |
 | Ids | Legacy Meteor ids (17 chars) stay the primary keys of users, handlers, versions and comments. New ids use the same format |
@@ -520,7 +520,7 @@ Chosen: the session model of the Lucia guide (now a reference implementation, no
 ### 4.2 Sessions (`src/lib/auth/session.ts`)
 
 - Token: 20 random bytes, base32 lower case without padding (`randomBase32` in `src/lib/crypto.ts`). Stored id: hex `sha256(token)`. The token is never stored.
-- Cookie: `__Host-ssm_session` in production (`ssm_session` when `SITE_URL` is http), `HttpOnly; Secure; SameSite=Lax; Path=/`, `Max-Age` 30 days. Rendering cannot set cookies, so the middleware re-sends the session cookie with a fresh `Max-Age` on page GETs; the database expiry (slid on validation) stays the authority.
+- Cookie: `__Host-ssm_session` in production (`ssm_session` when `SITE_URL` is http), `HttpOnly; Secure; SameSite=Lax; Path=/`, `Max-Age` 30 days. Rendering cannot set cookies, so the proxy (`src/proxy.ts`) re-sends the session cookie with a fresh `Max-Age` on page GETs; the database expiry (slid on validation) stays the authority.
 - Validation: one query joining `users`; rejected if expired, user deleted or banned. Expiry slides to 30 days when less than 15 remain. `last_seen_at` written at most once an hour. Wrapped in React `cache()` per request: `getCurrentUser()`.
 - New session on every login (no fixation); the session the browser held before is deleted. Logout deletes the row. Password change or reset, email change, ban, role change and account deletion delete all the user's sessions (except the current one for a password change or an email change made from the account page; an email change confirmed by link keeps the confirming browser's session).
 
@@ -738,7 +738,7 @@ Admins cannot demote or ban themselves; the last admin cannot be demoted; an adm
 
 ### 6.4 Headers and CSP
 
-`src/middleware.ts` (`runtime: 'nodejs'`; with a `src/` directory Next requires it there, as `src/instrumentation.ts` and `src/mdx-components.tsx`) runs on pages only. Matcher excludes `api/v3`, `api/me`, `api/auth`, `_next/static`, `_next/image`, `api-docs`, `doc/img`, `favicon.ico`, `icon.svg`, `icons`, `robots.txt`, `sitemap.xml` (excluding `/api/me` also keeps Next from buffering upload bodies). It generates a 16-byte base64 nonce, forwards it as `x-nonce` and in the request CSP so Next applies it to its scripts, and sets:
+`src/proxy.ts` (Next 16's name for middleware: file `proxy.ts`, exported function `proxy`; it always runs in the Node.js runtime and rejects a `runtime` option; with a `src/` directory Next requires it there, as `src/instrumentation.ts` and `src/mdx-components.tsx`) runs on pages only. Matcher excludes `api/v3`, `api/me`, `api/auth`, `_next/static`, `_next/image`, `api-docs`, `doc/img`, `favicon.ico`, `icon.svg`, `icons`, `robots.txt`, `sitemap.xml` (excluding `/api/me` also keeps Next from buffering upload bodies). It generates a 16-byte base64 nonce, forwards it as `x-nonce` and in the request CSP so Next applies it to its scripts, and sets:
 
 ```
 Content-Security-Policy: default-src 'self'; script-src 'self' 'nonce-<n>' 'strict-dynamic'; style-src 'self' 'unsafe-inline';
@@ -749,7 +749,7 @@ Content-Security-Policy: default-src 'self'; script-src 'self' 'nonce-<n>' 'stri
 
 (`'unsafe-eval'` added in development only.) Static headers in `next.config.ts` for every route: `Strict-Transport-Security: max-age=63072000` (no `includeSubDomains`, no preload: other subdomains are not ours to decide), `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `X-Frame-Options: DENY`, `Cross-Origin-Opener-Policy: same-origin`, `Cross-Origin-Resource-Policy: same-origin` on every path except `/api/v3/**`, whose `cross-origin` comes from `withApi` (config headers win over route handler headers in Next, so the API is excluded from that rule rather than overriding it), `Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), browsing-topics=()`. `poweredByHeader: false`.
 
-**Gotcha:** a standalone build freezes `next.config.ts` (headers, redirects, `serverActions`) at build time, and Edge middleware inlines `process.env` at build too. Anything that depends on the environment (`NOINDEX`, `SITE_URL`, `BETA`) is read at runtime (a static `export const metadata` is evaluated at build too: anything using `SITE_URL`, such as `buildMetadata` with a canonical, goes in `generateMetadata`): in the Node.js middleware (`X-Robots-Tag: noindex, nofollow` on pages), in `withApi` (same header on API responses) and in server components (metadata, banner). The image is built once and runs with any `.env`.
+**Gotcha:** a standalone build freezes `next.config.ts` (headers, redirects, `serverActions`) at build time, and an Edge runtime would inline `process.env` at build too. Anything that depends on the environment (`NOINDEX`, `SITE_URL`, `BETA`) is read at runtime (a static `export const metadata` is evaluated at build too: anything using `SITE_URL`, such as `buildMetadata` with a canonical, goes in `generateMetadata`): in the proxy (`X-Robots-Tag: noindex, nofollow` on pages), in `withApi` (same header on API responses) and in server components (metadata, banner). The image is built once and runs with any `.env`.
 
 User content: handler descriptions render with `react-markdown` + `remark-gfm`, `skipHtml`, the default URL filter, links `rel="nofollow ugc noopener noreferrer"`, images turned into links (no third-party image loads), headings shifted down two levels. Comments are plain text with line breaks and autolinked http(s) URLs. JSON-LD goes through `<JsonLd>` (the only allowed `dangerouslySetInnerHTML`, `<` escaped as `\u003c`).
 
@@ -802,7 +802,7 @@ Helpers in `src/lib/seo/`: `buildMetadata()`, the game and catalogue builders, t
 - **OG images** with `next/og` (1200x630): game pages (bezel frame, IGDB cover, game name, "Split-screen on PC · up to N players", input icons, player colours), a default one for the site and docs. Fonts: static Archivo TTF files in `src/assets/og/` (satori needs TTF/OTF, no variable fonts), OFL license file next to them. Cover fetch failure falls back to text only. Only public games get an image: any other slug (unknown, old, malformed) is a 404 before any rendering. The game image is `force-dynamic` (no ISR file per probed slug on disk); the PNG bytes are kept in memory (`cachedPng` in `src/components/hub/og.ts`, 8 MB, one day, 10 minutes when the cover failed) under a key made of everything the image shows, so a data change renders a new one. The response sets `Cache-Control: public, max-age=86400, stale-while-revalidate=604800` (next/og defaults to a one-year immutable cache on a URL that does not change with the data). nginx limits `opengraph-image` to 1 r/s per IP. File tracing cannot follow `path.join(process.cwd(), ...)`, so `next.config.ts` has `outputFileTracingIncludes: { 'opengraph-image': ['./src/assets/og/*'] }` to put the fonts in the standalone build (and the image).
 - **Sitemap** (`app/sitemap.ts`, `force-dynamic`, cached 1 h in the LRU): `/`, `/download`, `/hub`, every docs page from `src/content/docs/nav.ts`, every public game (`lastModified` = newest listed version), non-primary handler pages, genre pages, author pages with listed handlers, legal pages. Version pages excluded.
 - **robots.txt**: `Allow: /`, `Disallow: /api/, /account, /dashboard, /admin, /login, /register`, and `Sitemap:` only when indexing is on.
-- **Beta flag `NOINDEX`** (default on; only the exact value `0` turns it off), read at runtime: `X-Robots-Tag: noindex, nofollow` on every page (middleware) and API response (`withApi`), `robots: { index: false, follow: false }` in the root metadata, no `Sitemap:` line. Crawling stays allowed so engines see the noindex.
+- **Beta flag `NOINDEX`** (default on; only the exact value `0` turns it off), read at runtime: `X-Robots-Tag: noindex, nofollow` on every page (proxy) and API response (`withApi`), `robots: { index: false, follow: false }` in the root metadata, no `Sitemap:` line. Crawling stays allowed so engines see the noindex.
 - **Internal linking**: header and footer on every page; landing to trending games, genres and top authors; game page to its genres, author, other handlers, 6 related games (shared genres, close player count, trend) and the relevant docs; genre and author pages to their games; docs pages to example game pages where relevant; catalogue pagination with real `<a href>`. Breadcrumbs: Home > Hub > <Genre> > <Game>.
 - **Performance**: server components by default; images with explicit `width`/`height` and `loading="lazy"` except the LCP cover; `images.unoptimized: true`; fonts self-hosted by `next/font/google` (Archivo with the `wdth` axis, JetBrains Mono 400/600). The Google Fonts `@import` in the mockup tokens is removed.
 - **Old URLs**: `/handler/:id`, `/user/:id` (app routes), old docs paths `/docs/:slug` and `/blog/*` (static `redirects()` from `src/content/docs/legacy-redirects.ts`), so the domain switch keeps links. The FAQ keeps the old anchor ids (`7--nucleus-co-op-doesnt-launchcrashes-how-do-i-fix-it`, which the app links to).
@@ -813,7 +813,7 @@ The API page (`src/content/docs/api/index.mdx`) uses the docs components (`CardG
 
 ### 8.1 MDX approach
 
-- `@next/mdx` compiles `.mdx` at build (webpack), so no MDX compiler at runtime. Plugins in `src/content/mdx-options.ts` (imported by `next.config.ts`): `remark-gfm`, `rehype-slug`, `rehype-autolink-headings` (`behavior: 'wrap'`), `@shikijs/rehype` (theme `github-dark-default`, build time only).
+- `@next/mdx` compiles `.mdx` at build (Turbopack runs its loader), so no MDX compiler at runtime. Plugins in `src/content/mdx-options.ts` (imported by `next.config.ts`), named by package because Turbopack only passes serializable loader options: `remark-gfm`, `rehype-slug`, `rehype-autolink-headings` (`behavior: 'wrap'`), `@shikijs/rehype` (theme `github-dark-default`, build time only).
 - Content: `src/content/docs/<path>.mdx`, each exports `export const meta = { title, description, updated: 'YYYY-MM-DD' }`.
 - `src/content/docs/nav.ts`: the ordered sections and pages (`{ slug, file, title }`). It drives the sidebar, prev/next, breadcrumbs and the sitemap (no `generateStaticParams`: pages render per request because of the CSP nonce, MDX is already compiled). A test checks every nav entry has a file and every file is in the nav.
 - Route `src/app/(site)/doc/[[...slug]]/page.tsx` imports the file with `await import(\`@/content/docs/${file}.mdx\`)`; unknown slugs 404.
@@ -909,7 +909,10 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=30s CMD wget -qO- http://
 CMD ["sh", "-c", "umask 027 && node dist/migrate.mjs && exec node server.js"]
 ```
 
-- `next.config.ts`: `output: 'standalone'`, `images: { unoptimized: true }`, `poweredByHeader: false`, `reactStrictMode: true`, `cacheMaxMemorySize: 0` (we cache in our own LRU), `experimental.serverActions.bodySizeLimit: '1mb'`, the static headers of 6.4, the docs redirects of 8.2, `withMDX`. Nothing environment-dependent (6.4).
+- `next.config.ts`: `output: 'standalone'`, `images: { unoptimized: true }`, `poweredByHeader: false`, `reactStrictMode: true`, `cacheMaxMemorySize: 0` (we cache in our own LRU), `experimental.serverActions.bodySizeLimit: '1mb'`, `outputFileTracingIncludes` (the TTF fonts of the OG images, read from `src/assets/og` at runtime), the static headers of 6.4, the docs redirects of 8.2, `withMDX`. Nothing environment-dependent (6.4). No `eslint` key: Next 16 removed it with `next lint`, and `next build` no longer lints (lint is `npm run lint`, the ESLint CLI).
+- Bundler: Turbopack, the default of `next dev` and `next build` since Next 16. Nothing needed webpack: there is no `webpack` hook, the MDX plugins are named by package (8.1), file tracing copies the OG fonts into the standalone output, and `instrumentation.ts` keeps its Node-only import inside the runtime test (10.1). `next build --webpack` remains the fallback if a future plugin needs it. The Turbopack standalone output bundles the server code, so `.next/standalone/node_modules` holds little more than `next`, `react` and `react-dom`.
+- Metadata image routes take their `params` as a Promise since Next 16 (`await params` in `opengraph-image.tsx`); the type of the default export is not checked by `next typegen`, so a sync signature compiles and fails at request time.
+- Client boundaries that wrap every page (`src/app/error.tsx`) import UI components from their own modules, not the `@/components/ui` barrel, which would put `lib/env` and zod (whose `Function('')` probe trips the CSP `script-src`) into every page's JavaScript.
 - `scripts/build-scripts.mjs` bundles `scripts/migrate.ts` (drizzle-orm `migrate()` on `./drizzle`) and `scripts/import-mongo.ts` with esbuild into `dist/*.mjs` (`platform: node`, `format: esm`, externals: `kerberos`, `snappy`, `@mongodb-js/zstd`, `mongodb-client-encryption`, `gcp-metadata`, `socks`, `@aws-sdk/credential-providers`).
 - `SKIP_ENV_VALIDATION=1` (build stage only) makes `env()` fill missing required values with placeholders instead of throwing, uncached. It is never set at runtime. A local `npm run build` stays strict, so code that reads the environment at build time (a static `metadata` export with a canonical, for example) fails there first.
 - `scripts/check-no-native.mjs` fails the build if any `*.node` file or `binding.gyp` is left: runtime dependencies are pure JS (bcryptjs, no sharp, no argon2).
@@ -1013,7 +1016,7 @@ A container cannot reach the host's `127.0.0.1:27017`, so the importer joins `hu
   - The commands are in `scripts/README.md`.
   - Dumps contain emails and password hashes: never copy them, or anything extracted from them, into the repo, tests, logs or reports.
 
-Commands: `npm run db:up`, `npm run db:migrate` (drizzle migrator via tsx), `npm run db:push` (drizzle-kit push to a scratch database while iterating on the schema), `npm run db:seed -- --reset` (synthetic data built from `scripts/seed/catalog-snapshot.json`, a public catalogue snapshot with author names replaced by creator numbers: game names, covers, counters; authors `creator-01`...; users `admin@example.test`, `mod@example.test`, `user@example.test` with password `password`; a private, an unapproved, a deleted and a version-less handler; tiny stamped `.nc` packages in `STORAGE_DIR` unless `--no-files`; refuses a non-local `DATABASE_URL` without `--force`), `npm run dev`. `.env.local` (gitignored, template `.env.example`) holds `DATABASE_URL=postgres://ssm:ssm@127.0.0.1:5433/v3_dev`, `SITE_URL=http://localhost:<port>`, `APP_SECRET`, `STORAGE_DIR=./storage`.
+Commands: `npm run db:up`, `npm run db:migrate` (drizzle migrator via tsx), `npm run db:push` (drizzle-kit push to a scratch database while iterating on the schema), `npm run db:seed -- --reset` (synthetic data built from `scripts/seed/catalog-snapshot.json`, a public catalogue snapshot with author names replaced by creator numbers: game names, covers, counters; authors `creator-01`...; users `admin@example.test`, `mod@example.test`, `user@example.test` with password `password`; a private, an unapproved, a deleted and a version-less handler; tiny stamped `.nc` packages in `STORAGE_DIR` unless `--no-files`; refuses a non-local `DATABASE_URL` without `--force`), `npm run dev` (Turbopack, output in `.next/dev`, so it can run while `next build` writes `.next`; when it detects an AI coding agent, Next 16 also writes an `AGENTS.md` pointing at `node_modules/next/dist/docs`, which is not committed and which `agentRules: false` would turn off). `.env.local` (gitignored, template `.env.example`) holds `DATABASE_URL=postgres://ssm:ssm@127.0.0.1:5433/v3_dev`, `SITE_URL=http://localhost:<port>`, `APP_SECRET`, `STORAGE_DIR=./storage`.
 
 Checks every change must pass: `npm run lint` (ESLint + `check-security.mjs`), `npm run typecheck`, `npm test` (vitest, against `ssm_test` where DB is needed), `npm run build`.
 
@@ -1021,7 +1024,7 @@ Checks every change must pass: `npm run lint` (ESLint + `check-security.mjs`), `
 
 ### 10.1 Code map
 
-- Project: `package.json` with every dependency of section 11 at exact versions; `tsconfig.json` (`strict`, `noUncheckedIndexedAccess`, `@/*` -> `src/*`); ESLint flat config (`next/core-web-vitals`, `next/typescript`, the restricted imports of 6.1); Prettier; vitest.
+- Project: `package.json` with every dependency of section 11 at exact versions; `tsconfig.json` (`strict`, `noUncheckedIndexedAccess`, `@/*` -> `src/*`); ESLint 9 flat config, run by the ESLint CLI (`npm run lint`; Next 16 removed `next lint`): `eslint-config-next/core-web-vitals` and `eslint-config-next/typescript` (native flat configs since 16, no `FlatCompat`; they bring `eslint-plugin-react-hooks` 7 and its React Compiler rules such as `set-state-in-effect`, which two deliberate after-hydration effects disable with a reason: the reset link token, the landing animation start), the restricted imports of 6.1; Prettier; vitest.
 - Design: `src/styles/tokens.css` (the Bezel tokens), `globals.css` with Tailwind v4 `@import "tailwindcss"` and `@theme inline` mapping the tokens (`--color-bezel`, `--color-pane*`, `--color-line*`, `--color-ink*`, `--color-p1..p8`, `--color-ok/warn/danger`, fonts, radii), `@tailwindcss/typography` for docs prose. Player colours are used only for players, slots and devices.
 - UI kit `src/components/ui/`: `Button`/`LinkButton`, `Pane`, `Section`, `Tag`, `Badge` (verified), `Field`, `Textarea`, `Select`, `Switch`, `Checkbox`, `Dialog` (native `<dialog>`), `Pagination`, `Breadcrumbs`, `Icon`, `Logo`, `PlayerDot`/`PlayerBar`, `Stat`, `Kbd`, `EmptyState`, `CoverImage`, `DateTime`, `FormField` (zod field errors), `Table`, `CodeBlock`, `SafeMarkdown`, `seo/JsonLd`.
 - Layout `src/components/layout/`: `SiteHeader`, `SiteFooter`, `BetaBanner`, `not-found.tsx`, `error.tsx`, `global-error.tsx`, root layout (fonts, `metadataBase`, robots flag, nonce).
@@ -1054,15 +1057,15 @@ English messages, logical commits. Never commit secrets, `.env` files, dumps or 
 
 ## 11. Exact versions
 
-Chosen on 2026-10-12: newest stable release of the required major published before 2026-09-28. Docker images are pinned by tag; pin digests at the first deploy.
+Chosen on 2026-10-12: newest stable release of the required major published before 2026-09-28. Exception, by owner decision on 2026-10-13: Next.js moved to its latest stable release (16.4.0, published 2026-10-06), with the React line it targets and its companion packages. Docker images are pinned by tag; pin digests at the first deploy.
 
 | Package | Version | Kind |
 |---|---|---|
 | node (Docker `node:24.21.0-alpine3.24`) | 24.21.0 LTS | runtime image |
 | postgres (Docker `postgres:16.15-alpine3.24`) | 16.15 | runtime image |
 | mongo (Docker `mongo:4.0.28`) | 4.0.28 | local dev only |
-| next | 15.5.27 (patch bump on 2026-10-13) | dependency |
-| react, react-dom | 19.2.8 | dependency |
+| next | 16.4.0 (from 15.5.27 on 2026-10-13) | dependency |
+| react, react-dom | 19.3.0 (the line Next 16.4 targets) | dependency |
 | drizzle-orm | 0.45.3 | dependency |
 | postgres (postgres-js) | 3.4.9 | dependency |
 | zod | 4.6.5 | dependency |
@@ -1078,7 +1081,7 @@ Chosen on 2026-10-12: newest stable release of the required major published befo
 | server-only | 0.0.1 | dependency |
 | clsx | 2.1.1 | dependency |
 | tailwind-merge | 3.7.0 | dependency |
-| @next/mdx | 15.5.27 | dependency |
+| @next/mdx | 16.4.0 | dependency |
 | @mdx-js/loader, @mdx-js/react | 3.1.1 | dependency |
 | swagger-ui-dist | 5.33.0 | devDependency (copied to `public/`) |
 | rehype-slug | 6.0.0 | devDependency (build) |
@@ -1088,8 +1091,8 @@ Chosen on 2026-10-12: newest stable release of the required major published befo
 | @tailwindcss/typography | 0.5.20 | devDependency |
 | typescript | 5.9.3 | devDependency |
 | @types/node | 24.19.0 | devDependency |
-| @types/react | 19.2.18 | devDependency |
-| @types/react-dom | 19.2.7 | devDependency |
+| @types/react | 19.3.0 | devDependency |
+| @types/react-dom | 19.3.0 | devDependency |
 | @types/mdx | 2.0.14 | devDependency |
 | @types/yauzl | 3.4.0 | devDependency |
 | @types/yazl | 3.3.1 | devDependency |
@@ -1097,17 +1100,16 @@ Chosen on 2026-10-12: newest stable release of the required major published befo
 | @types/nodemailer | 8.0.2 | devDependency |
 | drizzle-kit | 0.31.11 | devDependency |
 | eslint | 9.39.5 | devDependency |
-| eslint-config-next | 15.5.27 | devDependency |
-| @eslint/eslintrc | 3.3.7 | devDependency |
+| eslint-config-next | 16.4.0 | devDependency |
 | prettier | 3.9.9 | devDependency |
 | vitest | 5.0.2 | devDependency |
 | tsx | 4.23.15 | devDependency |
 | esbuild | 0.28.2 | devDependency |
 | mongodb (driver) | 6.16.0, the last release that still talks to server 4.0 (wire version 7). 6.17 and later, like 7.x, require 4.2 | devDependency (bundled into `dist/import.mjs`) |
 
-Notes: TypeScript 6 and 7 exist but Next 15 is validated on 5.x; React 19.3 exists but Next 15.5 ships with the 19.2 line (the App Router uses Next's vendored React anyway). `sharp`, an optional dependency of `next`, is removed from the standalone output (9.2).
+Notes: TypeScript stays on 5.9 (Next 16 needs 5.1 or later, and `typescript-eslint` 8 supports up to 6.0; nothing needs 6). React follows the line Next vendors (16.4 ships a 19.3 build; the App Router uses Next's vendored React anyway). Next 16 needs Node.js 20.9 or later; the image runs 24. `sharp`, an optional dependency of `next`, is removed from the standalone output (9.2).
 
-Deviations from the first plan (2026-10-12): `arctic@3.7.0`, `@oslojs/crypto` (and its `@oslojs/*` siblings) were deprecated on npm on 2026-07-29 ("Package no longer supported"), so they are not used; `@oslojs/encoding` went with them. OAuth and token hashing are in-repo on `fetch` and `node:crypto` (4.1, 4.2). ESLint 9 is end-of-life upstream but stays: `eslint-config-next` 15 supports 8 and 9 only.
+Deviations from the first plan (2026-10-12): `arctic@3.7.0`, `@oslojs/crypto` (and its `@oslojs/*` siblings) were deprecated on npm on 2026-07-29 ("Package no longer supported"), so they are not used; `@oslojs/encoding` went with them. OAuth and token hashing are in-repo on `fetch` and `node:crypto` (4.1, 4.2). ESLint 9 is end-of-life upstream but stays: `eslint-config-next` 16 accepts ESLint 10, but the plugins it bundles (`eslint-plugin-react`, `eslint-plugin-import`, `eslint-plugin-jsx-a11y`) still declare ESLint 9 as their highest peer, and Next documents ESLint 9 for it. `@eslint/eslintrc` went away with `FlatCompat` (10.1).
 
 **Lockfile gotcha:** `package-lock.json` must be written by the npm of the runtime image (`node:24.21.0-alpine3.24`, npm 11.19). A lockfile from an older npm on Windows misses cross-platform optional packages (`@emnapi/*`) and `npm ci` fails in the Docker build. Regenerate it from the repository root with `docker run --rm -v ${PWD}:/app -w /app node:24.21.0-alpine3.24 npm install --package-lock-only` (PowerShell).
 

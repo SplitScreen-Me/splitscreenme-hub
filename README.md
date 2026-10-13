@@ -11,7 +11,7 @@ the data model, auth, the API, security, SEO, docs, deployment and the code conv
 
 ## Stack
 
-Next.js 15 (App Router, `output: standalone`), React 19, TypeScript (strict), Tailwind CSS 4 with the
+Next.js 16 (App Router, `output: standalone`, Turbopack), React 19, TypeScript (strict), Tailwind CSS 4 with the
 "Bezel" design tokens, PostgreSQL 16 with Drizzle ORM (postgres-js), zod 4, OpenAPI 3.1 with a self-hosted
 Swagger UI, vitest. Runtime dependencies are pure JavaScript (bcryptjs, no sharp, no native modules).
 
