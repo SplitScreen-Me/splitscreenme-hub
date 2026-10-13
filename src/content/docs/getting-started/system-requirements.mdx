@@ -2,7 +2,7 @@ export const meta = {
   title: 'System requirements',
   description:
     'What Nucleus Co-op needs: Windows 10 or 11, the .NET Framework, Visual C++ runtimes, WebView2, an NTFS drive, and enough PC for one copy of the game per player.',
-  updated: '2026-10-12',
+  updated: '2026-10-13',
 };
 
 ## Software
@@ -14,6 +14,7 @@ export const meta = {
 | Visual C++ 2015-2022 Redistributable, **x86 and x64** | The hooks and helper tools, in 32 and 64 bits | Nucleus offers to install them on first start, or [x86](https://aka.ms/vs/17/release/vc_redist.x86.exe) and [x64](https://aka.ms/vs/17/release/vc_redist.x64.exe) |
 | Microsoft Edge WebView2 Runtime | The interface of Nucleus Co-op 3 | Already on Windows 11 and on up-to-date Windows 10; Nucleus offers to install it otherwise |
 | An NTFS drive for Nucleus Co-op and your games | Most handlers use symbolic links, which exFAT and FAT32 can't store | - |
+| A new, empty folder of its own | Nucleus writes next to itself, and some handlers run as other Windows users | Not in Program Files, `C:\Users\…` or OneDrive, and not over an older version: [Pick the right folder](/doc/getting-started/install#pick-the-right-folder) |
 
 Some older games also need the
 [DirectX End-User Runtime](https://www.microsoft.com/en-us/download/details.aspx?id=35) (the June 2010 libraries,

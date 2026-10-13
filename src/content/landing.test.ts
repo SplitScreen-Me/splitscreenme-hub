@@ -6,7 +6,7 @@ import { resolveCollections } from '@/components/landing/resolve';
 import type { PublicHandler } from '@/server/public/types';
 import { collections, heroScenes, landingFaq } from './collections';
 import { findDocPage } from './docs/nav';
-import { release } from './release';
+import { allReleasesUrl, RELEASES_PATH, release, releaseSize, stableRelease } from './release';
 
 function headingIds(file: string): Set<string> {
   const src = readFileSync(path.resolve('src/content/docs', `${file}.mdx`), 'utf8');
@@ -41,13 +41,42 @@ describe('landing content', () => {
     expect(heroScenes.length).toBeGreaterThanOrEqual(2);
   });
 
-  it('release info is complete', () => {
-    expect(release.version).toMatch(/^\d+\.\d+(\.\d+)?$/);
-    expect(release.date).toMatch(/^\d{4}-\d{2}-\d{2}$/);
-    for (const url of [release.downloadUrl, release.notesUrl, release.allReleasesUrl]) {
+  it.each([
+    ['release', release],
+    ['stableRelease', stableRelease],
+  ])('%s info is complete', (_, r) => {
+    expect(r.version).toMatch(/^\d+\.\d+\.\d+(-beta-\d+)?$/);
+    expect(r.channel).toBe(r.version.includes('-beta-') ? 'beta' : 'stable');
+    expect(r.label.length).toBeGreaterThan(0);
+    expect(r.date).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    expect(Number.isNaN(Date.parse(r.date))).toBe(false);
+    expect(Number.isInteger(r.sizeBytes) && r.sizeBytes > 1_000_000).toBe(true);
+    if (r.sha256 !== null) expect(r.sha256).toMatch(/^[0-9a-f]{64}$/);
+    expect(r.downloadUrl.endsWith(`/${r.fileName}`)).toBe(true);
+    if (r.downloadUrl.startsWith('/')) {
+      // Hosted on this site: a plain file under RELEASES_PATH, named after the version, with a checksum.
+      expect(r.downloadUrl).toBe(`${RELEASES_PATH}${r.fileName}`);
+      expect(r.fileName).toMatch(/^[A-Za-z0-9._-]+\.zip$/);
+      expect(r.fileName).toContain(r.version);
+      expect(r.sha256).not.toBeNull();
+    } else {
+      expect(r.downloadUrl).toContain(r.version);
+    }
+    for (const url of [r.downloadUrl, r.notesUrl, allReleasesUrl]) {
+      if (url === null || url.startsWith('/')) continue;
       expect(url).toMatch(/^https:\/\/github\.com\/SplitScreen-Me\/splitscreenme-nucleus\/releases/);
     }
-    expect(release.downloadUrl).toContain(release.version);
+  });
+
+  it('a beta keeps a stable release to fall back on', () => {
+    expect(stableRelease.channel).toBe('stable');
+    expect(stableRelease.notesUrl).not.toBeNull();
+    if (release.channel === 'stable') expect(release.version).toBe(stableRelease.version);
+  });
+
+  it('formats the size in MB', () => {
+    expect(releaseSize({ ...release, sizeBytes: 43_498_485 })).toBe('43 MB');
+    expect(releaseSize({ ...release, sizeBytes: 97_396_862 })).toBe('97 MB');
   });
 });
 

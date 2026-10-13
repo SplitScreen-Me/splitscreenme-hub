@@ -1,4 +1,4 @@
-import type { Release } from '@/content/release';
+import { type Release, releaseSize } from '@/content/release';
 import { COMMUNITY, absoluteUrl } from '../urls';
 import { SITE_NAME } from './metadata';
 
@@ -52,8 +52,10 @@ export function softwareJsonLd(release: Release, publisherId = `${absoluteUrl('/
     softwareVersion: release.version,
     datePublished: release.date,
     license: 'https://www.gnu.org/licenses/gpl-3.0.html',
-    downloadUrl: release.downloadUrl,
-    releaseNotes: release.notesUrl,
+    // Hosted builds are site paths; structured data wants absolute URLs.
+    downloadUrl: release.downloadUrl.startsWith('/') ? absoluteUrl(release.downloadUrl) : release.downloadUrl,
+    fileSize: releaseSize(release),
+    ...(release.notesUrl && { releaseNotes: release.notesUrl }),
     isAccessibleForFree: true,
     publisher: { '@id': publisherId },
     offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },

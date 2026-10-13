@@ -5,7 +5,7 @@ import '@/components/landing/landing.css';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { CoverImage, Icon, LinkButton, LogoMark, PlayerTag, formatCount } from '@/components/ui';
 import { heroScenes, landingFaq } from '@/content/collections';
-import { release, releaseMonth } from '@/content/release';
+import { release, releaseMonth, releaseSize, stableRelease } from '@/content/release';
 import { landingJsonLd } from '@/lib/seo/landing';
 import { buildMetadata } from '@/lib/seo/metadata';
 import { COMMUNITY, igdbCoverUrl, paths, steamHeroUrl } from '@/lib/urls';
@@ -348,27 +348,39 @@ export default async function HomePage() {
         <section className="pane pad lp-download" id="download" aria-labelledby="dl-title">
           <span className="ver">
             <LogoMark />
-            Version {release.version}, released {releaseMonth()}
+            {release.channel === 'beta' && <span className="lp-beta">Beta</span>}
+            <span>Released {releaseMonth()}</span>
           </span>
           <h2 id="dl-title" className="h1">
-            Nucleus <span className="whitespace-nowrap">Co-op {release.version}</span>
+            Nucleus <span className="whitespace-nowrap">Co-op {release.label}</span>
           </h2>
-          <p className="sub">Free for Windows 10 and 11, 64-bit. Unzip it and play: no installer, no account.</p>
-          <LinkButton href={release.downloadUrl} size="lg" icon="download" className="btn-dark">
-            Download for Windows
+          <p className="sub">
+            Free for Windows 10 and 11, 64-bit, {releaseSize()}. Unzip it and play: no installer, no account.
+          </p>
+          <LinkButton href={release.downloadUrl} download size="lg" icon="download" className="btn-dark">
+            {release.channel === 'beta' ? 'Download the beta' : 'Download for Windows'}
           </LinkButton>
           <div className="links">
-            <a href={release.notesUrl} rel="noopener">
-              Release notes
-            </a>
+            {release.notesUrl && (
+              <a href={release.notesUrl} rel="noopener">
+                Release notes
+              </a>
+            )}
             <Link href={paths.doc('getting-started/install')}>Install guide</Link>
+            {release.channel === 'beta' && stableRelease.notesUrl && (
+              <a href={stableRelease.notesUrl} rel="noopener">
+                Stable {stableRelease.label}
+              </a>
+            )}
             <a href={COMMUNITY.github} rel="noopener">
               Source code on GitHub
             </a>
           </div>
-          {release.preview && (
+          {release.channel === 'beta' && (
             <p className="preview">
-              <b>Nucleus Co-op {release.preview.version} is in beta.</b> The new interface comes with the next release.
+              <b>Nucleus Co-op 3 is in beta</b>, with the new couch-friendly interface. Prefer the stable{' '}
+              {stableRelease.label}? It&apos;s on GitHub, and the <Link href={paths.download()}>download page</Link>{' '}
+              has the details.
             </p>
           )}
           <ul className="lp-reqs">

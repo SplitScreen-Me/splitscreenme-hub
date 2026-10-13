@@ -1,41 +1,73 @@
 /**
- * The Nucleus Co-op release the site offers for download (landing, /download, JSON-LD). Edited by hand on each
- * release: version, date, file, size and the two URLs. Nothing else in the site hardcodes a version.
+ * The Nucleus Co-op builds the site offers (landing, /download, JSON-LD). Nothing else in the site hardcodes a
+ * version.
+ *
+ * To publish a new build, change only the `hosted(...)` call of `release` below: docs/DEPLOY.md, "Publish a new app
+ * build", copies the zip to the server first. Hosted builds are static files served by nginx under
+ * RELEASES_PATH (deploy/nginx/v3.splitscreen.me.conf).
  */
 export interface Release {
-  /** e.g. "2.4.2" */
+  /** Full version, as in the file name: "3.0.0-beta-5", "2.4.2" */
   version: string;
-  /** release date, YYYY-MM-DD */
+  /** What people read: "3.0 beta 5", "2.4.2" */
+  label: string;
+  /** "beta" adds the beta badge and the beta notes of the download page */
+  channel: 'stable' | 'beta';
+  /** Release date, YYYY-MM-DD */
   date: string;
-  /** direct link to the release archive */
+  /** Direct link to the archive: a path on this site (hosted builds) or an https URL */
   downloadUrl: string;
-  /** archive name, shown next to the button */
+  /** Archive name, shown next to the button */
   fileName: string;
-  /** archive size in MB (10^6 bytes), rounded */
-  sizeMb: number;
-  /** release notes of this version */
-  notesUrl: string;
-  /** every release, older versions included */
-  allReleasesUrl: string;
-  /** the next major version when it is in preview, shown as a note; null once it is the release above */
-  preview: { version: string; note: string } | null;
+  /** Exact archive size in bytes */
+  sizeBytes: number;
+  /** SHA-256 of the archive, lowercase hex; null when we only link to it */
+  sha256: string | null;
+  /** Release notes, when there are public ones */
+  notesUrl: string | null;
 }
 
-export const release: Release = {
+/** Where nginx serves hosted builds from (/srv/ssm-v3/releases on the server). */
+export const RELEASES_PATH = '/releases/';
+
+/** A build hosted on this site, named NucleusCoop-<version>.zip. */
+function hosted(r: Pick<Release, 'version' | 'label' | 'channel' | 'date' | 'sizeBytes' | 'sha256'>): Release {
+  const fileName = `NucleusCoop-${r.version}.zip`;
+  return { ...r, fileName, downloadUrl: `${RELEASES_PATH}${fileName}`, notesUrl: null };
+}
+
+/** The build behind every "Download" button. */
+export const release: Release = hosted({
+  version: '3.0.0-beta-5',
+  label: '3.0 beta 5',
+  channel: 'beta',
+  date: '2026-10-13',
+  sizeBytes: 43_498_485,
+  sha256: 'e57574b36a92df541acd82f04db483149a2af4746a809a50ba85d90f972999bc',
+});
+
+/** The last stable release, offered as a secondary link while `release` is a beta. */
+export const stableRelease: Release = {
   version: '2.4.2',
+  label: '2.4.2',
+  channel: 'stable',
   date: '2026-08-23',
   downloadUrl: 'https://github.com/SplitScreen-Me/splitscreenme-nucleus/releases/download/v2.4.2/NucleusApp.zip',
   fileName: 'NucleusApp.zip',
-  sizeMb: 97,
+  sizeBytes: 97_396_862,
+  sha256: null,
   notesUrl: 'https://github.com/SplitScreen-Me/splitscreenme-nucleus/releases/tag/v2.4.2',
-  allReleasesUrl: 'https://github.com/SplitScreen-Me/splitscreenme-nucleus/releases',
-  preview: {
-    version: '3.0',
-    note: 'Nucleus Co-op 3, with the new couch-friendly interface, is in beta. These guides already describe it; the steps are the same in 2.4, the screens look different.',
-  },
 };
 
-/** "August 2026" */
+/** Every release, older versions included. */
+export const allReleasesUrl = 'https://github.com/SplitScreen-Me/splitscreenme-nucleus/releases';
+
+/** "43 MB" (10^6 bytes, rounded) */
+export function releaseSize(r: Release = release): string {
+  return `${Math.max(1, Math.round(r.sizeBytes / 1e6))} MB`;
+}
+
+/** "October 2026" */
 export function releaseMonth(r: Release = release): string {
   return new Intl.DateTimeFormat('en-GB', { month: 'long', year: 'numeric', timeZone: 'UTC' }).format(
     new Date(`${r.date}T00:00:00Z`),

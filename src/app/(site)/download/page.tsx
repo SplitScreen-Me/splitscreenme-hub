@@ -2,25 +2,28 @@ import Link from 'next/link';
 import '@/components/landing/landing.css';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { Breadcrumbs, DateTime, Icon, LinkButton, LogoMark } from '@/components/ui';
-import { release } from '@/content/release';
+import { allReleasesUrl, release, releaseSize, stableRelease } from '@/content/release';
 import { softwareJsonLd } from '@/lib/seo/landing';
 import { breadcrumbJsonLd, buildMetadata } from '@/lib/seo/metadata';
 import { COMMUNITY, paths } from '@/lib/urls';
 
+const beta = release.channel === 'beta';
+
 export const generateMetadata = () =>
   buildMetadata({
     title: 'Download Nucleus Co-op',
-    description: `Download Nucleus Co-op ${release.version} for Windows 10 and 11: free, open source, no installer and no account. Requirements and install steps.`,
+    description: `Download Nucleus Co-op ${release.label} for Windows 10 and 11: free, open source, no installer and no account. Requirements and install steps.`,
     path: paths.download(),
   });
 
 const STEPS = [
   {
-    title: 'Pick a folder',
+    title: 'Pick a new folder',
     body: (
       <>
-        Create <code>C:\NucleusCo-op</code>, or the same at the root of the drive your games are on. Not in Program
-        Files, OneDrive or your user folder.
+        Create an empty folder such as <code>C:\NucleusCo-op</code>, or the same at the root of the drive your games
+        are on. Not in Program Files, your user folder (<code>C:\Users\…</code>) or OneDrive, and not over an older
+        Nucleus Co-op.
       </>
     ),
   },
@@ -112,31 +115,48 @@ export default function DownloadPage() {
         <section className="pane pad lp-download" aria-labelledby="dl-title">
           <span className="ver">
             <LogoMark />
-            Released <DateTime value={`${release.date}T00:00:00Z`} />
+            {beta && <span className="lp-beta">Beta</span>}
+            <span>
+              Released <DateTime value={`${release.date}T00:00:00Z`} />
+            </span>
           </span>
           <h2 id="dl-title" className="h1">
-            Nucleus <span className="whitespace-nowrap">Co-op {release.version}</span>
+            Nucleus <span className="whitespace-nowrap">Co-op {release.label}</span>
           </h2>
           <p className="sub">
-            {release.fileName}, {release.sizeMb} MB. Free for Windows 10 and 11, 64-bit, under the GPL-3.0.
+            {release.fileName}, {releaseSize()}. Free for Windows 10 and 11, 64-bit, under the GPL-3.0.
           </p>
-          <LinkButton href={release.downloadUrl} size="lg" icon="download" className="btn-dark">
-            Download for Windows
+          <LinkButton href={release.downloadUrl} download size="lg" icon="download" className="btn-dark">
+            {beta ? 'Download the beta' : 'Download for Windows'}
           </LinkButton>
           <div className="links">
-            <a href={release.notesUrl} rel="noopener">
-              Release notes
-            </a>
-            <a href={release.allReleasesUrl} rel="noopener">
+            {release.notesUrl && (
+              <a href={release.notesUrl} rel="noopener">
+                Release notes
+              </a>
+            )}
+            {beta && stableRelease.notesUrl && (
+              <a href={stableRelease.notesUrl} rel="noopener">
+                Stable {stableRelease.label} on GitHub
+              </a>
+            )}
+            <a href={allReleasesUrl} rel="noopener">
               All versions
             </a>
             <a href={COMMUNITY.github} rel="noopener">
               Source code
             </a>
           </div>
-          {release.preview && (
+          {release.sha256 && (
+            <p className="lp-sha">
+              SHA-256 <code>{release.sha256}</code>
+            </p>
+          )}
+          {beta && (
             <p className="preview">
-              <b>Nucleus Co-op {release.preview.version} is in beta.</b> {release.preview.note}
+              <b>This is a beta</b> of Nucleus Co-op 3, with the new couch-friendly interface. It doesn&apos;t update
+              itself: come back here for the next one. A few handlers need tools it doesn&apos;t ship yet; for those,
+              use the stable {stableRelease.label}.
             </p>
           )}
           <ul className="lp-reqs">
@@ -146,7 +166,12 @@ export default function DownloadPage() {
             </li>
             <li>
               <Icon name="check" />
-              .NET Framework 4.7.2, Visual C++ 2015-2022 (x86 and x64): Nucleus offers what&apos;s missing
+              .NET Framework 4.7.2, built into Windows 10 (since 1803) and 11
+            </li>
+            <li>
+              <Icon name="check" />
+              Microsoft Edge WebView2 Runtime and Visual C++ 2015-2022 (x86 and x64): Nucleus offers what&apos;s
+              missing
             </li>
             <li>
               <Icon name="check" />
