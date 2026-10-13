@@ -1060,7 +1060,7 @@ Chosen on 2026-10-12: newest stable release of the required major published befo
 | node (Docker `node:24.21.0-alpine3.24`) | 24.21.0 LTS | runtime image |
 | postgres (Docker `postgres:16.15-alpine3.24`) | 16.15 | runtime image |
 | mongo (Docker `mongo:4.0.28`) | 4.0.28 | local dev only |
-| next | 15.5.26 | dependency |
+| next | 15.5.27 (patch bump on 2026-10-13) | dependency |
 | react, react-dom | 19.2.8 | dependency |
 | drizzle-orm | 0.45.3 | dependency |
 | postgres (postgres-js) | 3.4.9 | dependency |
@@ -1077,7 +1077,7 @@ Chosen on 2026-10-12: newest stable release of the required major published befo
 | server-only | 0.0.1 | dependency |
 | clsx | 2.1.1 | dependency |
 | tailwind-merge | 3.7.0 | dependency |
-| @next/mdx | 15.5.26 | dependency |
+| @next/mdx | 15.5.27 | dependency |
 | @mdx-js/loader, @mdx-js/react | 3.1.1 | dependency |
 | swagger-ui-dist | 5.33.0 | devDependency (copied to `public/`) |
 | rehype-slug | 6.0.0 | devDependency (build) |
@@ -1096,7 +1096,7 @@ Chosen on 2026-10-12: newest stable release of the required major published befo
 | @types/nodemailer | 8.0.2 | devDependency |
 | drizzle-kit | 0.31.11 | devDependency |
 | eslint | 9.39.5 | devDependency |
-| eslint-config-next | 15.5.26 | devDependency |
+| eslint-config-next | 15.5.27 | devDependency |
 | @eslint/eslintrc | 3.3.7 | devDependency |
 | prettier | 3.9.9 | devDependency |
 | vitest | 5.0.2 | devDependency |
