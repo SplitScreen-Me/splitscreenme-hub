@@ -38,12 +38,12 @@ function hosted(r: Pick<Release, 'version' | 'label' | 'channel' | 'date' | 'siz
 
 /** The build behind every "Download" button. */
 export const release: Release = hosted({
-  version: '3.0.0-beta-6',
-  label: '3.0 beta 6',
+  version: '3.0.0-beta-7',
+  label: '3.0 beta 7',
   channel: 'beta',
-  date: '2026-10-13',
-  sizeBytes: 43_776_878,
-  sha256: '2c712628b8c015eadb0bda79380ab35d2910c0908bd6eb5fd806cb93a022065f',
+  date: '2026-11-03',
+  sizeBytes: 47_624_632,
+  sha256: '559002c5512aa157e5dec659ad3a693f57986244e842240e0e3cc8468f8fd2fa',
 });
 
 /** The last stable release, offered as a secondary link while `release` is a beta. */
