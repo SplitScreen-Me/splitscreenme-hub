@@ -560,13 +560,14 @@
     gap: var(--space-4);
     margin-bottom: var(--space-5);
   }
-  .pane-head a {
+  /* Text links of a heading row ("See all"); link buttons keep their own look. */
+  .pane-head a:not(.btn) {
     color: var(--ink-2);
     font-size: var(--t-small);
     font-weight: 600;
     text-decoration: none;
   }
-  .pane-head a:hover {
+  .pane-head a:not(.btn):hover {
     color: var(--ink);
   }
   .pad {

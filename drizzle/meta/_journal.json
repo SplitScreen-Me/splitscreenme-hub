@@ -29,6 +29,13 @@
       "when": 1791838847914,
       "tag": "0003_import_baselines_and_email_proof",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1793705742504,
+      "tag": "0004_news",
+      "breakpoints": true
     }
   ]
 }

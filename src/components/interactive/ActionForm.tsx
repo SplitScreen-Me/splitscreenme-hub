@@ -211,7 +211,7 @@ export function TextField({
   inputMode,
   ...common
 }: Common & {
-  type?: 'text' | 'email' | 'password' | 'number' | 'search' | 'url' | 'date';
+  type?: 'text' | 'email' | 'password' | 'number' | 'search' | 'url' | 'date' | 'datetime-local';
   defaultValue?: string | number;
   placeholder?: string;
   autoComplete?: string;

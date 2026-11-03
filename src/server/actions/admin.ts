@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation';
 import type { UserRole } from '@/db/schema';
 import { getCurrentUser, hasRole } from '@/lib/auth/current-user';
 import { isValidId } from '@/lib/ids';
+import type { NewsStatus } from '@/lib/news';
 import { requestIp } from '@/server/auth/request-context';
 import { restoreComment } from '@/server/private/community';
 import {
@@ -24,6 +25,7 @@ import {
   transferHandler,
   updateGame,
 } from '@/server/private/moderation';
+import { createNews, deleteNews, setNewsPublished, updateNews } from '@/server/private/news';
 import { errorState, okState, text, toState, type ActionState } from './types';
 
 /**
@@ -209,4 +211,67 @@ export async function refreshGameAction(gameId: number, _prev: ActionState) {
   const user = await staff();
   if (!user || !Number.isSafeInteger(gameId)) return DENIED;
   return done(await refreshGame(user, gameId, await requestIp()), 'Refreshed from IGDB.');
+}
+
+// ---------- app news (admins only) ----------
+
+async function admin() {
+  const user = await getCurrentUser();
+  return user && hasRole(user, 'admin') ? user : null;
+}
+
+const newsInput = (fd: FormData) => ({
+  message: text(fd, 'message'),
+  url: text(fd, 'url'),
+  severity: text(fd, 'severity'),
+  startsAt: text(fd, 'startsAt'),
+  endsAt: text(fd, 'endsAt'),
+});
+
+const NEWS_STATUS_NOTE: Record<NewsStatus, string> = {
+  live: 'It is live: the app shows it within a minute.',
+  scheduled: 'It is scheduled: the app shows it from its start date.',
+  expired: 'Its end date has passed: the app does not show it.',
+  draft: 'It is a draft: the app does not show it.',
+};
+
+export async function createNewsAction(_prev: ActionState, fd: FormData): Promise<ActionState> {
+  const user = await admin();
+  if (!user) return DENIED;
+  const publish = text(fd, 'intent') === 'publish';
+  const result = await createNews(user, newsInput(fd), publish, await requestIp());
+  if (!result.ok) return toState(result);
+  revalidatePath('/admin', 'layout');
+  redirect(`/admin/news?created=${result.value.status}`);
+}
+
+export async function updateNewsAction(newsId: string, _prev: ActionState, fd: FormData) {
+  const user = await admin();
+  if (!user || !isValidId(newsId)) return DENIED;
+  const result = await updateNews(user, newsId, newsInput(fd), await requestIp());
+  if (!result.ok) return toState(result);
+  revalidatePath('/admin', 'layout');
+  return okState(`Saved. ${NEWS_STATUS_NOTE[result.value.status]}`);
+}
+
+export async function publishNewsAction(newsId: string, publish: boolean, _prev: ActionState) {
+  const user = await admin();
+  if (!user || !isValidId(newsId)) return DENIED;
+  const result = await setNewsPublished(user, newsId, publish, await requestIp());
+  if (!result.ok) return toState(result);
+  revalidatePath('/admin', 'layout');
+  return okState(
+    publish
+      ? `Published. ${NEWS_STATUS_NOTE[result.value.status]}`
+      : 'Unpublished: the app drops it within a minute.',
+  );
+}
+
+export async function deleteNewsAction(newsId: string, _prev: ActionState) {
+  const user = await admin();
+  if (!user || !isValidId(newsId)) return DENIED;
+  const result = await deleteNews(user, newsId, await requestIp());
+  if (!result.ok) return toState(result);
+  revalidatePath('/admin', 'layout');
+  redirect('/admin/news?deleted=1');
 }

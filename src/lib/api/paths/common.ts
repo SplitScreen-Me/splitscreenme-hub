@@ -24,3 +24,4 @@ export const notModified: ResponseConfig = {
 
 export const READ_CACHE = CACHE.read;
 export const CATALOG_CACHE = CACHE.catalog;
+export const NEWS_CACHE = CACHE.news;

@@ -380,6 +380,35 @@ export const auditLog = pgTable(
   ],
 );
 
+// ---------- app news ----------
+// One-line announcements of the desktop app's ticker (GET /api/v3/news), written by admins in /admin/news.
+export const newsSeverity = pgEnum('news_severity', ['info', 'warning', 'critical']);
+
+export const news = pgTable(
+  'news',
+  {
+    id: text().primaryKey(), // newId()
+    message: text().notNull(), // one line (line breaks collapsed to spaces), 1..500 chars
+    url: text(), // "Learn more" link: http(s) only, max 2048
+    severity: newsSeverity().notNull().default('info'),
+    published: boolean().notNull().default(false),
+    startsAt: tstz().notNull().defaultNow(),
+    endsAt: tstz(), // null = until unpublished
+    createdBy: text().references(() => users.id, { onDelete: 'set null' }), // never exposed by the API
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [
+    index('news_published_starts_idx')
+      .on(t.startsAt.desc())
+      .where(sql`published`),
+    check('news_message_length', sql`char_length(message) between 1 and 500`),
+    check('news_message_one_line', sql`message !~ '[\\r\\n]'`), // regex escapes, read by Postgres
+    check('news_url', sql`url is null or (url ~* '^https?://' and char_length(url) <= 2048)`),
+    check('news_window', sql`ends_at is null or ends_at > starts_at`),
+  ],
+);
+
 // ---------- row types ----------
 export type User = typeof users.$inferSelect;
 export type Game = typeof games.$inferSelect;
@@ -391,3 +420,5 @@ export type Session = typeof sessions.$inferSelect;
 export type UserRole = (typeof userRole.enumValues)[number];
 export type OAuthProviderName = (typeof oauthProvider.enumValues)[number];
 export type ReportReason = (typeof reportReason.enumValues)[number];
+export type News = typeof news.$inferSelect;
+export type NewsSeverity = (typeof newsSeverity.enumValues)[number];

@@ -55,6 +55,8 @@ export const CACHE = {
   read: 'public, max-age=60, stale-while-revalidate=300',
   /** Catalogue */
   catalog: 'public, max-age=300, stale-while-revalidate=3600',
+  /** App news: an unpublished announcement must leave clients within a minute (no stale serving) */
+  news: 'public, max-age=60',
   none: 'no-store',
 } as const;
 

@@ -2,7 +2,7 @@ export const meta = {
   title: 'Hub API v3',
   description:
     'Read the SplitScreen.Me hub from your own tools: the catalogue, handlers, versions, downloads, comments and stats. Public, read-only, JSON, no key needed.',
-  updated: '2026-10-12',
+  updated: '2026-11-03',
 };
 
 The hub API is what Nucleus Co-op, the Discord bot and anyone else use to read the hub. It's public and
@@ -43,6 +43,7 @@ read-only: no account, no key, no cookies. Every endpoint answers any origin
 | `GET /genres` | Genres of the games on the hub, with counts |
 | `GET /authors/{username}` | An author and their listed handlers |
 | `GET /stats` | Hub counters |
+| `GET /news` | The announcements the Nucleus Co-op app shows in its ticker: live ones only, critical first, at most 10 (an empty list when there are none) |
 | `GET /health` | `{ "status": "ok" }`, for monitoring |
 
 Lists are paged as `{ items, page, pageSize, total }`. The exact fields of every object are in the

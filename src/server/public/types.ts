@@ -166,3 +166,15 @@ export interface Page<T> {
 }
 
 export const DELETED_USER_NAME = 'Deleted user';
+
+/** An announcement of the desktop app's ticker. Its author is never public. */
+export interface PublicNews {
+  id: string;
+  message: string;
+  url: string | null;
+  severity: 'info' | 'warning' | 'critical';
+  startsAt: Date;
+  endsAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+}

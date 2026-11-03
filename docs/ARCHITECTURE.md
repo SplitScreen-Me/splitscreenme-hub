@@ -66,8 +66,9 @@ Reserved game slugs (shadowed by static segments or kept for later): `genres`, `
 | `/admin/comments` | Latest comments, filters, soft-delete/restore with reason |
 | `/admin/games`, `/admin/games/[id]` | Slug (old slug kept as redirect), Steam app id, featured handler, refresh from IGDB |
 | `/admin/audit` | Audit log, filterable (actor, action, target, date) |
+| `/admin/news`, `/admin/news/new`, `/admin/news/[id]` | App news (admins only): list with Live / Scheduled / Expired / Draft badges, create (draft or published), edit, publish/unpublish, delete; a live preview of the app's ticker line (5.8) |
 
-All of these are `noindex`. `/account`, `/dashboard/**` and `/admin/**` require a session (redirect to `/login?next=`), `/admin/**` requires `moderator` or `admin` (section 6).
+All of these are `noindex`. `/account`, `/dashboard/**` and `/admin/**` require a session (redirect to `/login?next=`), `/admin/**` requires `moderator` or `admin` (section 6); `/admin/audit` and `/admin/news/**` require `admin` (a moderator gets a 404).
 
 ### Route handlers
 
@@ -359,6 +360,28 @@ export const auditLog = pgTable('audit_log', {
   index('audit_log_target_idx').on(t.targetType, t.targetId),
   index('audit_log_actor_idx').on(t.actorId, t.at.desc()),
 ]);
+
+// ---------- app news (added 2026-11-03, migration 0004_news) ----------
+export const newsSeverity = pgEnum('news_severity', ['info', 'warning', 'critical']);
+
+export const news = pgTable('news', {
+  id: text().primaryKey(),                       // newId()
+  message: text().notNull(),                     // one line (line breaks collapsed to spaces), 1..500 chars
+  url: text(),                                   // "Learn more" link: http(s) only, max 2048
+  severity: newsSeverity().notNull().default('info'),
+  published: boolean().notNull().default(false),
+  startsAt: tstz().notNull().defaultNow(),
+  endsAt: tstz(),                                // null = until unpublished
+  createdBy: text().references(() => users.id, { onDelete: 'set null' }), // never exposed by the API
+  createdAt: createdAt(),
+  updatedAt: updatedAt(),
+}, (t) => [
+  index('news_published_starts_idx').on(t.startsAt.desc()).where(sql`published`),
+  check('news_message_length', sql`char_length(message) between 1 and 500`),
+  check('news_message_one_line', sql`message !~ '[\\r\\n]'`),
+  check('news_url', sql`url is null or (url ~* '^https?://' and char_length(url) <= 2048)`),
+  check('news_window', sql`ends_at is null or ends_at > starts_at`),
+]);
 ```
 
 Syntax may need adjusting to the exact Drizzle API; names, types, nullability, defaults and indexes may not.
@@ -374,6 +397,7 @@ Syntax may need adjusting to the exact Drizzle API; names, types, nullability, d
 - **Search** (catalogue, API `q`): split `immutable_unaccent(lower(q))` into at most 5 words; every word must match `games.name_search || ' ' || handlers.title_search || ' ' || lower(users.username)` with `LIKE '%word%'` (trigram indexes serve it). Order: exact game name, game name prefix, `greatest(similarity(name_search, q), similarity(title_search, q))`, then `trend_score`. If nothing matches, fall back to `games.name_search % q` (fuzzy). `search_tsv` serves admin search in descriptions.
 - **Ids**: `newId()` in `src/lib/ids.ts` = 17 chars from Meteor's alphabet `23456789ABCDEFGHJKLMNPQRSTWXYZabcdefghijkmnopqrstuvwxyz`, `crypto.getRandomValues` with rejection sampling. It matches the app's `^[A-Za-z0-9]{1,64}$`.
 - **Slugs**: `slugify(name)` (NFKD, strip accents, lower, `[^a-z0-9]+` to `-`, trim, max 80). Collision with another game: append `-<releaseYear>`, then `-<igdbId>`. Changing a slug inserts the old one into `game_slug_redirects` (308).
+- **App news**: an item is *live* when `published and starts_at <= now() and (ends_at is null or ends_at > now())`; otherwise it is a draft (not published), scheduled (not started) or expired (ended). One predicate, `isLiveNews` / `newsStatus` in `src/lib/news.ts`, shared by the API and the backoffice. News are hard-deleted (the audit entry keeps the text); the author's account going away sets `created_by` to null.
 
 ## 3. Mongo to Postgres migration
 
@@ -382,7 +406,7 @@ The importer reads the Meteor database `hubdb` (Mongo 4.0) and the GridFS bucket
 - Runbook: `scripts/README.md`.
 
 **Modes.**
-- **`--reset`** (with `IMPORT_CONFIRM=ssm-v3`) is the **full replace** used for releases: `TRUNCATE ... RESTART IDENTITY CASCADE` of every table except `audit_log`. Sessions go too, so everyone logs in again.
+- **`--reset`** (with `IMPORT_CONFIRM=ssm-v3`) is the **full replace** used for releases: `TRUNCATE ... RESTART IDENTITY CASCADE` of every table except `audit_log`. Sessions go too, so everyone logs in again. App news (written on v3 only) are **kept**: the cascade would reach them through `news.created_by`, so the reset transaction copies them and puts them back without an author; after the `users` phase, `created_by` is re-linked for the authors the import brings back (imported accounts keep their ids; an account created on v3 is gone, its news stay authorless). The report says `news: kept=<n> authorsRelinked=<m>`.
 - **Without `--reset`** it **upserts**, so a re-run is safe during the beta, while the old hub stays live.
   - Catalogue rows (games, handlers, versions, download days) are refreshed from Mongo, except what v3 owns, read from the audit log:
     - a handler with any `handler.*` or `version.*` entry (owner edit, publish/unpublish, approval or revocation, transfer, deletion, upload, verification), or whose owner is banned or deleted on v3, keeps every v3 column; only its download counter moves;
@@ -573,7 +597,7 @@ Mapping to v3: `_id` -> `id`; `owner`/`ownerName` -> `authorId`/`authorName`; `g
 
 - Every route is wrapped by `withApi(handler, { rateLimit })` and exports `OPTIONS = preflight`.
 - Headers on every response: `Access-Control-Allow-Origin: *`, `Access-Control-Allow-Methods: GET, HEAD, POST, OPTIONS`, `Access-Control-Allow-Headers: Content-Type, If-None-Match`, `Access-Control-Expose-Headers: ETag, Retry-After, Content-Disposition`, `Access-Control-Max-Age: 86400`, `Cross-Origin-Resource-Policy: cross-origin`, `X-Content-Type-Options: nosniff`. Never `Access-Control-Allow-Credentials`.
-- Reads: `ETag` (weak, hash of the payload or of the newest `updated_at`), `304` on `If-None-Match`, `Cache-Control: public, max-age=60, stale-while-revalidate=300` (catalogue: `max-age=300, stale-while-revalidate=3600`).
+- Reads: `ETag` (weak, hash of the payload or of the newest `updated_at`), `304` on `If-None-Match`, `Cache-Control: public, max-age=60, stale-while-revalidate=300` (catalogue: `max-age=300, stale-while-revalidate=3600`; news: `public, max-age=60` with no stale serving, 5.8).
 - Errors: `{ error: { code, message, issues? } }` with `code` in `bad_request` (400, zod issues), `not_found` (404), `rate_limited` (429 + `Retry-After`), `payload_too_large` (413), `internal` (500, no stack).
 - Ids validated with `^[A-Za-z0-9]{1,64}$` before any query.
 
@@ -660,6 +684,7 @@ As built (branch `site/api`): the schemas live in `schemas/handlers.ts`, `commun
 | `GET /genres` | - | `{ items: Genre[] }` | Genres of games with listed handlers |
 | `GET /authors/{username}` | - | `Author` | 404 for deleted or banned users |
 | `GET /stats` | - | `Stats` | Cached 10 min |
+| `GET /news` | - | `{ items: NewsItem[] }` | Live app announcements, critical first, at most 10; `{ items: [] }` when none (5.8). `Cache-Control: public, max-age=60` |
 | `GET, HEAD /health` | - | `{ status: 'ok' }` | Docker healthcheck and app ping; `503` if `select 1` fails within 2 s. Not rate limited |
 | `GET /openapi.json` | - | OpenAPI 3.1 | Built once per process with `OpenApiGeneratorV31`, `servers: [{ url: SITE_URL + '/api/v3' }]`, info version `3.0.0` |
 | `GET /docs` | - | HTML | Swagger UI, assets self-hosted |
@@ -687,10 +712,29 @@ As built (`src/server/reports.ts`): the body is read as JSON whatever its `Conte
 ### 5.7 OpenAPI and Swagger UI
 
 - `src/lib/api/zod.ts` calls `extendZodWithOpenApi(z)` once and re-exports `z`; API schemas import `z` from there only.
-- `src/lib/api/openapi.ts` owns the `OpenAPIRegistry`; each route group registers its paths in `src/lib/api/paths/*.ts`, imported by `openapi.json/route.ts`. Every endpoint documents params, responses (including `ApiError`), headers and tags (`Catalogue`, `Handlers`, `Games`, `Community`, `Stats`, `System`).
+- `src/lib/api/openapi.ts` owns the `OpenAPIRegistry`; each route group registers its paths in `src/lib/api/paths/*.ts`, imported by `openapi.json/route.ts`. Every endpoint documents params, responses (including `ApiError`), headers and tags (`Catalogue`, `Handlers`, `Games`, `Community`, `Stats`, `News`, `System`).
 - Swagger UI: `swagger-ui-dist` copied at `predev`/`prebuild` by `scripts/copy-swagger.mjs` into `public/api-docs/` (gitignored), plus a committed `public/api-docs/init.js` (`SwaggerUIBundle({ url: '/api/v3/openapi.json', dom_id: '#swagger' })`). `/api/v3/docs` returns static HTML referencing them, with its own CSP: `default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'`.
 - The download operation's description says to use `count=false` when trying it out.
 - As built: every operation has an `operationId`; `src/lib/api/paths/overview.ts` adds the introduction (access, format, caching, rate limits, errors, downloads, images) as `info.description` and links the guide `/doc/api` (`externalDocs`). `init.js` sets `validatorUrl: null` (no call to the public validator). A test checks that every `route.ts` under `src/app/api/v3` and each method it exports is documented, and that every `$ref` resolves.
+
+### 5.8 App news
+
+The Nucleus Co-op app shows a one-line announcements ticker (the old WinForms app read `message§learnMoreUrl` from a text file on GitHub, hidden when empty, every 10 minutes). Admins write the announcements in `/admin/news`; the app reads `GET /api/v3/news`. The contract is shared with the app: fields may be added, never renamed.
+
+```ts
+// src/lib/api/schemas/news.ts
+export const NewsItem = z.object({
+  id: Id, message: z.string(),                    // one line of plain text, 1..500 chars
+  url: z.url().nullable(),                        // "Learn more", http(s), max 2048
+  severity: z.enum(['info', 'warning', 'critical']),
+  startsAt: z.iso.datetime(), endsAt: z.iso.datetime().nullable(), updatedAt: z.iso.datetime(),
+}).openapi('NewsItem');
+export const NewsList = z.object({ items: z.array(NewsItem).max(10) }).openapi('NewsList');
+```
+
+- **Live only** (2.3): published, started, not ended. Order: `critical`, `warning`, `info`, then `starts_at desc` (then `created_at desc`, `id`). At most 10. Nothing live is a `200 { items: [] }`. No author, no draft flag, no creation date.
+- **Caching**: `ETag` (weak hash of the payload) and `304`; `Cache-Control: public, max-age=60` without `stale-while-revalidate`, so an unpublished announcement leaves every client within a minute. In-process, `src/server/public/news.ts` caches the published rows that have not ended and start within the next 2 minutes (`news:candidates`, 60 s, tag `news`, invalidated by every backoffice write) and filters them by the clock on each request: a scheduled item goes live, and an item ends, on time even while cached.
+- **Backoffice** (`src/server/private/news.ts`, actions in `src/server/actions/admin.ts`, permission `news.manage`, admin only): create as a draft or published, edit, publish/unpublish, delete (confirmation dialog). The message is normalised to one line (line breaks, tabs and Unicode separators become one space, control characters are dropped) before the 1..500 check; the link must be an absolute http(s) URL without credentials and is stored as its parsed `href`; dates are `datetime-local` values read as UTC (an empty start is now, to the minute; an end must be after the start). The same rules are `CHECK` constraints on the table. The form shows a live preview of the ticker line (`src/components/admin/NewsTicker.tsx`, which imports `src/lib/news.ts` only: no zod in the client bundle). Audit: `news.create`, `news.update` (changed fields), `news.publish`, `news.unpublish`, `news.delete` (with the text).
 
 ## 6. Security
 
@@ -713,7 +757,7 @@ As built (`src/server/reports.ts`): the body is read as JSON whatever its `Conte
 | edit handler, upload version, public/private, soft-delete | | | yes | yes | yes |
 | read private handlers, scripts, manifests | | | own | yes | yes |
 | approve or revoke a handler, verify a version, hide comments, resolve reports, edit games, mark email verified, trusted author flag | | | | yes | yes |
-| ban, change roles, transfer ownership, restore deleted, delete accounts, view audit log | | | | | yes |
+| ban, change roles, transfer ownership, restore deleted, delete accounts, view audit log, manage app news | | | | | yes |
 
 Admins cannot demote or ban themselves; the last admin cannot be demoted; an admin must be demoted before being banned or deleted. Moderators can also restore a comment they hid (not one its author deleted) and soft-delete a version (`version.verify` permission; the newest remaining version becomes current, or the handler goes back to draft). In the backoffice, email addresses are shown to admins only (moderators see confirmed or not); searching users by exact email is admin-only. A username can change once every 30 days (case-only changes are free). Banned users cannot log in (their sessions are deleted); a ban can also unpublish all their handlers (checkbox, audited). Old `admin` maps to `admin`; nobody becomes moderator automatically.
 
@@ -778,7 +822,7 @@ In front of these, nginx limits every request per IP (`deploy/nginx/v3.splitscre
 
 ### 6.6 Audit log (`src/lib/audit.ts`)
 
-`audit({ actor, action, target, details, ip })` inside the same transaction as the change. Closed `AuditAction` union: `auth.password_changed`, `auth.password_reset`, `auth.email_changed`, `auth.oauth_linked`, `auth.oauth_unlinked`, `auth.email_takeover`, `auth.email_released`, `auth.account_deleted`, `handler.create`, `handler.update`, `handler.publish`, `handler.unpublish`, `handler.delete`, `handler.restore`, `handler.approve`, `handler.revoke`, `handler.transfer`, `version.upload`, `version.verify`, `version.unverify`, `version.delete`, `comment.delete`, `comment.restore`, `report.create`, `report.resolve`, `report.dismiss`, `user.role_change`, `user.ban`, `user.unban`, `user.verify_email`, `user.trusted`, `user.delete`, `game.update`, `game.refresh`, `system.import`. No passwords, tokens, emails or raw IPs in `details`. Retention 2 years (purge job sets `ssm.audit_purge`).
+`audit({ actor, action, target, details, ip })` inside the same transaction as the change. Closed `AuditAction` union: `auth.password_changed`, `auth.password_reset`, `auth.email_changed`, `auth.oauth_linked`, `auth.oauth_unlinked`, `auth.email_takeover`, `auth.email_released`, `auth.account_deleted`, `handler.create`, `handler.update`, `handler.publish`, `handler.unpublish`, `handler.delete`, `handler.restore`, `handler.approve`, `handler.revoke`, `handler.transfer`, `version.upload`, `version.verify`, `version.unverify`, `version.delete`, `comment.delete`, `comment.restore`, `report.create`, `report.resolve`, `report.dismiss`, `user.role_change`, `user.ban`, `user.unban`, `user.verify_email`, `user.trusted`, `user.delete`, `game.update`, `game.refresh`, `news.create`, `news.update`, `news.publish`, `news.unpublish`, `news.delete`, `system.import`. No passwords, tokens, emails or raw IPs in `details`. Retention 2 years (purge job sets `ssm.audit_purge`).
 
 ### 6.7 TLS and secrets
 

@@ -14,6 +14,7 @@ const targetHref = (type: string | null, id: string | null) => {
   if (type === 'user') return `/admin/users/${id}`;
   if (type === 'handler') return `/admin/handlers/${id}`;
   if (type === 'game') return `/admin/games/${id}`;
+  if (type === 'news') return `/admin/news/${id}`;
   return null;
 };
 
@@ -71,7 +72,7 @@ export default async function AdminAudit({ searchParams }: { searchParams: Promi
             <span className="form-label">Target type</span>
             <select name="targetType" className="control" defaultValue={sp.targetType ?? ''}>
               <option value="">Any</option>
-              {['user', 'handler', 'version', 'comment', 'report', 'game', 'system'].map((t) => (
+              {['user', 'handler', 'version', 'comment', 'report', 'game', 'news', 'system'].map((t) => (
                 <option key={t} value={t}>
                   {t}
                 </option>

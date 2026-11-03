@@ -11,6 +11,7 @@ const ITEMS = [
   { href: '/admin/comments', label: 'Comments' },
   { href: '/admin/users', label: 'Users' },
   { href: '/admin/games', label: 'Games' },
+  { href: '/admin/news', label: 'App news', adminOnly: true },
   { href: '/admin/audit', label: 'Audit log', adminOnly: true },
 ];
 

@@ -15,6 +15,7 @@ export const API_TAGS = [
   { name: 'Games', description: 'Games and genres.' },
   { name: 'Community', description: 'Comments, authors and reports.' },
   { name: 'Stats', description: 'Hub counters.' },
+  { name: 'News', description: 'Announcements shown in the Nucleus Co-op app.' },
   { name: 'System', description: 'Health and this document.' },
 ] as const;
 

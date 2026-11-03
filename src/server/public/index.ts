@@ -20,3 +20,4 @@ export {
 export { getGameBySlug, isLookupSlug } from './games';
 export { getComments, getAuthor, getTopAuthors, getViewerStars } from './community';
 export { getStats, getGenres, getTrending } from './stats';
+export { getLiveNews } from './news';

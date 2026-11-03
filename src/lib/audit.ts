@@ -41,12 +41,18 @@ export const AUDIT_ACTIONS = [
   'user.delete',
   'game.update',
   'game.refresh',
+  'news.create',
+  'news.update',
+  'news.publish',
+  'news.unpublish',
+  'news.delete',
   'system.import',
 ] as const;
 
 export type AuditAction = (typeof AUDIT_ACTIONS)[number];
 
-export type AuditTargetType = 'user' | 'handler' | 'version' | 'comment' | 'report' | 'game' | 'system';
+export type AuditTargetType =
+  'user' | 'handler' | 'version' | 'comment' | 'report' | 'game' | 'news' | 'system';
 
 export interface AuditEntry {
   /** null for anonymous or system actions */

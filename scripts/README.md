@@ -34,6 +34,7 @@ tsx scripts/import-mongo.ts [--reset] [--igdb] [--skip-files] [--only <phase,...
   - Handlers and versions gone from Mongo, and not created on v3, are soft-deleted and listed (`changed.goneFromMongo*`). Above `max(25, 2 %)` of the source, nothing is deleted and the run fails: check `MONGO_DB`.
   - Accounts and community rows (users, OAuth identities, stars, comments, reports) are only inserted when missing, so what changed on v3 (a new password, a deleted comment) is kept. A star removed on v3 comes back while the user still has it on the old hub.
 - **`--reset`: truncate and reload.** Every table except `audit_log` is emptied first, sessions included, so everyone logs in again. Use this for releases.
+  - **App news are kept.** They are written on v3 only (`/admin/news`), so the reset copies them and puts them back in the same transaction, without their author; after the `users` phase, the author is re-linked when the import brings that account back (imported accounts keep their ids; an account created on v3 is gone, and its news stay without an author). The output says `news: kept=<n> authorsRelinked=<m>`. To start the app's ticker empty, delete the news in the backoffice before or after the import.
 - **`--dry-run`:** reads and maps everything and checks that every GridFS file exists. It writes nothing.
 
 **Phases**, each in its own transaction:

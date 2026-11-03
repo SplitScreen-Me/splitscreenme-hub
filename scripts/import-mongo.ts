@@ -15,7 +15,8 @@
  *             new downloads to the ones counted on v3 (imported_* baselines). Handlers and versions gone
  *             from Mongo are soft-deleted (up to a safety cap). Accounts and community rows (users,
  *             OAuth, stars, comments, reports) are only inserted when missing. Safe to re-run.
- *   --reset   truncate-and-reload: every table except audit_log is emptied first (sessions too).
+ *   --reset   truncate-and-reload: every table except audit_log is emptied first (sessions too); the app
+ *             news (v3 only) are put back, their authors re-linked after the users phase.
  *   --dry-run reads and maps everything, checks the GridFS files exist, writes nothing.
  * Each phase runs in its own transaction. Package files are exported incrementally (a file already on
  * disk with the same GridFS id and size is kept). Output: counts and ids only, never personal data.
@@ -418,15 +419,26 @@ async function run(mdb: MongoDb, db: Db, now: Date) {
   }
 
   // ---- reset ----
+  // App news only exist on v3 (written in the backoffice): they survive the reset. The truncation
+  // reaches them anyway (news.created_by references users, and TRUNCATE ... CASCADE follows every
+  // foreign key), so they are copied first and put back without their author, in the same transaction;
+  // the authors are re-linked after the users phase, for the accounts the import brings back.
+  let newsAuthors: { id: string; createdBy: string }[] = [];
   if (RESET) {
     await phase('reset', () =>
       db.transaction(async (tx) => {
+        const keptNews = await tx.select().from(s.news);
         await tx.execute(sql`
           do $$ declare list text; begin
             select string_agg(quote_ident(tablename), ', ') into list
               from pg_tables where schemaname = 'public' and tablename <> 'audit_log';
             if list is not null then execute 'truncate table ' || list || ' restart identity cascade'; end if;
           end $$;`);
+        for (const part of chunk(keptNews, 500)) {
+          await tx.insert(s.news).values(part.map((n) => ({ ...n, createdBy: null })));
+        }
+        newsAuthors = keptNews.flatMap((n) => (n.createdBy ? [{ id: n.id, createdBy: n.createdBy }] : []));
+        report.details.news = { kept: keptNews.length };
       }),
     );
   }
@@ -483,6 +495,28 @@ async function run(mdb: MongoDb, db: Db, now: Date) {
     report.imported.users = usersPlan.users.length - placeholderIds.length;
     report.imported.placeholderUsers = placeholderIds.length;
     report.imported.oauthAccounts = usersPlan.oauth.length;
+  }
+  // Authors of the news kept by the reset: imported accounts keep their ids, accounts created on v3 are gone.
+  if (RESET) {
+    const relinked = await phase('news', async () => {
+      let n = 0;
+      for (const part of chunk(newsAuthors, 500)) {
+        const values = sql.join(
+          part.map((a) => sql`(${a.id}, ${a.createdBy})`),
+          sql`, `,
+        );
+        const res = await db.execute(sql`
+          update news set created_by = v.created_by
+            from (values ${values}) as v(id, created_by)
+            where news.id = v.id and exists (select 1 from users u where u.id = v.created_by)`);
+        n += res.count;
+      }
+      return n;
+    });
+    report.details.news = { ...report.details.news, authorsRelinked: relinked };
+    const [kept] = await db.select({ n: sql<number>`count(*)::int` }).from(s.news);
+    check('news kept by the reset', report.details.news.kept ?? 0, kept?.n ?? 0);
+    log(`news: ${fmt(report.details.news)}`);
   }
   const pgUserIds = await idSet(db, 'users');
 

@@ -138,6 +138,7 @@ export const TAGS = {
   genres: 'genres',
   authors: 'authors',
   sitemap: 'sitemap',
+  news: 'news',
   handler: (id: string) => `handler:${id}`,
   game: (slug: string) => `game:${slug}`,
   comments: (handlerId: string) => `comments:${handlerId}`,

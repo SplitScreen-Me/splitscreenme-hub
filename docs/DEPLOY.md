@@ -111,7 +111,8 @@ from the container without printing it.
 - **During the beta:** run it without `--reset` (upsert). It adds the new handlers, versions and downloads and keeps what
   was changed on v3.
 - **At release time:** announce a maintenance window, freeze the old hub if possible, back up Postgres, then run it with
-  `--reset`. A reset empties every table except `audit_log`, sessions included, so everyone logs in again.
+  `--reset`. A reset empties every table except `audit_log`, sessions included, so everyone logs in again. The app
+  news (`/admin/news`) are kept: check the `news: kept=` line of the output.
 
 Command, at a quiet hour. `web` is stopped to free memory:
 

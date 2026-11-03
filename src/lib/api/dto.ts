@@ -6,6 +6,7 @@ import type {
   PublicGame,
   PublicHandler,
   PublicHandlerDetail,
+  PublicNews,
   PublicVersion,
   Screenshot,
 } from '@/server/public';
@@ -13,6 +14,7 @@ import { absoluteUrl, apiDownloadUrl, igdbImageUrl, paths } from '../urls';
 import type { AuthorDto, CommentDto } from './schemas/community';
 import type { GameDto, GenreDto, StatsDto } from './schemas/games';
 import type { HandlerDetailDto, HandlerSummaryDto, ScreenshotDto, VersionDto } from './schemas/handlers';
+import type { NewsItemDto } from './schemas/news';
 
 /**
  * Domain types of src/server/public -> API payloads (docs/ARCHITECTURE.md 5.3): ISO dates, absolute URLs,
@@ -177,5 +179,18 @@ export function toStats(s: HubStats): StatsDto {
     members: s.members,
     comments: s.comments,
     generatedAt: iso(s.generatedAt),
+  };
+}
+
+/** No author, no draft state: only what the app shows. */
+export function toNewsItem(n: PublicNews): NewsItemDto {
+  return {
+    id: n.id,
+    message: n.message,
+    url: n.url,
+    severity: n.severity,
+    startsAt: iso(n.startsAt),
+    endsAt: n.endsAt ? iso(n.endsAt) : null,
+    updatedAt: iso(n.updatedAt),
   };
 }

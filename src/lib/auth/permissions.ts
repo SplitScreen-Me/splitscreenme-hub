@@ -24,7 +24,8 @@ export type Action =
   | 'handler.transfer'
   | 'handler.restore'
   | 'user.delete'
-  | 'audit.read';
+  | 'audit.read'
+  | 'news.manage'; // app news: create, edit, publish, delete
 
 export interface Actor {
   id: string;
@@ -54,6 +55,7 @@ const ADMIN: ReadonlySet<Action> = new Set<Action>([
   'handler.restore',
   'user.delete',
   'audit.read',
+  'news.manage',
 ]);
 
 export function can(actor: Actor | null, action: Action, resource: Resource = {}): boolean {

@@ -3,4 +3,5 @@ import './catalogue';
 import './handlers';
 import './community';
 import './games';
+import './news';
 import './system';
